@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { ProgressState, GameState, BattleState, PlayerState } from 'src/reducers'
-import { MobHelper, DungeonHelper, PlayerHelper, BattleHelper } from 'src/helpers'
+import { MobHelper, DungeonHelper, BattleHelper, PlayerHelper } from 'src/helpers'
 import { CharacterItem } from 'src/common/interfaces'
 import { BattleAction } from 'src/actions'
 import ListItem from './ListItem'
@@ -31,6 +31,16 @@ const DescriptionContainer = styled.div`
   border-radius: 4px;
   box-sizing: border-box;
   padding: 12px;
+
+  @media ${mediaQueries.mediumUp} {
+    padding: 24px;
+  }
+`
+
+const SubcaptionContainer = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  margin: 24px 0 12px 0;
 `
 
 const LocationPropertyWrapper = styled.div`
@@ -103,16 +113,28 @@ class BaseSectionLocation extends React.Component<Props> {
     return (
       <DescriptionContainer>
         <LocationPropertyWrapper>
-          <PropertyKey>Current Location:</PropertyKey> <PropertyValue>{this.currentLocationName}</PropertyValue>
+          You are at <strong>{this.currentLocationName}.</strong>
         </LocationPropertyWrapper>
-        <LocationPropertyWrapper>
-          <PropertyKey>Max Mob Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>
-        </LocationPropertyWrapper>
+        <LocationPropertyWrapper>This is a dungeon area.</LocationPropertyWrapper>
       </DescriptionContainer>
     )
   }
 
   private renderDungeon(): JSX.Element | null {
+    return (
+      <React.Fragment>
+        <SubcaptionContainer>Dungeon</SubcaptionContainer>
+        <DescriptionContainer>
+          <LocationPropertyWrapper>
+            <PropertyKey>Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>
+          </LocationPropertyWrapper>
+        </DescriptionContainer>
+        {this.renderMobItems()}
+      </React.Fragment>
+    )
+  }
+
+  private renderMobItems(): JSX.Element | null {
     if (!this.props.game.mobs || this.props.game.mobs.length === 0) {
       return null
     }
@@ -131,12 +153,14 @@ class BaseSectionLocation extends React.Component<Props> {
     const subheading = `(Lvl ${mob.currentLevel.toLocaleString()})`
     const blurb = ''
 
+    let ctaType = 'blue'
     let ctaLabel = 'Fight'
     if (BattleHelper.isEngaging(this.props.battle) && this.props.battle.targetMob!.id === mob.id) {
+      ctaType = 'disabled'
       ctaLabel = 'In Combat'
     }
 
-    return <ListItem key={mob.id} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(mob)} />
+    return <ListItem ctaType={ctaType as any} key={mob.id} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(mob)} />
   }
 }
 

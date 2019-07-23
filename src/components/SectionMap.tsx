@@ -75,21 +75,24 @@ class BaseSectionMap extends React.Component<Props> {
 
   private renderItem(dungeon: DungeonItem, isAvailable: boolean): JSX.Element {
     const heading = dungeon.name
-    const subheading = `(Lvl ${dungeon.mobBaseLevel.toLocaleString()})`
-    let blurb = ''
+    const subheading = `(Dungeon Lvl ${dungeon.mobBaseLevel.toLocaleString()})`
+    let blurb = dungeon.flavor
     if (!isAvailable) {
       blurb = `(Player level requirement: ${dungeon.levelRequired.toLocaleString()})`
     }
 
+    let ctaType = 'blue'
     let ctaLabel = 'Travel To'
     if (this.props.game.currentLocation === dungeon.key) {
-      ctaLabel = 'Current Location'
+      ctaType = 'disabled'
+      ctaLabel = `You're Here`
     }
     if (!isAvailable) {
-      ctaLabel = 'Cannot Go Yet'
+      ctaType = 'disabled'
+      ctaLabel = 'N/A'
     }
 
-    return <ListItem key={dungeon.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(dungeon)} />
+    return <ListItem ctaType={ctaType as any} key={dungeon.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(dungeon)} />
   }
 }
 

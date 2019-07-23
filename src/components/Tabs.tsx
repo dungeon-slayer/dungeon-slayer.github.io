@@ -22,7 +22,7 @@ const TabWrapper = styled.div`
   flex-grow: 1;
   box-sizing: border-box;
   border-radius: 4px;
-  padding: 24px;
+  padding: 18px 6px;
   cursor: pointer;
   background-color: #afd5df;
   transition: background-color 0.3s;

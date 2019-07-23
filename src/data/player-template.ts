@@ -5,6 +5,7 @@ export interface PlayerTemplate {
   attackLevelModifier: number
   defenseBase: number
   defenseLevelModifier: number
+  chargeTimeMs: number
 }
 
 export const playerTemplate: PlayerTemplate = {
@@ -13,5 +14,6 @@ export const playerTemplate: PlayerTemplate = {
   attackBase: 10,
   attackLevelModifier: 1.8,
   defenseBase: 6,
-  defenseLevelModifier: 1.6,
+  defenseLevelModifier: 1.8,
+  chargeTimeMs: 1500,
 }

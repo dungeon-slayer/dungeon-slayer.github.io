@@ -65,7 +65,7 @@ class BaseSectionInventory extends React.Component<Props> {
 
   private renderItems(): JSX.Element | null {
     if (!this.props.player.inventoryItems || this.props.player.inventoryItems.length === 0) {
-      return <div>No inventory item available...</div>
+      return <div>You don't have anything in your inventory...</div>
     }
 
     return <ConsumableContainer>{this.props.player.inventoryItems.map((item) => this.renderItem(item))}</ConsumableContainer>
@@ -81,10 +81,11 @@ class BaseSectionInventory extends React.Component<Props> {
 
     const heading = consumable.name
     const subheading = `(×${inventoryItem.quantity.toLocaleString()})`
-    const blurb = ''
+    const blurb = consumable.flavor
+    const ctaType = 'blue'
     const ctaLabel = 'Use'
 
-    return <ListItem key={consumable.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(consumable)} />
+    return <ListItem ctaType={ctaType} key={consumable.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(consumable)} />
   }
 }
 

@@ -14,4 +14,8 @@ export class LocalstorageDelegate {
       return undefined
     }
   }
+
+  static removeProgress() {
+    localStorage.removeItem('gameProgress')
+  }
 }

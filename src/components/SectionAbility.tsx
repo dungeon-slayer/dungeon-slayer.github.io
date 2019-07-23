@@ -80,14 +80,16 @@ class BaseSectionAbility extends React.Component<Props> {
 
     const heading = ability.name
     const subheading = ''
-    const blurb = ''
+    const blurb = ability.flavor
 
+    let ctaType = 'red'
     let ctaLabel = 'Disabled'
     if (AbilityHelper.isActivated(this.props.player, abilityKey)) {
+      ctaType = 'green'
       ctaLabel = 'Enabled'
     }
 
-    return <ListItem key={ability.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(ability)} />
+    return <ListItem ctaType={ctaType as any} key={ability.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(ability)} />
   }
 }
 

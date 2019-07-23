@@ -15,6 +15,10 @@ export class PlayerHelper {
     return floor(playerTemplate.defenseBase + playerTemplate.defenseLevelModifier * level)
   }
 
+  static getChargeTimeMs(): number {
+    return playerTemplate.chargeTimeMs
+  }
+
   static getMobQueueSize(level: number): number {
     return floor(5 + Math.log(level))
   }

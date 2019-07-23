@@ -45,7 +45,7 @@ interface Props {
   appendRandomMob: () => Promise<void>
   performAutoBattle: () => Promise<void>
   performBattle: () => Promise<void>
-  appendLog: (message: string) => Promise<void>
+  // appendLog: (message: string) => Promise<void>
   truncateLogs: () => Promise<void>
   saveProgress: () => Promise<void>
   loadProgress: () => Promise<void>
@@ -61,7 +61,7 @@ class BaseViewGame extends React.Component<Props> {
     truncateLogIntervalId = setInterval(() => this.props.truncateLogs(), EnvironmentDelegate.TruncateLogIntervalMs)
     saveProgressIntervalId = setInterval(() => this.props.saveProgress(), EnvironmentDelegate.SaveProgressIntervalMs)
 
-    this.props.appendLog('You started the game.')
+    // this.props.appendLog('You started the game.')
   }
 
   componentWillUnmount() {
@@ -134,9 +134,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(BattleAction.performBattle())
     },
 
-    appendLog: async (message: string): Promise<void> => {
-      dispatch(TraceAction.appendLog(message))
-    },
+    // appendLog: async (message: string): Promise<void> => {
+    //   dispatch(TraceAction.appendLog(message))
+    // },
 
     truncateLogs: async (): Promise<void> => {
       dispatch(TraceAction.truncateLogs())

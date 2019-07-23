@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { filter, cloneDeep } from 'lodash'
-import * as Bows from 'bows'
+// import * as Bows from 'bows'
 import { gameConstants } from './constants/game'
 import { StoreAction, StoreState } from 'src/store/interface'
 import { GameState } from 'src/reducers'
@@ -13,7 +13,7 @@ import { LocalstorageDelegate, EnvironmentDelegate } from 'src/delegates'
 import { playerConstants } from './constants'
 
 const version = require('../../package.json').version // tslint:disable-line
-const log = Bows('GameAction')
+// const log = Bows('GameAction')
 
 export class GameAction {
   static setActiveSection(section: string): StoreAction {
@@ -87,18 +87,18 @@ export class GameAction {
 
   static travelTo(dungeon: DungeonItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      log('travelTo triggered.')
+      // log('travelTo triggered.')
 
       // State properties
       const state: StoreState = getState()
 
       if (state.game.currentLocation === dungeon.key) {
-        log('Already at this location.')
+        // log('Already at this location.')
         return
       }
 
       if (state.player.character!.currentLevel < dungeon.levelRequired) {
-        log('Has not met level requirement.')
+        // log('Has not met level requirement.')
         return
       }
 
@@ -107,7 +107,7 @@ export class GameAction {
         return
       }
 
-      await dispatch(TraceAction.appendLog(`Travelled to <strong>${dungeon.name}</strong>.`))
+      await dispatch(TraceAction.appendLog(`You are now at <strong>${dungeon.name}</strong>.`))
 
       const payload: GameState = {
         currentLocation: dungeon.key,
@@ -123,7 +123,7 @@ export class GameAction {
 
   static saveProgress(): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      log('saveProgress triggered.')
+      // log('saveProgress triggered.')
 
       // State properties
       const state: StoreState = getState()
@@ -143,15 +143,18 @@ export class GameAction {
 
   static loadProgress(): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      log('loadProgress triggered.')
-
-      const saveProgress = LocalstorageDelegate.getProgress()
-      if (!saveProgress || !saveProgress.state) {
-        return
-      }
+      // log('loadProgress triggered.')
 
       // State properties
       const state: StoreState = getState()
+      const dungeon = DungeonHelper.getItemByKey(state.game.currentLocation)!
+
+      const saveProgress = LocalstorageDelegate.getProgress()
+      if (!saveProgress || !saveProgress.state) {
+        await dispatch(TraceAction.appendLog('Many heros ventured into the depth of unknown seeking for legendary artifacts but none have succeeded. You consider yourself ready for the challenge and begin your adventure.'))
+        await dispatch(TraceAction.appendLog(`You are now at <strong>${dungeon.name}</strong>.`))
+        return
+      }
 
       if (saveProgress.state.game) {
         let newGameState = cloneDeep(state.game)
@@ -170,6 +173,17 @@ export class GameAction {
         }
         await dispatch({ type: playerConstants.UPDATE, payload: newPlayerState })
       }
+
+      await dispatch(TraceAction.appendLog(`After a long rest, you slowly open you eyes and continue on your adventure`))
+      await dispatch(TraceAction.appendLog(`You are now at <strong>${dungeon.name}</strong>.`))
+    }
+  }
+
+  static restart(): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // log('restart triggered.')
+
+      LocalstorageDelegate.removeProgress()
     }
   }
 }

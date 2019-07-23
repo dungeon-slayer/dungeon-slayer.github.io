@@ -36,19 +36,27 @@ const Subheading = styled.div`
 
 const BlurbWrapper = styled.div`
   color: #666666;
+  line-height 1.1;
 `
 
-const OperatorWrapper = styled.div``
+const OperatorWrapper = styled.div`
+  margin-left: 12px;
+`
 
 interface Props {
   heading: string
   subheading: string
   blurb: string
+  ctaType: 'default' | 'blue' | 'red' | 'disabled'
   ctaLabel: string
   onClick: any
 }
 
 export default class ListItem extends React.Component<Props> {
+  static defaultProps = {
+    ctaType: 'default',
+  }
+
   constructor(props: Props) {
     super(props)
   }
@@ -77,7 +85,7 @@ export default class ListItem extends React.Component<Props> {
           {!!this.props.blurb && this.renderBlurb()}
         </ContentWrapper>
         <OperatorWrapper>
-          <Button label={this.props.ctaLabel} onClick={this.clickHandler.bind(this)} />
+          <Button type={this.props.ctaType} label={this.props.ctaLabel} onClick={this.clickHandler.bind(this)} />
         </OperatorWrapper>
       </ComponentWrapper>
     )

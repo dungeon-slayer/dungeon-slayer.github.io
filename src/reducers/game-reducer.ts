@@ -21,7 +21,7 @@ const initialState: GameState = {
   mobs: [],
   nextMobGenerateTs: undefined,
   clockSpeedModifier: EnvironmentDelegate.DefaultGameSpeed,
-  currentLocation: 'mandalia-cave',
+  currentLocation: 'abbotsford-cave',
 }
 
 export function game(state = initialState, action: any): GameState {

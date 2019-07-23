@@ -1,5 +1,5 @@
 // import * as Bows from 'bows'
-import { playerConstants } from 'src/actions'
+import { playerConstants, battleConstants } from 'src/actions'
 import { StoreAction } from 'src/store/interface'
 import { PlayerHelper, RandomHelper } from 'src/helpers'
 import { CharacterItem, InventoryItem } from 'src/common/interfaces'
@@ -23,7 +23,7 @@ const initialState: PlayerState = {
     currentHp: PlayerHelper.getHp(1),
     attack: PlayerHelper.getAttack(1),
     defense: PlayerHelper.getDefense(1),
-    chargeTimeMs: 2000,
+    chargeTimeMs: PlayerHelper.getChargeTimeMs(),
     nextTurnTs: undefined,
     currentExp: 0,
     rewardExp: 0,
@@ -45,6 +45,9 @@ export function player(state = initialState, action: any): PlayerState {
 
     case playerConstants.LEVEL_UP:
       return caseLevelUp(state, action)
+
+    case battleConstants.CLOSURE:
+      return caseBattleClosure(state, action)
 
     default:
       return state
@@ -72,6 +75,14 @@ function caseLevelUp(state: PlayerState, action: StoreAction): PlayerState {
   newState.character!.currentHp = PlayerHelper.getHp(newState.character!.currentLevel)
   newState.character!.attack = PlayerHelper.getAttack(newState.character!.currentLevel)
   newState.character!.defense = PlayerHelper.getDefense(newState.character!.currentLevel)
+
+  return newState
+}
+
+function caseBattleClosure(state: PlayerState, action: StoreAction): PlayerState {
+  const newState: PlayerState = { ...state }
+
+  newState.character!.nextTurnTs = undefined
 
   return newState
 }

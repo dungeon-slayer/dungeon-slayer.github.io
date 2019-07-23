@@ -46,7 +46,7 @@ export class PlayerAction {
       }
 
       if (BattleHelper.isEngaging(state.battle)) {
-        await dispatch(TraceAction.appendLog(`Cannot use [${consumable.name}] during a battle.`))
+        await dispatch(TraceAction.appendLog(`Cannot use <strong>${consumable.name}</strong> during a battle.`))
         return
       }
 
@@ -58,7 +58,7 @@ export class PlayerAction {
         payload.inventoryItems = PlayerHelper.consumeItem(state.player.inventoryItems!, consumable.key)
       }
 
-      await dispatch(TraceAction.appendLog(`You used [${consumable.name}].`))
+      await dispatch(TraceAction.appendLog(`You used <strong>${consumable.name}</strong>.`))
       await dispatch({ type: playerConstants.UPDATE, payload })
     }
   }

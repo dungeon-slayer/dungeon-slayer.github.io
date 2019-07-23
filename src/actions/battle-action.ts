@@ -23,12 +23,12 @@ export class BattleAction {
       const state: StoreState = getState()
 
       if (BattleHelper.isEngaging(state.battle)) {
-        log('Already currently engaged with a battle.')
+        await dispatch(TraceAction.appendLog(`You are already in the middle of a battle.`))
         return
       }
 
       if (state.player.character!.currentHp <= 0) {
-        await dispatch(TraceAction.appendLog(`You do not have enough HP to start a battle!`))
+        await dispatch(TraceAction.appendLog(`You do not have enough HP to start a battle.`))
         return
       }
 
@@ -55,7 +55,7 @@ export class BattleAction {
         payload: playerPayload,
       })
 
-      await dispatch(TraceAction.appendLog(`You now engaging in a battle with <strong>${MobHelper.getMobNameByKey(mob.key)}</strong>.`))
+      await dispatch(TraceAction.appendLog(`You now engaging in a battle with <strong>${MobHelper.getMobNameByKey(mob.key)}</strong> (Lvl ${mob.currentLevel}).`))
     }
   }
 
@@ -159,7 +159,7 @@ export class BattleAction {
         await BattleAction.dispatchUpdateCharacter(dispatch, attackCharacter)
 
         if (attackCharacter.currentExp >= PlayerHelper.getExpRequiredToLevelUp(attackCharacter.currentLevel)) {
-          await dispatch(TraceAction.appendLog(`You have leveled up.`))
+          await dispatch(TraceAction.appendLog(`You have now reached level ${attackCharacter.currentLevel + 1}.`))
           await dispatch({ type: playerConstants.LEVEL_UP })
         }
       }
@@ -188,7 +188,7 @@ export class BattleAction {
     if (character.key === 'player') {
       await dispatch({ type: battleConstants.CLOSURE })
       await dispatch(PlayerAction.disableAllAbilities())
-      await dispatch(TraceAction.appendLog(`You lost the battle!`))
+      await dispatch(TraceAction.appendLog(`You have been defeated.`))
     } else {
       await dispatch({ type: battleConstants.CLOSURE })
       await dispatch(GameAction.removeMob(character.id))
