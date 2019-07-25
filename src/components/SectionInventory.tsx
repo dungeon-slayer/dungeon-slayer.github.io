@@ -27,6 +27,12 @@ const CaptionContainer = styled.div`
   }
 `
 
+const DescriptionContainer = styled.div``
+
+const DescriptionWrapper = styled.div`
+  margin: 4px 0;
+`
+
 const ConsumableContainer = styled.div`
   margin-top: 24px;
 `
@@ -45,15 +51,16 @@ class BaseSectionInventory extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  operatorClickHandler(consumable: ConsumableItem) {
+  async operatorClickHandler(consumable: ConsumableItem) {
     log('operatorClickHandler triggered. consumable:', consumable)
-    this.props.useConsumable(consumable)
+    await this.props.useConsumable(consumable)
   }
 
   render(): JSX.Element {
     return (
       <ComponentWrapper>
         {this.renderCaption()}
+        {this.renderDescription()}
         {this.renderItems()}
       </ComponentWrapper>
     )
@@ -61,6 +68,13 @@ class BaseSectionInventory extends React.Component<Props> {
 
   private renderCaption(): JSX.Element {
     return <CaptionContainer>Inventory</CaptionContainer>
+  }
+  private renderDescription(): JSX.Element {
+    return (
+      <DescriptionContainer>
+        <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
+      </DescriptionContainer>
+    )
   }
 
   private renderItems(): JSX.Element | null {

@@ -53,7 +53,7 @@ export class PlayerAction {
       // Act
       const payload: PlayerState = {}
       if (consumable.key === 'potion') {
-        const HEAL_VALUE = 30
+        const HEAL_VALUE = 60
         payload.character = CharacterHelper.applyHeal(state.player.character!, HEAL_VALUE)
         payload.inventoryItems = PlayerHelper.consumeItem(state.player.inventoryItems!, consumable.key)
       }

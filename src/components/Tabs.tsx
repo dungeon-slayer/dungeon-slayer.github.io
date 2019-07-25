@@ -89,10 +89,10 @@ class BaseTabs extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  tabClickHandler(sectionKey: string) {
+  async tabClickHandler(sectionKey: string) {
     // log('tabClickHandler triggered. sectionKey:', sectionKey)
     if (this.props.game.activeSection !== sectionKey) {
-      this.props.setActiveSection(sectionKey)
+      await this.props.setActiveSection(sectionKey)
     }
   }
 

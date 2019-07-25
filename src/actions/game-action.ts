@@ -147,12 +147,12 @@ export class GameAction {
 
       // State properties
       const state: StoreState = getState()
-      const dungeon = DungeonHelper.getItemByKey(state.game.currentLocation)!
 
       const saveProgress = LocalstorageDelegate.getProgress()
       if (!saveProgress || !saveProgress.state) {
+        const initDungeon = DungeonHelper.getItemByKey(state.game.currentLocation)!
         await dispatch(TraceAction.appendLog('Many heros ventured into the depth of unknown seeking for legendary artifacts but none have succeeded. You consider yourself ready for the challenge and begin your adventure.'))
-        await dispatch(TraceAction.appendLog(`You are now at <strong>${dungeon.name}</strong>.`))
+        await dispatch(TraceAction.appendLog(`You are now at <strong>${initDungeon.name}</strong>.`))
         return
       }
 
@@ -174,8 +174,9 @@ export class GameAction {
         await dispatch({ type: playerConstants.UPDATE, payload: newPlayerState })
       }
 
+      const loadedDungeon = DungeonHelper.getItemByKey(saveProgress.state.game.currentLocation)!
       await dispatch(TraceAction.appendLog(`After a long rest, you slowly open you eyes and continue on your adventure`))
-      await dispatch(TraceAction.appendLog(`You are now at <strong>${dungeon.name}</strong>.`))
+      await dispatch(TraceAction.appendLog(`You are now at <strong>${loadedDungeon.name}</strong>.`))
     }
   }
 

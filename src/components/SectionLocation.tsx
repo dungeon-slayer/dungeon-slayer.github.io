@@ -5,11 +5,12 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { ProgressState, GameState, BattleState, PlayerState } from 'src/reducers'
-import { MobHelper, DungeonHelper, BattleHelper, PlayerHelper } from 'src/helpers'
+import { MobHelper, DungeonHelper, BattleHelper, PlayerHelper, HtmlParseHelper } from 'src/helpers'
 import { CharacterItem } from 'src/common/interfaces'
 import { BattleAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
+import { DungeonItem } from 'src/data'
 
 const log = Bows('SectionLocation')
 
@@ -26,24 +27,15 @@ const CaptionContainer = styled.div`
   }
 `
 
-const DescriptionContainer = styled.div`
-  border: solid 1px #93c6d4;
-  border-radius: 4px;
-  box-sizing: border-box;
-  padding: 12px;
-
-  @media ${mediaQueries.mediumUp} {
-    padding: 24px;
-  }
-`
-
 const SubcaptionContainer = styled.div`
   font-size: 20px;
   font-weight: bold;
   margin: 24px 0 12px 0;
 `
 
-const LocationPropertyWrapper = styled.div`
+const DescriptionContainer = styled.div``
+
+const DescriptionWrapper = styled.div`
   margin: 4px 0;
 `
 
@@ -69,19 +61,6 @@ interface Props {
 }
 
 class BaseSectionLocation extends React.Component<Props> {
-  get hasDungeon(): boolean {
-    const dungeonItem = DungeonHelper.getItemByKey(this.props.game.currentLocation)
-    return !!dungeonItem
-  }
-
-  get currentLocationName(): string {
-    const dungeonItem = DungeonHelper.getItemByKey(this.props.game.currentLocation)
-    if (!dungeonItem) {
-      return 'Unknown Location'
-    }
-    return dungeonItem.name
-  }
-
   componentDidMount() {
     log('componentDidMount triggered.')
   }
@@ -90,9 +69,31 @@ class BaseSectionLocation extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  operatorClickHandler(mob: CharacterItem) {
+  get dungeon(): DungeonItem | undefined {
+    return DungeonHelper.getItemByKey(this.props.game.currentLocation)
+  }
+
+  get hasDungeon(): boolean {
+    return !!this.dungeon
+  }
+
+  get currentLocationName(): string {
+    if (!this.dungeon) {
+      return 'Unknown Location'
+    }
+    return this.dungeon.name
+  }
+
+  get currentLocationFlavorText(): string {
+    if (!this.dungeon) {
+      return ''
+    }
+    return this.dungeon.flavor
+  }
+
+  async operatorClickHandler(mob: CharacterItem) {
     log('operatorClickHandler triggered. mob:', mob)
-    this.props.engageBattle(mob)
+    await this.props.engageBattle(mob)
   }
 
   render(): JSX.Element {
@@ -109,13 +110,11 @@ class BaseSectionLocation extends React.Component<Props> {
     return <CaptionContainer>Location</CaptionContainer>
   }
 
-  private renderDescription(): JSX.Element | null {
+  private renderDescription(): JSX.Element {
+    const sentences = [`You are at <strong>${this.currentLocationName}</strong>.`, this.currentLocationFlavorText, `Be on your guard as this place is filled with hostile mobs.`]
     return (
       <DescriptionContainer>
-        <LocationPropertyWrapper>
-          You are at <strong>{this.currentLocationName}.</strong>
-        </LocationPropertyWrapper>
-        <LocationPropertyWrapper>This is a dungeon area.</LocationPropertyWrapper>
+        <DescriptionWrapper>{HtmlParseHelper.parse(sentences.join(' '))}</DescriptionWrapper>
       </DescriptionContainer>
     )
   }
@@ -125,9 +124,9 @@ class BaseSectionLocation extends React.Component<Props> {
       <React.Fragment>
         <SubcaptionContainer>Dungeon</SubcaptionContainer>
         <DescriptionContainer>
-          <LocationPropertyWrapper>
+          <DescriptionWrapper>
             <PropertyKey>Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>
-          </LocationPropertyWrapper>
+          </DescriptionWrapper>
         </DescriptionContainer>
         {this.renderMobItems()}
       </React.Fragment>

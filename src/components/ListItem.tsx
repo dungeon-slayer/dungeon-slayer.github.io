@@ -8,6 +8,7 @@ const log = Bows('ListItem')
 const ComponentWrapper = styled.div`
   margin: 8px 0;
   padding: 12px 12px;
+  min-height: calc(60px - 24px);
   transition: background-color 0.3s;
   background-color: #d9ebf0;
   border-radius: 4px;

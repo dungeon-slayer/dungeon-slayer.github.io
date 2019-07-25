@@ -68,9 +68,9 @@ class BaseSectionSettings extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  resetHandler() {
+  async resetHandler() {
     log('resetHandler triggered.')
-    this.props.restartGame()
+    await this.props.restartGame()
   }
 
   render(): JSX.Element {

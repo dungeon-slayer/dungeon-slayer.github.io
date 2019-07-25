@@ -4,16 +4,14 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import { css } from 'glamor'
 import ScrollToBottom from 'react-scroll-to-bottom'
-import { Parser } from 'html-to-react'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { TraceState } from 'src/reducers/trace-reducer'
 import { LogItem } from 'src/common/interfaces'
-import { DateHelper } from 'src/helpers'
+import { DateHelper, HtmlParseHelper } from 'src/helpers'
 import { RandomHelper } from '../helpers/random-helper'
 
 const log = Bows('SectionLog')
-const parser = new Parser()
 
 const ComponentWrapper = styled.div`
   padding: 24px;
@@ -75,7 +73,7 @@ class BaseSectionLog extends React.Component<Props> {
   private renderItem(item: LogItem): JSX.Element {
     const key = item.timestamp + '_' + RandomHelper.generateId()
     const timeLabel = `[${DateHelper.getTimeLabel(item.timestamp)}]`
-    const message = parser.parse(item.message)
+    const message = HtmlParseHelper.parse(item.message)
 
     return (
       <LogWrapper key={key}>

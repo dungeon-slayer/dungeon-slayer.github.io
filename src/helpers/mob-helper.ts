@@ -50,7 +50,8 @@ export class MobHelper {
   }
 
   static getRewardExpValue(level: number, modifier: number): number {
-    return floor((2 + level) * Math.pow(1.39, level) * modifier)
+    const rewardExp = 2 + level + Math.pow(1.39, level)
+    return floor(rewardExp * modifier)
   }
 
   static getMobNameByKey(key: string, defaultLabel = 'Unknown'): string {

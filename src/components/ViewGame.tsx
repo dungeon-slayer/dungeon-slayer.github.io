@@ -41,11 +41,9 @@ const SectionWrapper = styled.div``
 interface Props {
   progress: ProgressState
   game: GameState
-  setActiveSection: (section: string) => Promise<void>
   appendRandomMob: () => Promise<void>
   performAutoBattle: () => Promise<void>
   performBattle: () => Promise<void>
-  // appendLog: (message: string) => Promise<void>
   truncateLogs: () => Promise<void>
   saveProgress: () => Promise<void>
   loadProgress: () => Promise<void>
@@ -60,12 +58,11 @@ class BaseViewGame extends React.Component<Props> {
     tickIntervalId = setInterval(() => this.tick(), GameHelper.getTickIntervalMs(this.props.game, EnvironmentDelegate.TickIntervalMs))
     truncateLogIntervalId = setInterval(() => this.props.truncateLogs(), EnvironmentDelegate.TruncateLogIntervalMs)
     saveProgressIntervalId = setInterval(() => this.props.saveProgress(), EnvironmentDelegate.SaveProgressIntervalMs)
-
-    // this.props.appendLog('You started the game.')
   }
 
   componentWillUnmount() {
     log('componentWillUnmount triggered.')
+
     clearInterval(tickIntervalId)
     clearInterval(truncateLogIntervalId)
     clearInterval(saveProgressIntervalId)
@@ -100,11 +97,11 @@ class BaseViewGame extends React.Component<Props> {
     )
   }
 
-  private tick() {
+  private async tick() {
     // log('tick triggered.')
-    this.props.appendRandomMob()
-    this.props.performAutoBattle()
-    this.props.performBattle()
+    await this.props.appendRandomMob()
+    await this.props.performAutoBattle()
+    await this.props.performBattle()
   }
 }
 
@@ -118,10 +115,6 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    setActiveSection: async (section: string): Promise<void> => {
-      dispatch(GameAction.setActiveSection(section))
-    },
-
     appendRandomMob: async (): Promise<void> => {
       dispatch(GameAction.appendRandomMob())
     },
@@ -133,10 +126,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
     performBattle: async (): Promise<void> => {
       dispatch(BattleAction.performBattle())
     },
-
-    // appendLog: async (message: string): Promise<void> => {
-    //   dispatch(TraceAction.appendLog(message))
-    // },
 
     truncateLogs: async (): Promise<void> => {
       dispatch(TraceAction.truncateLogs())

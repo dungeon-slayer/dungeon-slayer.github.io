@@ -2,7 +2,7 @@
   "name": "dungeon-slayer",
   "homepage": "https://dungeon-slayer.github.io/",
   "description": "",
-  "version": "0.3.0",
+  "version": "0.3.1-dev",
   "private": true,
   "author": "",
   "scripts": {

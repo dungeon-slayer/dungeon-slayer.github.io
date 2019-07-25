@@ -155,7 +155,7 @@ export class BattleAction {
       // Experience and level up mechanic
       if (attackCharacter.key === 'player') {
         attackCharacter.currentExp += defendCharacter.rewardExp
-        await dispatch(TraceAction.appendLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defendCharacter.key)}</strong>, gained <strong>${defendCharacter.rewardExp}</strong> experience.`))
+        await dispatch(TraceAction.appendLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defendCharacter.key)}</strong>, gained <strong>${defendCharacter.rewardExp.toLocaleString()}</strong> experience.`))
         await BattleAction.dispatchUpdateCharacter(dispatch, attackCharacter)
 
         if (attackCharacter.currentExp >= PlayerHelper.getExpRequiredToLevelUp(attackCharacter.currentLevel)) {

@@ -26,6 +26,12 @@ const CaptionContainer = styled.div`
   }
 `
 
+const DescriptionContainer = styled.div``
+
+const DescriptionWrapper = styled.div`
+  margin: 4px 0;
+`
+
 const AbilityContainer = styled.div`
   margin-top: 24px;
 `
@@ -44,15 +50,16 @@ class BaseSectionAbility extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  operatorClickHandler(ability: AbilityItem) {
+  async operatorClickHandler(ability: AbilityItem) {
     log('operatorClickHandler triggered. ability:', ability)
-    this.props.toggleAbility(ability)
+    await this.props.toggleAbility(ability)
   }
 
   render(): JSX.Element {
     return (
       <ComponentWrapper>
         {this.renderCaption()}
+        {this.renderDescription()}
         {this.renderItems()}
       </ComponentWrapper>
     )
@@ -60,6 +67,13 @@ class BaseSectionAbility extends React.Component<Props> {
 
   private renderCaption(): JSX.Element {
     return <CaptionContainer>Ability</CaptionContainer>
+  }
+  private renderDescription(): JSX.Element {
+    return (
+      <DescriptionContainer>
+        <DescriptionWrapper>Abilities you have acquired throughout the adventure.</DescriptionWrapper>
+      </DescriptionContainer>
+    )
   }
 
   private renderItems(): JSX.Element | null {

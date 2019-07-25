@@ -26,7 +26,15 @@ const CaptionContainer = styled.div`
   }
 `
 
-const DungeonContainer = styled.div``
+const DescriptionContainer = styled.div``
+
+const DescriptionWrapper = styled.div`
+  margin: 4px 0;
+`
+
+const DungeonContainer = styled.div`
+  margin-top: 24px;
+`
 
 interface Props {
   player: PlayerState
@@ -43,15 +51,16 @@ class BaseSectionMap extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  operatorClickHandler(dungeon: DungeonItem) {
+  async operatorClickHandler(dungeon: DungeonItem) {
     log('operatorClickHandler triggered. dungeon:', dungeon)
-    this.props.travelTo(dungeon)
+    await this.props.travelTo(dungeon)
   }
 
   render(): JSX.Element {
     return (
       <ComponentWrapper>
         {this.renderCaption()}
+        {this.renderDescription()}
         {this.renderDungeons()}
       </ComponentWrapper>
     )
@@ -59,6 +68,14 @@ class BaseSectionMap extends React.Component<Props> {
 
   private renderCaption(): JSX.Element {
     return <CaptionContainer>Map</CaptionContainer>
+  }
+
+  private renderDescription(): JSX.Element {
+    return (
+      <DescriptionContainer>
+        <DescriptionWrapper>These are the regions you have found so far.</DescriptionWrapper>
+      </DescriptionContainer>
+    )
   }
 
   private renderDungeons(): JSX.Element {
@@ -76,7 +93,7 @@ class BaseSectionMap extends React.Component<Props> {
   private renderItem(dungeon: DungeonItem, isAvailable: boolean): JSX.Element {
     const heading = dungeon.name
     const subheading = `(Dungeon Lvl ${dungeon.mobBaseLevel.toLocaleString()})`
-    let blurb = dungeon.flavor
+    let blurb = ''
     if (!isAvailable) {
       blurb = `(Player level requirement: ${dungeon.levelRequired.toLocaleString()})`
     }
