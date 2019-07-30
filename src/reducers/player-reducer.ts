@@ -2,15 +2,18 @@
 import { playerConstants, battleConstants } from 'src/actions'
 import { StoreAction } from 'src/store/interface'
 import { PlayerHelper, RandomHelper } from 'src/helpers'
-import { CharacterItem, InventoryItem } from 'src/common/interfaces'
+import { CharacterItem, AvailableItem } from 'src/common/interfaces'
 
 // const log = Bows('playerReducer')
 
 export interface PlayerState {
   character?: CharacterItem
-  availableAbilities?: string[]
-  activeAbilities?: string[]
-  inventoryItems?: InventoryItem[]
+  availableConsumables?: AvailableItem[]
+  availableDrops?: AvailableItem[]
+  gold?: number
+  mobKillStats?: AvailableItem[]
+  itemUsedStats?: AvailableItem[]
+  questDeliveredStats?: string[]
 }
 
 const initialState: PlayerState = {
@@ -27,15 +30,19 @@ const initialState: PlayerState = {
     nextTurnTs: undefined,
     currentExp: 0,
     rewardExp: 0,
+    activeAbilities: [],
   },
-  availableAbilities: ['auto-battle'],
-  activeAbilities: [],
-  inventoryItems: [
+  availableConsumables: [
     {
-      consumableKey: 'potion',
+      key: 'potion',
       quantity: 10,
     },
   ],
+  availableDrops: [],
+  gold: 0,
+  mobKillStats: [],
+  itemUsedStats: [],
+  questDeliveredStats: [],
 }
 
 export function player(state = initialState, action: any): PlayerState {

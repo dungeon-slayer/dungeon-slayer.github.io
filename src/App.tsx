@@ -36,7 +36,7 @@ class App extends React.Component<Props> {
       <Router history={history}>
         <React.Fragment>
           <Switch>
-            <Route exact path="/" component={ViewGame} />
+            <Route exact path="/:dataCode?" component={ViewGame} />
             <Route component={ViewNotFound} />
           </Switch>
         </React.Fragment>

@@ -5,6 +5,10 @@ export class EnvironmentDelegate {
     return CastHelper.toBoolean(process.env.REACT_APP_REDUX_LOGGER_ENABLED)
   }
 
+  static get SaveVersion(): number {
+    return CastHelper.toNumber(process.env.REACT_APP_SAVE_VERSION)
+  }
+
   static get DefaultGameSpeed(): number {
     return CastHelper.toNumber(process.env.REACT_APP_DEFAULT_GAME_SPEED)
   }

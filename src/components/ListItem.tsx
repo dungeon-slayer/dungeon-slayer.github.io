@@ -7,8 +7,8 @@ const log = Bows('ListItem')
 
 const ComponentWrapper = styled.div`
   margin: 8px 0;
-  padding: 12px 12px;
-  min-height: calc(60px - 24px);
+  padding: 8px 12px;
+  min-height: calc(64px - 16px);
   transition: background-color 0.3s;
   background-color: #d9ebf0;
   border-radius: 4px;
@@ -35,11 +35,29 @@ const Subheading = styled.div`
   display: inline-block;
 `
 
-const BlurbWrapper = styled.div`
-  color: #666666;
+const DescriptionWrapper = styled.div``
+
+const FlavorWrapper = styled.div`
+  color: #838383;
   line-height 1.1;
+  margin: 4px 0;
 `
 
+const ConversationWrapper = styled.div`
+  color: #838383;
+  line-height 1.1;
+  margin: 6px 0;
+  font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
+  letter-spacing: 0;
+  font-style: italic;
+`
+
+const ExplanationWrapper = styled.div`
+  color: #1692bb;
+  // font-style: italic;
+  line-height 1.1;
+  margin: 4px 0;
+`
 const OperatorWrapper = styled.div`
   margin-left: 12px;
 `
@@ -47,7 +65,9 @@ const OperatorWrapper = styled.div`
 interface Props {
   heading: string
   subheading: string
-  blurb: string
+  flavor: string
+  conversation: string
+  explanations: string[]
   ctaType: 'default' | 'blue' | 'red' | 'disabled'
   ctaLabel: string
   onClick: any
@@ -56,6 +76,11 @@ interface Props {
 export default class ListItem extends React.Component<Props> {
   static defaultProps = {
     ctaType: 'default',
+    ctaLabel: 'Click',
+    flavor: '',
+    conversation: '',
+    explanations: [],
+    onClick: undefined,
   }
 
   constructor(props: Props) {
@@ -68,6 +93,10 @@ export default class ListItem extends React.Component<Props> {
 
   componentWillUnmount() {
     log('componentWillUnmount triggered.')
+  }
+
+  get displayCta(): boolean {
+    return !!this.props.onClick
   }
 
   clickHandler(e: Event) {
@@ -83,16 +112,32 @@ export default class ListItem extends React.Component<Props> {
           <HeadingWrapper>
             <Heading>{this.props.heading}</Heading> <Subheading>{this.props.subheading}</Subheading>
           </HeadingWrapper>
-          {!!this.props.blurb && this.renderBlurb()}
+          {this.renderDescription()}
         </ContentWrapper>
-        <OperatorWrapper>
-          <Button type={this.props.ctaType} label={this.props.ctaLabel} onClick={this.clickHandler.bind(this)} />
-        </OperatorWrapper>
+        {this.displayCta && this.renderOperator()}
       </ComponentWrapper>
     )
   }
 
-  private renderBlurb(): JSX.Element {
-    return <BlurbWrapper>{this.props.blurb}</BlurbWrapper>
+  private renderDescription(): JSX.Element {
+    return (
+      <DescriptionWrapper>
+        {this.props.flavor && <FlavorWrapper>{this.props.flavor}</FlavorWrapper>}
+        {this.props.conversation && <ConversationWrapper>"{this.props.conversation}"</ConversationWrapper>}
+        {this.props.explanations.map((explanation) => this.renderExplanation(explanation))}
+      </DescriptionWrapper>
+    )
+  }
+
+  private renderExplanation(explanation: string): JSX.Element {
+    return <ExplanationWrapper>{explanation}</ExplanationWrapper>
+  }
+
+  private renderOperator(): JSX.Element {
+    return (
+      <OperatorWrapper>
+        <Button type={this.props.ctaType} label={this.props.ctaLabel} onClick={this.clickHandler.bind(this)} />
+      </OperatorWrapper>
+    )
   }
 }

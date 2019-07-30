@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { PlayerState } from 'src/reducers'
-import { AbilityHelper } from 'src/helpers'
+import { AbilityHelper, PlayerHelper } from 'src/helpers'
 import { AbilityItem } from 'src/data'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
@@ -34,6 +34,10 @@ const DescriptionWrapper = styled.div`
 
 const AbilityContainer = styled.div`
   margin-top: 24px;
+`
+
+const NoAbilityContainer = styled(AbilityContainer)`
+  color: #dc0073;
 `
 
 interface Props {
@@ -77,11 +81,13 @@ class BaseSectionAbility extends React.Component<Props> {
   }
 
   private renderItems(): JSX.Element | null {
-    if (!this.props.player.availableAbilities || this.props.player.availableAbilities.length === 0) {
-      return <div>No ability available...</div>
+    const availableAbilities = PlayerHelper.getAvailableAbilityKeys(this.props.player)
+
+    if (availableAbilities.length === 0) {
+      return <NoAbilityContainer>You do not have any abilities available.</NoAbilityContainer>
     }
 
-    return <AbilityContainer>{this.props.player.availableAbilities.map((key) => this.renderItem(key))}</AbilityContainer>
+    return <AbilityContainer>{availableAbilities.map((key) => this.renderItem(key))}</AbilityContainer>
   }
 
   private renderItem(abilityKey: string): JSX.Element | null {
@@ -94,16 +100,16 @@ class BaseSectionAbility extends React.Component<Props> {
 
     const heading = ability.name
     const subheading = ''
-    const blurb = ability.flavor
+    const flavor = ability.flavor
 
     let ctaType = 'red'
-    let ctaLabel = 'Disabled'
-    if (AbilityHelper.isActivated(this.props.player, abilityKey)) {
+    let ctaLabel = 'Off'
+    if (AbilityHelper.isActivated(this.props.player, ability.key)) {
       ctaType = 'green'
-      ctaLabel = 'Enabled'
+      ctaLabel = 'On'
     }
 
-    return <ListItem ctaType={ctaType as any} key={ability.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(ability)} />
+    return <ListItem ctaType={ctaType as any} key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(ability)} />
   }
 }
 

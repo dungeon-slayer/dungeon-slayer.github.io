@@ -4,9 +4,9 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { DungeonItem } from 'src/data'
+import { LocationItem } from 'src/data'
 import { PlayerState, GameState } from 'src/reducers'
-import { DungeonHelper } from 'src/helpers'
+import { LocationHelper } from 'src/helpers'
 import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
@@ -32,14 +32,14 @@ const DescriptionWrapper = styled.div`
   margin: 4px 0;
 `
 
-const DungeonContainer = styled.div`
+const LocationContainer = styled.div`
   margin-top: 24px;
 `
 
 interface Props {
   player: PlayerState
   game: GameState
-  travelTo: (dungeon: DungeonItem) => Promise<void>
+  travelTo: (location: LocationItem) => Promise<void>
 }
 
 class BaseSectionMap extends React.Component<Props> {
@@ -51,9 +51,9 @@ class BaseSectionMap extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async operatorClickHandler(dungeon: DungeonItem) {
-    log('operatorClickHandler triggered. dungeon:', dungeon)
-    await this.props.travelTo(dungeon)
+  async operatorClickHandler(location: LocationItem) {
+    log('operatorClickHandler triggered. location:', location)
+    await this.props.travelTo(location)
   }
 
   render(): JSX.Element {
@@ -61,7 +61,7 @@ class BaseSectionMap extends React.Component<Props> {
       <ComponentWrapper>
         {this.renderCaption()}
         {this.renderDescription()}
-        {this.renderDungeons()}
+        {this.renderLocations()}
       </ComponentWrapper>
     )
   }
@@ -78,38 +78,40 @@ class BaseSectionMap extends React.Component<Props> {
     )
   }
 
-  private renderDungeons(): JSX.Element {
-    const availableDungeons = DungeonHelper.getAvailableItems(this.props.player.character!.currentLevel)
-    const nextDungeon = DungeonHelper.getNextUnavailableItem(this.props.player.character!.currentLevel)
+  private renderLocations(): JSX.Element {
+    const availableLocations = LocationHelper.getAvailableItems(this.props.player.character!.currentLevel)
+    const nextLocation = LocationHelper.getNextUnavailableItem(this.props.player.character!.currentLevel)
 
     return (
-      <DungeonContainer>
-        {availableDungeons.map((item) => this.renderItem(item, true))}
-        {nextDungeon && this.renderItem(nextDungeon, false)}
-      </DungeonContainer>
+      <LocationContainer>
+        {availableLocations.map((item) => this.renderItem(item, true))}
+        {nextLocation && this.renderItem(nextLocation, false)}
+      </LocationContainer>
     )
   }
 
-  private renderItem(dungeon: DungeonItem, isAvailable: boolean): JSX.Element {
-    const heading = dungeon.name
-    const subheading = `(Dungeon Lvl ${dungeon.mobBaseLevel.toLocaleString()})`
-    let blurb = ''
-    if (!isAvailable) {
-      blurb = `(Player level requirement: ${dungeon.levelRequired.toLocaleString()})`
-    }
+  private renderItem(location: LocationItem, isAvailable: boolean): JSX.Element {
+    const heading = location.name
+    let subheading = ''
 
+    if (LocationHelper.hasDungeonByKey(location.key)) {
+      subheading = `(Dungeon Lvl ${location.dungeon!.mobLevelBase.toLocaleString()})`
+    }
+    let flavor = ''
+    if (!isAvailable) {
+      flavor = `(Player level requirement: ${location.levelRequired.toLocaleString()})`
+    }
     let ctaType = 'blue'
     let ctaLabel = 'Travel To'
-    if (this.props.game.currentLocation === dungeon.key) {
+    if (this.props.game.currentLocation === location.key) {
       ctaType = 'disabled'
       ctaLabel = `You're Here`
-    }
-    if (!isAvailable) {
+    } else if (!isAvailable) {
       ctaType = 'disabled'
       ctaLabel = 'N/A'
     }
 
-    return <ListItem ctaType={ctaType as any} key={dungeon.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(dungeon)} />
+    return <ListItem ctaType={ctaType as any} key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(location)} />
   }
 }
 
@@ -123,8 +125,8 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    travelTo: async (dungeon: DungeonItem): Promise<void> => {
-      await dispatch(GameAction.travelTo(dungeon))
+    travelTo: async (location: LocationItem): Promise<void> => {
+      await dispatch(GameAction.travelTo(location))
     },
   }
 }

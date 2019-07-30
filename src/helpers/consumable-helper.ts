@@ -10,4 +10,12 @@ export class ConsumableHelper {
     const matchedItem = find(consumables, (item) => item.key === key)
     return matchedItem
   }
+
+  static getNameByKey(key: string | undefined, defaultLabel = 'Unknown'): string {
+    const item = ConsumableHelper.getItemByKey(key)
+    if (!item) {
+      return defaultLabel
+    }
+    return item.name
+  }
 }

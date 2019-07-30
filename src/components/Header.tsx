@@ -12,8 +12,6 @@ const log = Bows('Header')
 const ComponentWrapper = styled.div`
   padding: 0 24px;
   height: 60px;
-  font-size: 16px;
-  font-weight: bold;
   display: flex;
   align-items: center;
 `
@@ -22,12 +20,24 @@ const CaptionWrapper = styled.div`
   flex-grow: 1;
 `
 
+const GameTitle = styled.div`
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+`
+
+const GameVersion = styled.div`
+  display: inline-block;
+  margin-left: 6px;
+  color: #93c6d4;
+`
+
 const SocialWrapper = styled.div`
   a {
     display: flex;
     font-size: 24px;
     padding: 6px;
-    color: #666666;
+    color: #838383;
     transition: opacity 0.3s;
 
     &:hover {
@@ -48,7 +58,10 @@ class BaseHeader extends React.Component {
   render(): JSX.Element {
     return (
       <ComponentWrapper>
-        <CaptionWrapper>Dungeon Slayer (v{version})</CaptionWrapper>
+        <CaptionWrapper>
+          <GameTitle>Dungeon Slayer</GameTitle>
+          <GameVersion>(v{version})</GameVersion>
+        </CaptionWrapper>
         <SocialWrapper>
           <a href="https://github.com/dungeon-slayer/dungeon-slayer.github.io/tree/develop" target="_blank">
             <FaGithub />

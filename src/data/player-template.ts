@@ -1,19 +1,19 @@
 export interface PlayerTemplate {
   hpBase: number
-  hpLevelModifier: number
+  hpLevelMultiplier: number
   attackBase: number
-  attackLevelModifier: number
+  attackLevelMultiplier: number
   defenseBase: number
-  defenseLevelModifier: number
+  defenseLevelMultiplier: number
   chargeTimeMs: number
 }
 
 export const playerTemplate: PlayerTemplate = {
   hpBase: 180,
-  hpLevelModifier: 20,
+  hpLevelMultiplier: 20,
   attackBase: 10,
-  attackLevelModifier: 1.8,
+  attackLevelMultiplier: 1.8,
   defenseBase: 6,
-  defenseLevelModifier: 1.8,
+  defenseLevelMultiplier: 1.8,
   chargeTimeMs: 1500,
 }

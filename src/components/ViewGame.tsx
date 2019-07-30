@@ -36,9 +36,13 @@ const SectionContainer = styled.div`
   margin-top: 24px;
 `
 
-const SectionWrapper = styled.div``
+const SectionWrapper = styled.div`
+  padding-bottom: 48px;
+`
 
 interface Props {
+  match: any
+  location: Location
   progress: ProgressState
   game: GameState
   appendRandomMob: () => Promise<void>
@@ -47,13 +51,14 @@ interface Props {
   truncateLogs: () => Promise<void>
   saveProgress: () => Promise<void>
   loadProgress: () => Promise<void>
+  applyDataCode: (dataCode: string) => Promise<void>
 }
 
 class BaseViewGame extends React.Component<Props> {
   componentDidMount() {
     log('componentDidMount triggered.')
 
-    this.props.loadProgress()
+    this.initLoading()
 
     tickIntervalId = setInterval(() => this.tick(), GameHelper.getTickIntervalMs(this.props.game, EnvironmentDelegate.TickIntervalMs))
     truncateLogIntervalId = setInterval(() => this.props.truncateLogs(), EnvironmentDelegate.TruncateLogIntervalMs)
@@ -103,6 +108,22 @@ class BaseViewGame extends React.Component<Props> {
     await this.props.performAutoBattle()
     await this.props.performBattle()
   }
+
+  private async initLoading() {
+    const { dataCode } = this.props.match.params
+    if (!dataCode) {
+      // Standard loading
+      this.props.loadProgress()
+      return
+    }
+
+    // Act on data code
+    log('params:', this.props.match.params)
+    this.props.applyDataCode(dataCode)
+
+    // Force refresh page to clean the dataCode from URL
+    window.location.replace('/')
+  }
 }
 
 function mapStateToProps(state: StoreState) {
@@ -137,6 +158,10 @@ function mapDispatchToProps(dispatch: Dispatch) {
 
     loadProgress: async (): Promise<void> => {
       dispatch(GameAction.loadProgress())
+    },
+
+    applyDataCode: async (dataCode: string): Promise<void> => {
+      dispatch(GameAction.applyDataCode(dataCode))
     },
   }
 }

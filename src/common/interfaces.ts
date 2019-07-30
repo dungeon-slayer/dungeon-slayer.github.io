@@ -15,21 +15,25 @@ export interface CharacterItem {
   nextTurnTs: number | undefined // Timestamp in ms
   currentExp: number
   rewardExp: number
+  activeAbilities?: string[]
 }
+
+export type LogType = 'normal' | 'battle' | 'lore' | 'travel' | 'consume' | 'shop'
 
 export interface LogItem {
   timestamp: number
+  type: LogType
   message: string
 }
 
-export interface InventoryItem {
-  consumableKey: string
+export interface AvailableItem {
+  key: string
   quantity: number
 }
 
 export type IconComponent = React.ComponentType<SvgIconProps>
 
-export interface SaveProgressItem {
+export interface GameSaveItem {
   appVersion: string
   saveVersion: number
   saveTs: number
@@ -37,4 +41,38 @@ export interface SaveProgressItem {
     game: GameState
     player: PlayerState
   }
+}
+
+export interface PriceMultiplierItem {
+  key: string
+  multiplier: number
+}
+
+export interface QuestItem {
+  key: string
+  name: string
+  conversation: string
+  requestItems: AvailableItem[]
+  rewardItems: AvailableItem[]
+  prerequisiteQuests: string[]
+}
+
+export interface SelectItem {
+  value: string
+  label: string
+}
+
+export interface DungeonTemplateItem {
+  mobKeys: string[]
+
+  mobLevelBase: number
+  mobLevelHalfRange: number
+  mobLevelSkew: number // 1 for standard, 0.5 for skew to right, 2 for skew to left
+}
+
+export interface CharacterEffectItem {
+  hpModifier?: number
+  attackMultiplier?: number
+  chargeTimeMultiplier?: number
+  gainAbilities?: string[]
 }

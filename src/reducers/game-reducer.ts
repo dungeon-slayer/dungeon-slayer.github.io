@@ -11,7 +11,7 @@ export interface GameState {
   activeSection?: string
   mobs?: CharacterItem[]
   nextMobGenerateTs?: number
-  clockSpeedModifier?: number
+  clockSpeedMultiplier?: number
   currentLocation?: string
 }
 
@@ -20,7 +20,7 @@ const initialState: GameState = {
   activeSection: 'location',
   mobs: [],
   nextMobGenerateTs: undefined,
-  clockSpeedModifier: EnvironmentDelegate.DefaultGameSpeed,
+  clockSpeedMultiplier: EnvironmentDelegate.DefaultGameSpeed,
   currentLocation: 'abbotsford-cave',
 }
 

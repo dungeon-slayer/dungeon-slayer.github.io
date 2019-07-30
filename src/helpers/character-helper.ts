@@ -1,6 +1,8 @@
-import { find } from 'lodash'
-import { CharacterItem } from 'src/common/interfaces'
+import { find, cloneDeep, floor } from 'lodash'
+import { CharacterItem, CharacterEffectItem } from 'src/common/interfaces'
 import { mobTemplates } from 'src/data'
+import { AbilityHelper } from './ability-helper'
+import { GameState } from 'src/reducers'
 
 export class CharacterHelper {
   static isCharacterTurn(character: CharacterItem): boolean {
@@ -12,13 +14,22 @@ export class CharacterHelper {
     return val < 0 ? 0 : val
   }
 
-  static applyHeal(character: CharacterItem, healValue: number): CharacterItem {
-    let modifiedHp = character.currentHp + healValue
-    if (modifiedHp > character.maxHp) {
-      modifiedHp = character.maxHp
+  static updateConsumableEffect(character: CharacterItem, effect: CharacterEffectItem): CharacterItem {
+    const characterCopy = cloneDeep(character)
+
+    if (effect.hpModifier) {
+      characterCopy.currentHp += effect.hpModifier
     }
-    character.currentHp = modifiedHp
-    return character
+
+    // Normalize
+    if (characterCopy.currentHp > characterCopy.maxHp) {
+      characterCopy.currentHp = characterCopy.maxHp
+    }
+    if (characterCopy.currentHp < 0) {
+      characterCopy.currentHp = 0
+    }
+
+    return characterCopy
   }
 
   static getName(character: CharacterItem, defaultLabel = 'Unknown'): string {
@@ -32,5 +43,56 @@ export class CharacterHelper {
     }
 
     return matchedMobTemplate.name
+  }
+
+  static hasActiveAbility(character: CharacterItem, abilityKey: string): boolean {
+    return !!find(character.activeAbilities, (aa) => aa === abilityKey)
+  }
+
+  static getAttackMultiplier(character: CharacterItem): number {
+    let multiplier = 1
+
+    if (!character.activeAbilities) {
+      return multiplier
+    }
+
+    for (const activeAbilityKey of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
+      if (!!targetAbility && targetAbility.effect.attackMultiplier) {
+        multiplier += targetAbility.effect.attackMultiplier - 1
+      }
+    }
+
+    return multiplier
+  }
+
+  static getNextTurnTimestamp(character: CharacterItem, game: GameState): number {
+    const baseTs = character.nextTurnTs ? character.nextTurnTs : Date.now()
+    const baseMultiplier = game.clockSpeedMultiplier ? game.clockSpeedMultiplier : 1
+    const chargeTime = CharacterHelper.getCharacterChargeTime(character)
+    const incrementMs = floor(chargeTime / baseMultiplier)
+    return baseTs + incrementMs
+  }
+
+  static getCharacterChargeTime(character: CharacterItem): number {
+    const multiplier = CharacterHelper.getChargeTimeMultiplier(character)
+    return character.chargeTimeMs * multiplier
+  }
+
+  static getChargeTimeMultiplier(character: CharacterItem): number {
+    let multiplier = 1
+
+    if (!character.activeAbilities) {
+      return multiplier
+    }
+
+    for (const activeAbilityKey of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
+      if (!!targetAbility && targetAbility.effect.chargeTimeMultiplier) {
+        multiplier += targetAbility.effect.chargeTimeMultiplier - 1
+      }
+    }
+
+    return multiplier
   }
 }

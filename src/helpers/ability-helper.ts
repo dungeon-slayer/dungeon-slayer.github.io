@@ -13,11 +13,11 @@ export class AbilityHelper {
   }
 
   static isActivated(player: PlayerState, abilityKey: string): boolean {
-    if (!player.activeAbilities) {
+    if (!player.character!.activeAbilities) {
       return false
     }
 
-    const targetAbilityKey = find(player.activeAbilities, (key) => key === abilityKey)
+    const targetAbilityKey = find(player.character!.activeAbilities, (key) => key === abilityKey)
     return !!targetAbilityKey
   }
 }

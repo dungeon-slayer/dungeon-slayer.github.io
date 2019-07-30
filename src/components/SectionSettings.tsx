@@ -4,10 +4,13 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { PlayerState } from 'src/reducers'
+import { PlayerState, GameState } from 'src/reducers'
 import { mediaQueries } from 'src/constants'
 import Button from './Button'
 import { GameAction } from 'src/actions'
+import Select from './Select'
+import { SelectItem } from 'src/common/interfaces'
+import { CastHelper } from 'src/helpers'
 
 const log = Bows('SectionSettings')
 
@@ -47,7 +50,7 @@ const ConfigHeader = styled.div`
 `
 
 const ConfigBlurb = styled.div`
-  color: #666666;
+  color: #838383;
   line-height: 1.1;
   margin-bottom: 6px;
 `
@@ -55,7 +58,9 @@ const ConfigBlurb = styled.div`
 const ConfigOperator = styled.div``
 
 interface Props {
+  game: GameState
   player: PlayerState
+  setGameSpeed: (clockSpeedMultiplier: number) => Promise<void>
   restartGame: () => Promise<void>
 }
 
@@ -66,6 +71,13 @@ class BaseSectionSettings extends React.Component<Props> {
 
   componentWillUnmount() {
     log('componentWillUnmount triggered.')
+  }
+
+  async gameSpeedChangeHandler(e: Event) {
+    log('gameSpeedChangeHandler triggered. e:', e)
+    const { value } = e.target as any
+    const valueNumber = CastHelper.toNumber(value)
+    this.props.setGameSpeed(valueNumber)
   }
 
   async resetHandler() {
@@ -89,27 +101,60 @@ class BaseSectionSettings extends React.Component<Props> {
   private renderContent(): JSX.Element {
     return (
       <ConfigContainer>
-        <ConfigWrapper>
-          <ConfigHeader>Reset the game</ConfigHeader>
-          <ConfigBlurb>All the saved progress will be wiped out.</ConfigBlurb>
-          <ConfigOperator>
-            <Button type="red" label="Reset" onClick={() => this.resetHandler()} />
-          </ConfigOperator>
-        </ConfigWrapper>
+        {this.renderGameSpeed()}
+        {this.renderResetGame()}
       </ConfigContainer>
+    )
+  }
+
+  private renderGameSpeed(): JSX.Element {
+    const clockSpeedMultiplierText = this.props.game.clockSpeedMultiplier!.toString()
+
+    // prettier-ignore
+    const gameSpeedOptions: SelectItem[] = [
+      { value: '1', label: 'Speed ×1' },
+      { value: '2', label: 'Speed ×2' },
+      { value: '3', label: 'Speed ×3' },
+    ]
+
+    return (
+      <ConfigWrapper>
+        <ConfigHeader>Game speed</ConfigHeader>
+        <ConfigBlurb>Change the speed at which your game runs.</ConfigBlurb>
+        <ConfigOperator>
+          <Select selectedValue={clockSpeedMultiplierText} options={gameSpeedOptions} onChange={(e: Event) => this.gameSpeedChangeHandler(e)} />
+        </ConfigOperator>
+      </ConfigWrapper>
+    )
+  }
+
+  private renderResetGame(): JSX.Element {
+    return (
+      <ConfigWrapper>
+        <ConfigHeader>Reset the game</ConfigHeader>
+        <ConfigBlurb>All the saved progress will be wiped out.</ConfigBlurb>
+        <ConfigOperator>
+          <Button type="red" label="Reset" onClick={() => this.resetHandler()} />
+        </ConfigOperator>
+      </ConfigWrapper>
     )
   }
 }
 
 function mapStateToProps(state: StoreState) {
-  const { player } = state
+  const { game, player } = state
   return {
+    game,
     player,
   }
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
+    setGameSpeed: async (clockSpeedMultiplier: number): Promise<void> => {
+      await dispatch(GameAction.setGameSpeed(clockSpeedMultiplier))
+    },
+
     restartGame: async (): Promise<void> => {
       await dispatch(GameAction.restart())
       window.location.replace('/')

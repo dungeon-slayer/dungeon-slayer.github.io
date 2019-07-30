@@ -1,16 +1,57 @@
 import { Dispatch } from 'redux'
-import { filter } from 'lodash'
+import { filter, find, cloneDeep } from 'lodash'
 import * as Bows from 'bows'
-import { AbilityItem, ConsumableItem } from 'src/data'
+import { AbilityItem, ConsumableItem, DropItem } from 'src/data'
 import { StoreAction, StoreState } from 'src/store/interface'
 import { AbilityHelper, BattleHelper, PlayerHelper, CharacterHelper } from 'src/helpers'
 import { TraceAction } from './trace-action'
 import { PlayerState } from 'src/reducers'
 import { playerConstants } from './constants'
+import { CharacterItem } from 'src/common/interfaces'
 
 const log = Bows('PlayerAction')
 
 export class PlayerAction {
+  static trackAWin(mob: CharacterItem): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const payload: PlayerState = {
+        mobKillStats: state.player.mobKillStats || [],
+      }
+
+      const targetMobKillItem = find(payload.mobKillStats!, (mk) => mk.key === mob.key)
+      if (targetMobKillItem) {
+        targetMobKillItem.quantity += 1
+      } else {
+        payload.mobKillStats!.push({ key: mob.key, quantity: 1 })
+      }
+
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
+  static trackConsumption(consumable: ConsumableItem): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const payload: PlayerState = {
+        itemUsedStats: state.player.itemUsedStats || [],
+      }
+
+      const targetUsedItem = find(payload.itemUsedStats!, (iu) => iu.key === consumable.key)
+      if (targetUsedItem) {
+        targetUsedItem.quantity += 1
+      } else {
+        payload.itemUsedStats!.push({ key: consumable.key, quantity: 1 })
+      }
+
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
   static toggleAbility(ability: AbilityItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       log('toggleAbility triggered.')
@@ -18,7 +59,7 @@ export class PlayerAction {
       // State properties
       const state: StoreState = getState()
 
-      let modifiedActiveAbilities: string[] = state.player.activeAbilities || []
+      let modifiedActiveAbilities: string[] = state.player.character!.activeAbilities || []
       if (AbilityHelper.isActivated(state.player, ability.key)) {
         modifiedActiveAbilities = filter(modifiedActiveAbilities, (key) => key !== ability.key)
         await dispatch(TraceAction.appendLog(`Disabled <strong>${ability.name}</strong> ability.`))
@@ -27,44 +68,80 @@ export class PlayerAction {
         await dispatch(TraceAction.appendLog(`Enabled <strong>${ability.name}</strong> ability.`))
       }
 
-      const payload: PlayerState = { activeAbilities: modifiedActiveAbilities }
+      const payload: PlayerState = {
+        character: {
+          ...state.player.character!,
+          activeAbilities: modifiedActiveAbilities,
+        },
+      }
       dispatch({ type: playerConstants.UPDATE, payload })
     }
   }
 
   static useConsumable(consumable: ConsumableItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      log('toggleAbility triggered.')
+      // log('useConsumable triggered.')
 
       // State properties
       const state: StoreState = getState()
 
-      const inventoryItem = PlayerHelper.getInventoryItem(state.player.inventoryItems!, consumable.key)
-      if (!inventoryItem) {
+      const availableConsumable = PlayerHelper.getAvailableItemByKey(state.player.availableConsumables!, consumable.key)
+      if (!availableConsumable) {
         // Don't have such item in inventory
         return
       }
 
       if (BattleHelper.isEngaging(state.battle)) {
-        await dispatch(TraceAction.appendLog(`Cannot use <strong>${consumable.name}</strong> during a battle.`))
+        await dispatch(TraceAction.appendConsumelLog(`Cannot use <strong>${consumable.name}</strong> during a battle.`))
         return
       }
 
       // Act
       const payload: PlayerState = {}
-      if (consumable.key === 'potion') {
-        const HEAL_VALUE = 60
-        payload.character = CharacterHelper.applyHeal(state.player.character!, HEAL_VALUE)
-        payload.inventoryItems = PlayerHelper.consumeItem(state.player.inventoryItems!, consumable.key)
-      }
+      payload.character = CharacterHelper.updateConsumableEffect(state.player.character!, consumable.effect)
 
-      await dispatch(TraceAction.appendLog(`You used <strong>${consumable.name}</strong>.`))
+      payload.availableConsumables = PlayerHelper.reducerAvailableItem(state.player.availableConsumables!, consumable.key)
+      await dispatch(TraceAction.appendConsumelLog(`You used <strong>${consumable.name}</strong>.`))
+      await dispatch(PlayerAction.trackConsumption(consumable))
       await dispatch({ type: playerConstants.UPDATE, payload })
     }
   }
 
-  static disableAllAbilities(): StoreAction {
-    const payload: PlayerState = { activeAbilities: [] }
-    return { type: playerConstants.UPDATE, payload }
+  static obtainDrop(drop: DropItem): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // log('obtainDrop triggered.')
+
+      // State properties
+      const state: StoreState = getState()
+
+      const payload: PlayerState = {
+        availableDrops: cloneDeep(state.player.availableDrops),
+      }
+
+      const matchedAvailableDrop = find(payload.availableDrops!, (item) => item.key === drop.key)
+      if (matchedAvailableDrop) {
+        matchedAvailableDrop.quantity += 1
+      } else {
+        payload.availableDrops!.push({ key: drop.key, quantity: 1 })
+      }
+
+      await dispatch(TraceAction.appendLog(`You obtained <strong>${drop.name}</strong>.`))
+      await dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
+  static disableAllAbilities(): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const payload: PlayerState = {
+        character: {
+          ...state.player.character!,
+          activeAbilities: [],
+        },
+      }
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
   }
 }

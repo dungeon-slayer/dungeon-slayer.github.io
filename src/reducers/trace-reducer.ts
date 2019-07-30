@@ -1,4 +1,4 @@
-import { take } from 'lodash'
+import { takeRight } from 'lodash'
 // import * as Bows from 'bows'
 import { LogItem } from 'src/common/interfaces'
 import { traceConstants } from 'src/actions'
@@ -43,7 +43,7 @@ function caseAppendLog(state: TraceState, action: StoreAction): TraceState {
 function caseTruncateLogs(state: TraceState, action: StoreAction): TraceState {
   const size: number = (action.payload as any).size
 
-  const newLogs = take(state.logs, size)
+  const newLogs = takeRight(state.logs, size)
   const newState: TraceState = {
     ...state,
     logs: newLogs,

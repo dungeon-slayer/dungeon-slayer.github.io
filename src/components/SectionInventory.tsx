@@ -4,10 +4,9 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { ConsumableItem } from 'src/data'
+import { ConsumableItem, DropItem } from 'src/data'
 import { PlayerState } from 'src/reducers'
-import { InventoryItem } from 'src/common/interfaces'
-import { ConsumableHelper } from 'src/helpers'
+import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
@@ -27,13 +26,27 @@ const CaptionContainer = styled.div`
   }
 `
 
+const SubcaptionContainer = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  margin: 24px 0 12px 0;
+`
+
 const DescriptionContainer = styled.div``
 
 const DescriptionWrapper = styled.div`
   margin: 4px 0;
 `
 
+const NoContentWrapper = styled(DescriptionWrapper)`
+  color: #dc0073;
+`
+
 const ConsumableContainer = styled.div`
+  margin-top: 24px;
+`
+
+const DropContainer = styled.div`
   margin-top: 24px;
 `
 
@@ -60,8 +73,8 @@ class BaseSectionInventory extends React.Component<Props> {
     return (
       <ComponentWrapper>
         {this.renderCaption()}
-        {this.renderDescription()}
-        {this.renderItems()}
+        {this.renderConsumables()}
+        {this.renderDrops()}
       </ComponentWrapper>
     )
   }
@@ -69,37 +82,77 @@ class BaseSectionInventory extends React.Component<Props> {
   private renderCaption(): JSX.Element {
     return <CaptionContainer>Inventory</CaptionContainer>
   }
-  private renderDescription(): JSX.Element {
+
+  private renderConsumables(): JSX.Element {
+    const availableConsumables = PlayerHelper.getAvailableConsumables(this.props.player)
+
+    let dynamicContent: JSX.Element
+    if (availableConsumables.length === 0) {
+      dynamicContent = <NoContentWrapper>You do not have any consumables in your inventory.</NoContentWrapper>
+    } else {
+      dynamicContent = <React.Fragment>{availableConsumables.map((item) => this.renderConsumable(item))}</React.Fragment>
+    }
+
     return (
-      <DescriptionContainer>
-        <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
-      </DescriptionContainer>
+      <React.Fragment>
+        <SubcaptionContainer>Consumables</SubcaptionContainer>
+        <DescriptionContainer>
+          <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
+        </DescriptionContainer>
+        <ConsumableContainer>{dynamicContent}</ConsumableContainer>
+      </React.Fragment>
     )
   }
 
-  private renderItems(): JSX.Element | null {
-    if (!this.props.player.inventoryItems || this.props.player.inventoryItems.length === 0) {
-      return <div>You don't have anything in your inventory...</div>
-    }
-
-    return <ConsumableContainer>{this.props.player.inventoryItems.map((item) => this.renderItem(item))}</ConsumableContainer>
-  }
-
-  private renderItem(inventoryItem: InventoryItem): JSX.Element | null {
-    const consumable = ConsumableHelper.getItemByKey(inventoryItem.consumableKey)
-
-    if (!consumable) {
-      log('Failed to find consumable:', inventoryItem.consumableKey)
+  private renderConsumable(consumable: ConsumableItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availableConsumables!, consumable.key)
+    if (!availableItem) {
+      log('Failed to find available item for consumable key:', consumable.key)
       return null
     }
 
     const heading = consumable.name
-    const subheading = `(×${inventoryItem.quantity.toLocaleString()})`
-    const blurb = consumable.flavor
+    const subheading = `(×${availableItem.quantity.toLocaleString()})`
+    const flavor = consumable.flavor
     const ctaType = 'blue'
     const ctaLabel = 'Use'
 
-    return <ListItem ctaType={ctaType} key={consumable.key} heading={heading} subheading={subheading} blurb={blurb} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(consumable)} />
+    return <ListItem ctaType={ctaType} key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(consumable)} />
+  }
+
+  private renderDrops(): JSX.Element {
+    const availableDrops = PlayerHelper.getAvailableDrops(this.props.player)
+
+    let dynamicContent: JSX.Element
+    if (availableDrops.length === 0) {
+      dynamicContent = <NoContentWrapper>You do not have any drops in your inventory.</NoContentWrapper>
+    } else {
+      dynamicContent = <React.Fragment>{availableDrops.map((item) => this.renderDrop(item))}</React.Fragment>
+    }
+
+    return (
+      <React.Fragment>
+        <SubcaptionContainer>Obtained Drops</SubcaptionContainer>
+        <DescriptionContainer>
+          <DescriptionWrapper>Collectable items from all those battle rewards.</DescriptionWrapper>
+        </DescriptionContainer>
+        <DropContainer>{dynamicContent}</DropContainer>
+      </React.Fragment>
+    )
+  }
+
+  private renderDrop(drop: DropItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availableDrops!, drop.key)
+    if (!availableItem) {
+      log('Failed to find available item for drop key:', drop.key)
+      return null
+    }
+
+    const heading = drop.name
+    const subheading = `(×${availableItem.quantity.toLocaleString()})`
+    const flavor = drop.flavor
+
+    return <ListItem key={drop.key} heading={heading} subheading={subheading} flavor={flavor} />
   }
 }
 
