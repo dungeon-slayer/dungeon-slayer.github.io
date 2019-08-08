@@ -9,6 +9,8 @@ import { ProgressAction } from './actions'
 import { DomHelper } from './helpers'
 import ViewNotFound from './components/ViewNotFound'
 import ViewGame from './components/ViewGame'
+import ViewTest from './components/ViewTest'
+import { MetricsDelegate } from './delegates/metrics-delegate'
 
 const log = Bows('App')
 
@@ -25,6 +27,9 @@ class App extends React.Component<Props> {
   componentDidMount() {
     log('componentDidMount triggered.')
     log('process.env:', process.env)
+
+    // Analytics
+    MetricsDelegate.pageView()
   }
 
   componentWillUnmount() {
@@ -36,6 +41,7 @@ class App extends React.Component<Props> {
       <Router history={history}>
         <React.Fragment>
           <Switch>
+            <Route exact path="/test" component={ViewTest} />
             <Route exact path="/:dataCode?" component={ViewGame} />
             <Route component={ViewNotFound} />
           </Switch>

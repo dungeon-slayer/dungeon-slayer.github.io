@@ -12,7 +12,7 @@ export const consumables: ConsumableItem[] = [
   {
     key: 'potion',
     name: 'Potion',
-    flavor: 'Medicine that restores HP.',
+    flavor: 'Medicine that restores 60 HP.',
     basePrice: 50,
     effect: {
       hpModifier: 60,
@@ -21,7 +21,7 @@ export const consumables: ConsumableItem[] = [
   {
     key: 'hi-potion',
     name: 'Hi-Potion',
-    flavor: 'Medicine that restores HP. More effective than a standard Potion',
+    flavor: 'Medicine that restores 200 HP.',
     basePrice: 200,
     effect: {
       hpModifier: 200,
@@ -44,6 +44,67 @@ export const consumables: ConsumableItem[] = [
     effect: {
       gainAbilities: ['inner-strength'],
     },
+  },
+  {
+    key: 'relic-focus-strike',
+    name: 'Relic of Focus Strike',
+    flavor: `Magic stone holds the power of 'Focus Strike' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['focus-strike'],
+    },
+  },
+  {
+    key: 'relic-focus-strength',
+    name: 'Relic of Focus Strength',
+    flavor: `Magic stone holds the power of 'Focus Strength' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['focus-strength'],
+    },
+  },
+  {
+    key: 'relic-evasion',
+    name: 'Relic of Evasion',
+    flavor: `Magic stone holds the power of 'Evasion' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['evasion'],
+    },
+  },
+  {
+    key: 'relic-quicken',
+    name: 'Relic of Quicken',
+    flavor: `Magic stone holds the power of 'Quicken' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['quicken'],
+    },
+  },
+  {
+    key: 'relic-devotion',
+    name: 'Relic of Devotion',
+    flavor: `Magic stone holds the power of 'Devotion' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['devotion'],
+    },
+  },
+  {
+    key: 'relic-enlightenment',
+    name: 'Relic of Enlightenment',
+    flavor: `Magic stone holds the power of 'Enlightenment' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['enlightenment'],
+    },
+  },
+  {
+    key: 'horn-kolift',
+    name: 'Horn of Kolift',
+    flavor: 'A blow horn used to summary Kolift from his residency.',
+    basePrice: 0,
+    effect: {},
   },
 
   // God tier items

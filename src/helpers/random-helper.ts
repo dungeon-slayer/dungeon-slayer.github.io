@@ -1,4 +1,4 @@
-import { random, padStart } from 'lodash'
+import { random, padStart, sum, round } from 'lodash'
 
 export class RandomHelper {
   static generateId(prefix = ''): string {
@@ -6,30 +6,44 @@ export class RandomHelper {
     return id
   }
 
-  // static generateLevel(baseLevel: number): number {
-  //   const rand = Math.random()
-  //   let modifier: number
+  /**
+   * 30% chance of uniform distribution, rest been box-muller.
+   */
+  static getRandomLevel(baseLevel: number, halfRange: number, skew: number): number {
+    let outputLevel: number
+    const minLevel = baseLevel - halfRange
+    const maxLevel = baseLevel + halfRange
 
-  //   if (rand < 0.1) {
-  //     modifier = -2
-  //   } else if (rand < 0.3) {
-  //     modifier = -1
-  //   } else if (rand < 0.7) {
-  //     modifier = 0
-  //   } else if (rand < 0.9) {
-  //     modifier = 1
-  //   } else {
-  //     modifier = 2
-  //   }
+    if (RandomHelper.takeChance(0.3)) {
+      outputLevel = random(minLevel, maxLevel)
+    } else {
+      outputLevel = round(RandomHelper.randomBoxMuller(minLevel, maxLevel, skew))
+    }
 
-  //   const lvl = baseLevel + modifier
-  //   return lvl < 1 ? 1 : lvl
-  // }
+    if (outputLevel < 1) {
+      outputLevel = 1
+    }
 
-  static rollDice(successRate: number): boolean {
+    return outputLevel
+  }
+
+  /**
+   * A random true/false output base on success rate.
+   * @param successRate between 0 and 1
+   */
+  static takeChance(successRate: number): boolean {
+    if (successRate <= 0) {
+      return false
+    }
+    if (successRate >= 1) {
+      return true
+    }
     return Math.random() < successRate
   }
 
+  /**
+   * @returns {number} float value
+   */
   static randomBoxMuller(min: number, max: number, skew = 1): number {
     let u = 0
     let v = 0
@@ -50,5 +64,24 @@ export class RandomHelper {
     num *= max - min
     num += min
     return num
+  }
+
+  static weightedRandomIndex(weightArr: number[]): number {
+    if (weightArr.length < 2) {
+      throw new Error('Invalid weightArr length.')
+    }
+
+    const weightSum = sum(weightArr)
+    const rand = random(0, weightSum, true)
+
+    let accumulateWeight = 0
+    for (let i = 0; i < weightArr.length; i++) {
+      accumulateWeight += weightArr[i]
+      if (rand < accumulateWeight) {
+        return i
+      }
+    }
+
+    throw new Error('Failed to correctly generate weighted random index.')
   }
 }

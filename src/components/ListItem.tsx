@@ -1,9 +1,14 @@
 import * as React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import * as Bows from 'bows'
 import Button from './Button'
 
 const log = Bows('ListItem')
+
+interface ComponentWrapperProps {
+  textColor: string
+  opacity: string
+}
 
 const ComponentWrapper = styled.div`
   margin: 8px 0;
@@ -14,6 +19,11 @@ const ComponentWrapper = styled.div`
   border-radius: 4px;
   display: flex;
   align-items: center;
+
+  ${(props: ComponentWrapperProps) => css`
+    color: ${props.textColor};
+    opacity: ${props.opacity};
+  `}
 
   &:hover {
     background-color: #d9e0f0;
@@ -65,21 +75,27 @@ const OperatorWrapper = styled.div`
 interface Props {
   heading: string
   subheading: string
+
   flavor: string
   conversation: string
   explanations: string[]
   ctaType: 'default' | 'blue' | 'red' | 'disabled'
   ctaLabel: string
+  textColor: string
+  opacity: string
+
   onClick: any
 }
 
 export default class ListItem extends React.Component<Props> {
   static defaultProps = {
-    ctaType: 'default',
-    ctaLabel: 'Click',
     flavor: '',
     conversation: '',
     explanations: [],
+    ctaType: 'default',
+    ctaLabel: 'Click',
+    textColor: '#033649',
+    opacity: '1',
     onClick: undefined,
   }
 
@@ -107,7 +123,7 @@ export default class ListItem extends React.Component<Props> {
 
   render(): JSX.Element {
     return (
-      <ComponentWrapper>
+      <ComponentWrapper textColor={this.props.textColor} opacity={this.props.opacity}>
         <ContentWrapper>
           <HeadingWrapper>
             <Heading>{this.props.heading}</Heading> <Subheading>{this.props.subheading}</Subheading>

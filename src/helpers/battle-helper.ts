@@ -1,14 +1,31 @@
 import { floor } from 'lodash'
-import { CharacterItem } from 'src/common/interfaces'
+import { CharacterItem, DamageDataItem } from 'src/common/interfaces'
 import { BattleState } from 'src/reducers'
 import { CharacterHelper } from './character-helper'
+import { RandomHelper } from './random-helper'
 
 export class BattleHelper {
-  static getDamageValue(attacker: CharacterItem, defender: CharacterItem): number {
-    const attackPoint = attacker.attack * 4 * CharacterHelper.getAttackMultiplier(attacker)
-    const defensePoint = defender.defense * 2
-    const val = floor(attackPoint - defensePoint)
-    return val < 0 ? 0 : val
+  static getDamageData(attacker: CharacterItem, defender: CharacterItem): DamageDataItem {
+    const output: DamageDataItem = { damageDealt: 0, isCriticalHit: false }
+
+    // Attack point
+    let attackPoint = attacker.attack * 4 * CharacterHelper.getAttackMultiplier(attacker)
+    if (attackPoint > 0) {
+      const attackerCriticalHitRate = CharacterHelper.getBaseCriticalHitRate(attacker)
+      const attackerCriticalHitMultiplier = CharacterHelper.getBaseCriticalHitMultiplier(attacker)
+      if (RandomHelper.takeChance(attackerCriticalHitRate)) {
+        attackPoint = attackPoint * attackerCriticalHitMultiplier
+        output.isCriticalHit = true
+      }
+    }
+
+    // Defense point
+    const defensePoint = defender.defense * 2 * CharacterHelper.getDefenseMultiplier(defender)
+
+    const damagePoint = floor(attackPoint - defensePoint)
+    output.damageDealt = damagePoint < 0 ? 0 : damagePoint
+
+    return output
   }
 
   static isEngaging(battle: BattleState): boolean {

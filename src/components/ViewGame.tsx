@@ -7,11 +7,12 @@ import { StoreState } from 'src/store/interface'
 import { ProgressState, GameState } from 'src/reducers'
 import Header from './Header'
 import SectionBattle from './SectionBattle'
-import { GameAction, BattleAction, TraceAction } from 'src/actions'
+import { GameAction, BattleAction, TraceAction, ControlAction } from 'src/actions'
 import Tabs from './Tabs'
 import { SectionHelper, GameHelper } from 'src/helpers'
 import SectionLog from './SectionLog'
 import { EnvironmentDelegate } from 'src/delegates'
+import { mediaQueries } from 'src/constants'
 
 const log = Bows('ViewGame')
 
@@ -25,6 +26,37 @@ const ComponentWrapper = styled.div`
   height: 100%;
   margin: 0 auto;
   background-color: white;
+
+  @media ${mediaQueries.xlargeUp} {
+    // max-width: none;
+    max-width: 2160px;
+  }
+`
+
+const BodyContainer = styled.div`
+  @media ${mediaQueries.xlargeUp} {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+`
+
+const MainContainer = styled.div`
+  @media ${mediaQueries.xlargeUp} {
+    flex-grow: 1;
+    flex-basis: 50%;
+    padding: 0 12px;
+    height: calc(100vh - 40px);
+    overflow: auto;
+  }
+`
+
+const LogContainer = styled.div`
+  @media ${mediaQueries.xlargeUp} {
+    flex-grow: 1;
+    flex-basis: 50%;
+    // padding: 0 12px;
+    height: calc(100vh - 40px);
+  }
 `
 
 const MainSection = styled.div`
@@ -78,12 +110,18 @@ class BaseViewGame extends React.Component<Props> {
       <ThemeProvider theme={theme}>
         <ComponentWrapper>
           <Header />
-          <SectionLog />
-          <SectionBattle />
-          <MainSection>
-            <Tabs />
-            <SectionContainer>{this.renderActiveSection()}</SectionContainer>
-          </MainSection>
+          <BodyContainer>
+            <LogContainer>
+              <SectionLog />
+            </LogContainer>
+            <MainContainer>
+              <SectionBattle />
+              <MainSection>
+                <Tabs />
+                <SectionContainer>{this.renderActiveSection()}</SectionContainer>
+              </MainSection>
+            </MainContainer>
+          </BodyContainer>
         </ComponentWrapper>
       </ThemeProvider>
     )
@@ -153,15 +191,15 @@ function mapDispatchToProps(dispatch: Dispatch) {
     },
 
     saveProgress: async (): Promise<void> => {
-      dispatch(GameAction.saveProgress())
+      dispatch(ControlAction.saveProgress())
     },
 
     loadProgress: async (): Promise<void> => {
-      dispatch(GameAction.loadProgress())
+      dispatch(ControlAction.loadProgress())
     },
 
     applyDataCode: async (dataCode: string): Promise<void> => {
-      dispatch(GameAction.applyDataCode(dataCode))
+      dispatch(ControlAction.applyDataCode(dataCode))
     },
   }
 }

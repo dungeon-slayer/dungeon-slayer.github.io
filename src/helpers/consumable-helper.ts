@@ -18,4 +18,11 @@ export class ConsumableHelper {
     }
     return item.name
   }
+
+  static canConsume(consumable: ConsumableItem, location: string) {
+    if (consumable.key === 'horn-kolift') {
+      return location === 'dorters-mine'
+    }
+    return true
+  }
 }

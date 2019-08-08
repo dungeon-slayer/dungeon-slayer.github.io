@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import styled from 'styled-components'
-import { css } from 'glamor'
+// import { css } from 'glamor'
 import ScrollToBottom from 'react-scroll-to-bottom'
 import * as Bows from 'bows'
 import { GiBroadsword, GiScrollUnfurled, GiPotionBall, GiBootPrints, GiShakingHands } from 'react-icons/gi'
@@ -12,12 +12,22 @@ import { TraceState } from 'src/reducers/trace-reducer'
 import { LogItem, LogType } from 'src/common/interfaces'
 import { DateHelper, HtmlParseHelper } from 'src/helpers'
 import { RandomHelper } from '../helpers/random-helper'
+import { mediaQueries } from 'src/constants'
 
 const log = Bows('SectionLog')
 
 const ComponentWrapper = styled.div`
   padding: 24px;
   background-color: rgba(119, 199, 199, 0.2);
+  height: calc(100% - 48px);
+
+  .scroll-to-bottom-component {
+    height: 150px;
+
+    @media ${mediaQueries.xlargeUp} {
+      height: 100%;
+    }
+  }
 `
 
 const LogContainer = styled.div``
@@ -65,12 +75,13 @@ class BaseSectionLog extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    const ROOT_CSS = css({
-      height: 150,
-    })
+    // const ROOT_CSS = css({
+    //   height: 150,
+    // })
+
     return (
       <ComponentWrapper>
-        <ScrollToBottom className={ROOT_CSS}>{this.renderContent()}</ScrollToBottom>
+        <ScrollToBottom className="scroll-to-bottom-component">{this.renderContent()}</ScrollToBottom>
       </ComponentWrapper>
     )
   }

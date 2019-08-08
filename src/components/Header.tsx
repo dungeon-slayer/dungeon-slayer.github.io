@@ -11,9 +11,10 @@ const log = Bows('Header')
 
 const ComponentWrapper = styled.div`
   padding: 0 24px;
-  height: 60px;
+  height: 40px;
   display: flex;
   align-items: center;
+  background-color: #edf5fd;
 `
 
 const CaptionWrapper = styled.div`

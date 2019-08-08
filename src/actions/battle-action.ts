@@ -1,8 +1,8 @@
 import { Dispatch } from 'redux'
-import { cloneDeep, sortBy } from 'lodash'
+import { cloneDeep, sortBy, floor } from 'lodash'
 import * as Bows from 'bows'
 import { StoreAction, StoreState } from 'src/store/interface'
-import { CharacterItem } from 'src/common/interfaces'
+import { CharacterItem, DamageDataItem } from 'src/common/interfaces'
 import { battleConstants, playerConstants } from './constants'
 import { BattleState, PlayerState } from 'src/reducers'
 import { BattleHelper, PlayerHelper, AbilityHelper, CharacterHelper, RandomHelper, DropHelper } from 'src/helpers'
@@ -140,11 +140,19 @@ export class BattleAction {
 
   private static async dispatchCharacterAction(dispatch: Dispatch<StoreAction>, state: StoreState, attacker: CharacterItem): Promise<void> {
     const defender = BattleAction.getDefendCharacter(state, attacker)
-    const damageDealt = BattleHelper.getDamageValue(attacker, defender)
-    defender.currentHp = CharacterHelper.updateHpValue(defender.currentHp, damageDealt)
+
+    // Pre-damage action
+    const evasionChance = CharacterHelper.getEvasionChance(defender)
+    if (RandomHelper.takeChance(evasionChance)) {
+      await BattleAction.dispatchAppendDodgeLog(dispatch, attacker, defender)
+      return
+    }
+
+    const damageData = BattleHelper.getDamageData(attacker, defender)
+    defender.currentHp = CharacterHelper.updateHpValue(defender.currentHp, damageData.damageDealt)
     attacker.nextTurnTs = CharacterHelper.getNextTurnTimestamp(attacker, state.game)
 
-    await BattleAction.dispatchAppendAttackLog(dispatch, attacker, defender, damageDealt)
+    await BattleAction.dispatchAppendAttackLog(dispatch, attacker, defender, damageData)
     await BattleAction.dispatchUpdateCharacter(dispatch, defender)
     await BattleAction.dispatchUpdateCharacter(dispatch, attacker)
 
@@ -154,11 +162,30 @@ export class BattleAction {
     }
   }
 
-  private static async dispatchAppendAttackLog(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem, damageDealt: number): Promise<void> {
+  private static async dispatchAppendDodgeLog(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem): Promise<void> {
     if (attacker.key === 'player') {
-      await dispatch(TraceAction.appendBattleLog(`You dealt <strong>${damageDealt.toLocaleString()}</strong> damage to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>.`))
+      await dispatch(TraceAction.appendBattleLog(`Your attack to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong> was <strong>dodged</strong>.`))
     } else {
-      await dispatch(TraceAction.appendBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong> dealt <strong>${damageDealt.toLocaleString()}</strong> damage to you.`))
+      await dispatch(TraceAction.appendBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong>'s attack to you was <strong>dodged</strong>.`))
+    }
+  }
+
+  private static async dispatchAppendAttackLog(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem, damageData: DamageDataItem): Promise<void> {
+    let dealWord = 'dealt'
+    let damageLabel = `<strong>${damageData.damageDealt.toLocaleString()}</strong> damage`
+
+    if (damageData.isCriticalHit) {
+      dealWord = 'dealt critical hit'
+    }
+    if (damageData.damageDealt === 0) {
+      dealWord = 'dealt'
+      damageLabel = 'no damage'
+    }
+
+    if (attacker.key === 'player') {
+      await dispatch(TraceAction.appendBattleLog(`You ${dealWord} ${damageLabel} to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>.`))
+    } else {
+      await dispatch(TraceAction.appendBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong> ${dealWord} ${damageLabel} to you.`))
     }
   }
 
@@ -180,8 +207,9 @@ export class BattleAction {
       await dispatch({ type: battleConstants.CLOSURE })
     } else {
       // Gain experience
-      attacker.currentExp += defender.rewardExp
-      await dispatch(TraceAction.appendBattleLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>, gained <strong>${defender.rewardExp.toLocaleString()}</strong> experience.`))
+      const rewardExpPoint = floor(defender.rewardExp * CharacterHelper.getExperienceMultiplier(attacker))
+      attacker.currentExp += rewardExpPoint
+      await dispatch(TraceAction.appendBattleLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>, gained <strong>${rewardExpPoint.toLocaleString()}</strong> experience.`))
       await dispatch(PlayerAction.trackAWin(defender))
       await BattleAction.dispatchUpdateCharacter(dispatch, attacker)
 
@@ -208,7 +236,7 @@ export class BattleAction {
     }
 
     for (const dropRate of mobTemplate.dropRates) {
-      if (RandomHelper.rollDice(dropRate.dropRate)) {
+      if (RandomHelper.takeChance(dropRate.dropRate)) {
         const dropItem = DropHelper.getItemByKey(dropRate.dropKey)!
         await dispatch(PlayerAction.obtainDrop(dropItem))
       }

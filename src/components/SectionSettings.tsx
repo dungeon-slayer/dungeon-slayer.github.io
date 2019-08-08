@@ -7,7 +7,7 @@ import { StoreState } from 'src/store/interface'
 import { PlayerState, GameState } from 'src/reducers'
 import { mediaQueries } from 'src/constants'
 import Button from './Button'
-import { GameAction } from 'src/actions'
+import { ControlAction } from 'src/actions'
 import Select from './Select'
 import { SelectItem } from 'src/common/interfaces'
 import { CastHelper } from 'src/helpers'
@@ -152,11 +152,11 @@ function mapStateToProps(state: StoreState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     setGameSpeed: async (clockSpeedMultiplier: number): Promise<void> => {
-      await dispatch(GameAction.setGameSpeed(clockSpeedMultiplier))
+      await dispatch(ControlAction.setGameSpeed(clockSpeedMultiplier))
     },
 
     restartGame: async (): Promise<void> => {
-      await dispatch(GameAction.restart())
+      await dispatch(ControlAction.restart())
       window.location.replace('/')
     },
   }

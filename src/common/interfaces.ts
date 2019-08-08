@@ -62,9 +62,13 @@ export interface SelectItem {
   label: string
 }
 
-export interface DungeonTemplateItem {
-  mobKeys: string[]
+export interface MobAppearanceItem {
+  key: string
+  appearanceRate: number // Recommend 0.1 and 1
+}
 
+export interface DungeonTemplateItem {
+  mobAppearances: MobAppearanceItem[]
   mobLevelBase: number
   mobLevelHalfRange: number
   mobLevelSkew: number // 1 for standard, 0.5 for skew to right, 2 for skew to left
@@ -73,6 +77,14 @@ export interface DungeonTemplateItem {
 export interface CharacterEffectItem {
   hpModifier?: number
   attackMultiplier?: number
+  defenseMultiplier?: number
+  evasionMultiplier?: number
   chargeTimeMultiplier?: number
+  experienceMultiplier?: number
   gainAbilities?: string[]
+}
+
+export interface DamageDataItem {
+  damageDealt: number
+  isCriticalHit: boolean
 }

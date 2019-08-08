@@ -3,6 +3,7 @@ import { playerTemplate, LocationItem, DropItem, drops, ConsumableItem, consumab
 import { AvailableItem, QuestItem } from 'src/common/interfaces'
 import { PlayerState } from 'src/reducers'
 import { ConsumableHelper } from './consumable-helper'
+import { AbilityHelper } from './ability-helper'
 
 export class PlayerHelper {
   static getHp(level: number): number {
@@ -60,6 +61,31 @@ export class PlayerHelper {
     }
 
     return targetAvailableItem.quantity
+  }
+
+  static getTotalAbilityPoint(level: number): number {
+    return floor(100 - 61 + 2 * level + 20 * Math.log(level * 20))
+  }
+
+  static getUsedAbilityPoint(player: PlayerState): number {
+    if (!player.character || !player.character.activeAbilities) {
+      return 0
+    }
+
+    let usedAP = 0
+    for (const abilityKey of player.character.activeAbilities) {
+      const ability = AbilityHelper.getItemByKey(abilityKey)
+      if (ability) {
+        usedAP += ability.apCost
+      }
+    }
+    return usedAP
+  }
+
+  static getAvailableAbilityPoint(player: PlayerState): number {
+    const totalAP = PlayerHelper.getTotalAbilityPoint(player.character!.currentLevel)
+    const usedAP = PlayerHelper.getUsedAbilityPoint(player)
+    return totalAP - usedAP
   }
 
   static hasCompleteQuest(player: PlayerState, quest: QuestItem): boolean {
@@ -142,12 +168,41 @@ export class PlayerHelper {
     return outputQuests
   }
 
+  static getLockedQuests(player: PlayerState, location: LocationItem): QuestItem[] {
+    const outputQuests: QuestItem[] = []
+
+    if (!location.questGiver) {
+      return []
+    }
+
+    for (const quest of location.questGiver) {
+      if (!PlayerHelper.hasCompleteQuest(player, quest) && !PlayerHelper.isQuestUnlocked(player, quest)) {
+        outputQuests.push(quest)
+      }
+    }
+
+    return outputQuests
+  }
+
   static hasConsumedItem(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
     if (!player.itemUsedStats) {
       return false
     }
 
     const targetAvailableItem = find(player.itemUsedStats, (item) => item.key === itemKey)
+    if (!targetAvailableItem) {
+      return false
+    }
+
+    return targetAvailableItem.quantity >= qualifiedQuantity
+  }
+
+  static hasDropItem(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
+    if (!player.availableDrops) {
+      return false
+    }
+
+    const targetAvailableItem = find(player.availableDrops, (item) => item.key === itemKey)
     if (!targetAvailableItem) {
       return false
     }

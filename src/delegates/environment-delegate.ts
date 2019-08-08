@@ -1,6 +1,10 @@
 import { CastHelper } from '../helpers'
 
 export class EnvironmentDelegate {
+  static get ApplicationEnvironment(): string {
+    return CastHelper.toString(process.env.REACT_APP_ENVIRONMENT)
+  }
+
   static get ReduxLoggerEnabled(): boolean {
     return CastHelper.toBoolean(process.env.REACT_APP_REDUX_LOGGER_ENABLED)
   }
@@ -27,5 +31,9 @@ export class EnvironmentDelegate {
 
   static get SaveProgressIntervalMs(): number {
     return CastHelper.toNumber(process.env.REACT_APP_SAVE_PROGRESS_INTERVAL_MS)
+  }
+
+  static get GoogleAnalyticTrackingId(): string {
+    return CastHelper.toString(process.env.REACT_APP_GA_TRACKING_ID)
   }
 }

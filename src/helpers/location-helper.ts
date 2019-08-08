@@ -26,10 +26,7 @@ export class LocationHelper {
     if (!locationItem) {
       return false
     }
-    if (!locationItem.dungeon || !locationItem.dungeon.mobKeys) {
-      return false
-    }
-    return locationItem.dungeon.mobKeys.length > 0
+    return !!locationItem.dungeon
   }
 
   static hasAlchemistByKey(key: string | undefined): boolean {

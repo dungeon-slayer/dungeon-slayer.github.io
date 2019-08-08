@@ -72,10 +72,17 @@ class BaseSectionAbility extends React.Component<Props> {
   private renderCaption(): JSX.Element {
     return <CaptionContainer>Ability</CaptionContainer>
   }
+
   private renderDescription(): JSX.Element {
+    const usedAP = PlayerHelper.getUsedAbilityPoint(this.props.player)
+    const totalAP = PlayerHelper.getTotalAbilityPoint(this.props.player.character!.currentLevel)
+
     return (
       <DescriptionContainer>
         <DescriptionWrapper>Abilities you have acquired throughout the adventure.</DescriptionWrapper>
+        <DescriptionWrapper>
+          You allocated <strong>{usedAP}</strong> out of total <strong>{totalAP}</strong> Ability Points.
+        </DescriptionWrapper>
       </DescriptionContainer>
     )
   }
@@ -99,7 +106,7 @@ class BaseSectionAbility extends React.Component<Props> {
     }
 
     const heading = ability.name
-    const subheading = ''
+    const subheading = `(AP: ${ability.apCost})`
     const flavor = ability.flavor
 
     let ctaType = 'red'

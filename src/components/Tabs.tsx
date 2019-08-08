@@ -4,7 +4,7 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { GameAction } from 'src/actions'
+import { ControlAction } from 'src/actions'
 import { ProgressState, GameState } from 'src/reducers'
 import { sections, SectionItem } from 'src/data'
 import { mediaQueries } from 'src/constants'
@@ -125,7 +125,7 @@ function mapStateToProps(state: StoreState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     setActiveSection: async (section: string): Promise<void> => {
-      dispatch(GameAction.setActiveSection(section))
+      dispatch(ControlAction.setActiveSection(section))
     },
   }
 }

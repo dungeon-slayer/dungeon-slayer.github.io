@@ -4,28 +4,16 @@ import * as Bows from 'bows'
 import { gameConstants } from './constants/game'
 import { StoreAction, StoreState } from 'src/store/interface'
 import { GameState } from 'src/reducers'
-import { MobHelper, PlayerHelper, LocationHelper, BattleHelper, GameSaveHelper, PriceMultiplierHelper } from 'src/helpers'
-import { GameHelper } from 'src/helpers/game-helper'
-import { CharacterItem, QuestItem, AvailableItem } from 'src/common/interfaces'
+import { MobHelper, PlayerHelper, LocationHelper, BattleHelper, PriceMultiplierHelper, GameHelper } from 'src/helpers'
+import { CharacterItem, QuestItem } from 'src/common/interfaces'
 import { LocationItem, DropItem, ConsumableItem } from 'src/data'
 import { TraceAction } from './trace-action'
-import { LocalstorageDelegate, EnvironmentDelegate } from 'src/delegates'
+import { EnvironmentDelegate } from 'src/delegates'
 import { playerConstants } from './constants'
 
 const log = Bows('GameAction')
 
 export class GameAction {
-  static setActiveSection(section: string): StoreAction {
-    const stateOverride: GameState = {
-      activeSection: section,
-    }
-
-    return {
-      type: gameConstants.UPDATE,
-      payload: stateOverride,
-    }
-  }
-
   static appendRandomMob(): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // State properties
@@ -59,6 +47,31 @@ export class GameAction {
           mob: MobHelper.getRandomMob(location),
           nextMobGenerateTs: GameHelper.getNextMobGenerateTimestamp(state.game, EnvironmentDelegate.MobGenerateIntervalMs),
         },
+      })
+    }
+  }
+
+  static appendSummonMob(consumable: ConsumableItem): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // log('appendSummonMob triggered. consumable:', consumable)
+
+      // // State properties
+      const state: StoreState = getState()
+
+      let mob: CharacterItem
+
+      if (consumable.key === 'horn-kolift') {
+        const mobTemplate = MobHelper.getMobTemplateByKey('kolift')!
+        mob = MobHelper.createMob(mobTemplate, state.player.character!.currentLevel)
+        log('mob:', mob)
+      } else {
+        // No action required
+        return
+      }
+
+      dispatch({
+        type: gameConstants.APPEND_MOB,
+        payload: { mob },
       })
     }
   }
@@ -235,119 +248,5 @@ export class GameAction {
       await dispatch(TraceAction.appendLog(`You completed and rewarded for the quest <strong>${quest.name}</strong>.`))
       await dispatch(TraceAction.loreByQuestCompletion(quest.key))
     }
-  }
-
-  static saveProgress(): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      log('saveProgress triggered.')
-
-      // State properties
-      const state: StoreState = getState()
-
-      const gameSave = GameSaveHelper.create(state, EnvironmentDelegate.SaveVersion)
-      LocalstorageDelegate.setProgress(gameSave)
-    }
-  }
-
-  static loadProgress(): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // log('loadProgress triggered.')
-
-      // State properties
-      const state: StoreState = getState()
-
-      let gameSave = LocalstorageDelegate.getProgress()
-      if (!GameSaveHelper.isValid(gameSave)) {
-        await GameAction.dispatchLogForNewGame(dispatch, state)
-        return
-      }
-
-      // Check if it is an old save
-      if (gameSave!.saveVersion < EnvironmentDelegate.SaveVersion) {
-        try {
-          gameSave = GameSaveHelper.attemptToUpgrade(gameSave!)
-          await dispatch(TraceAction.appendLoreLog('You sense a disturbance in the air tho the tumbling has already stopped. You decided to not pay attention to it.'))
-        } catch (err) {
-          log('Failed to upgrade save. err:', err)
-          await dispatch(TraceAction.appendLoreLog('The turbulence of space-time continuum causing all living being to blackout. When you wake up, it was as everything you been through so far was all a dream...'))
-          await dispatch(TraceAction.appendLoreLog('...'))
-          await GameAction.dispatchLogForNewGame(dispatch, state)
-          return
-        }
-      }
-
-      if (gameSave!.state.game) {
-        const newGameState = GameSaveHelper.overrideGameState(state.game, gameSave!)
-        await dispatch({ type: gameConstants.UPDATE, payload: newGameState })
-      }
-
-      if (gameSave!.state.player) {
-        const newPlayerState = GameSaveHelper.overridePlayerState(state.player, gameSave!)
-        await dispatch({ type: playerConstants.UPDATE, payload: newPlayerState })
-      }
-
-      await dispatch(TraceAction.appendLoreLog(`With some rest, you felt you are ready to onward journey.`))
-      await GameAction.dispatchLogForCurrentLocation(dispatch, gameSave!.state.game.currentLocation)
-    }
-  }
-
-  static setGameSpeed(clockSpeedMultiplier: number): StoreAction {
-    const stateOverride: GameState = {
-      clockSpeedMultiplier,
-    }
-
-    return {
-      type: gameConstants.UPDATE,
-      payload: stateOverride,
-    }
-  }
-
-  static restart(): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // log('restart triggered.')
-      LocalstorageDelegate.removeProgress()
-    }
-  }
-
-  static applyDataCode(dataCode: string): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // State properties
-      const state: StoreState = getState()
-
-      switch (dataCode.toLowerCase()) {
-        case 'reset':
-          LocalstorageDelegate.removeProgress()
-          return
-
-        case 'whysoserious':
-          return await GameAction.dispatchNewGameWithGodMode(dispatch, state)
-      }
-    }
-  }
-
-  private static async dispatchNewGameWithGodMode(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {
-    // prettier-ignore
-    const consumedItems: AvailableItem[] = [
-      { key: 'relic-auto-battle', quantity: 1 },
-      { key: 'relic-divine-strength', quantity: 1 },
-      { key: 'relic-divine-speed', quantity: 1 },
-    ]
-    return await GameAction.dispatchNewGameWithAbilities(dispatch, state, consumedItems)
-  }
-
-  private static async dispatchNewGameWithAbilities(dispatch: Dispatch<StoreAction>, state: StoreState, consumedItems: AvailableItem[]): Promise<void> {
-    const gameSave = GameSaveHelper.create(state, EnvironmentDelegate.SaveVersion)
-    gameSave.state.player.itemUsedStats = [...gameSave.state.player.itemUsedStats!, ...consumedItems]
-    LocalstorageDelegate.setProgress(gameSave)
-  }
-
-  private static async dispatchLogForNewGame(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {
-    await dispatch(TraceAction.appendLoreLog("Many adventurers journey deep into the demon's realm to fight aginst the demon king. You consider yourself ready and ventures on to the starting point of the adventure."))
-    await GameAction.dispatchLogForCurrentLocation(dispatch, state.game.currentLocation)
-  }
-
-  private static async dispatchLogForCurrentLocation(dispatch: Dispatch<StoreAction>, currentLocation: string | undefined): Promise<void> {
-    const location = LocationHelper.getItemByKey(currentLocation)!
-    await dispatch(TraceAction.appendTravelLog(`You are now at <strong>${location.name}</strong>.`))
   }
 }

@@ -66,6 +66,23 @@ export class CharacterHelper {
     return multiplier
   }
 
+  static getDefenseMultiplier(character: CharacterItem): number {
+    let multiplier = 1
+
+    if (!character.activeAbilities) {
+      return multiplier
+    }
+
+    for (const activeAbilityKey of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
+      if (!!targetAbility && targetAbility.effect.defenseMultiplier) {
+        multiplier += targetAbility.effect.defenseMultiplier - 1
+      }
+    }
+
+    return multiplier
+  }
+
   static getNextTurnTimestamp(character: CharacterItem, game: GameState): number {
     const baseTs = character.nextTurnTs ? character.nextTurnTs : Date.now()
     const baseMultiplier = game.clockSpeedMultiplier ? game.clockSpeedMultiplier : 1
@@ -94,5 +111,53 @@ export class CharacterHelper {
     }
 
     return multiplier
+  }
+
+  static getExperienceMultiplier(character: CharacterItem): number {
+    let multiplier = 1
+
+    if (!character.activeAbilities) {
+      return multiplier
+    }
+
+    for (const activeAbilityKey of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
+      if (!!targetAbility && targetAbility.effect.experienceMultiplier) {
+        multiplier += targetAbility.effect.experienceMultiplier - 1
+      }
+    }
+
+    return multiplier
+  }
+
+  static getEvasionChance(character: CharacterItem): number {
+    let multiplier = 0
+
+    if (!character.activeAbilities) {
+      return multiplier
+    }
+
+    for (const activeAbilityKey of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
+      if (!!targetAbility && targetAbility.effect.evasionMultiplier) {
+        multiplier += targetAbility.effect.evasionMultiplier
+      }
+    }
+
+    return multiplier
+  }
+
+  static getBaseCriticalHitRate(attacker: CharacterItem): number {
+    if (CharacterHelper.hasActiveAbility(attacker, 'focus-strike')) {
+      return 0.2
+    }
+    return 0.12
+  }
+
+  static getBaseCriticalHitMultiplier(attacker: CharacterItem): number {
+    if (CharacterHelper.hasActiveAbility(attacker, 'focus-strength')) {
+      return 1.4
+    }
+    return 1.2
   }
 }

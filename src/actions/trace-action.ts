@@ -1,9 +1,8 @@
 import { Dispatch } from 'redux'
-import { filter } from 'lodash'
 import { StoreAction } from 'src/store/interface'
 import { traceConstants } from './constants'
 import { LogItem, LogType } from 'src/common/interfaces'
-import { levelLores, questLores } from 'src/data'
+import { LoreHelper } from 'src/helpers'
 
 export class TraceAction {
   static appendBattleLog(message: string): StoreAction {
@@ -52,18 +51,18 @@ export class TraceAction {
 
   static loreByLevelUp(level: number): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      const targetLores = filter(levelLores, (item) => item.level === level)
+      const targetLores = LoreHelper.getLevelLoresByKey(level.toString())
       for (const targetLore of targetLores) {
-        dispatch(TraceAction.appendLog(targetLore.message, 'lore'))
+        dispatch(TraceAction.appendLoreLog(targetLore.message))
       }
     }
   }
 
   static loreByQuestCompletion(questKey: string): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      const targetLores = filter(questLores, (item) => item.questKey === questKey)
+      const targetLores = LoreHelper.getQuestLoresByKey(questKey)
       for (const targetLore of targetLores) {
-        dispatch(TraceAction.appendLog(targetLore.message, 'lore'))
+        dispatch(TraceAction.appendLoreLog(targetLore.message))
       }
     }
   }

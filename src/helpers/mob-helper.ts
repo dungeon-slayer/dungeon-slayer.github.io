@@ -1,4 +1,4 @@
-import { find, sample, floor, round } from 'lodash'
+import { find, floor, map } from 'lodash'
 // import * as Bows from 'bows'
 import { CharacterItem } from 'src/common/interfaces'
 import { mobTemplates, MobTemplate, LocationItem } from 'src/data'
@@ -14,25 +14,19 @@ export class MobHelper {
       throw new Error('dungeon is undefined.')
     }
 
-    const mobKey = sample(location.dungeon.mobKeys)
-    if (!mobKey) {
-      throw new Error('Unable to find a valid mob key.')
+    const mobAppearanceRates = map(location.dungeon.mobAppearances, (ma) => ma.appearanceRate)
+    const randomIndex = RandomHelper.weightedRandomIndex(mobAppearanceRates)
+    const mobAppearanceItem = location.dungeon.mobAppearances[randomIndex]
+    if (!mobAppearanceItem) {
+      throw new Error('Unable to find a valid mob.')
     }
 
-    const mobTemplate = find(mobTemplates, (mt) => mt.key === mobKey)
+    const mobTemplate = find(mobTemplates, (mt) => mt.key === mobAppearanceItem.key)
     if (!mobTemplate) {
       throw new Error('Unable to find a valid mob template.')
     }
 
-    const minLevel = location.dungeon.mobLevelBase - location.dungeon.mobLevelHalfRange
-    const maxLevel = location.dungeon.mobLevelBase + location.dungeon.mobLevelHalfRange
-    let level = RandomHelper.randomBoxMuller(minLevel, maxLevel, location.dungeon.mobLevelSkew)
-
-    if (level < 1) {
-      level = 1
-    }
-    level = round(level)
-
+    const level = RandomHelper.getRandomLevel(location.dungeon.mobLevelBase, location.dungeon.mobLevelHalfRange, location.dungeon.mobLevelSkew)
     return MobHelper.createMob(mobTemplate, level)
   }
 
@@ -52,17 +46,18 @@ export class MobHelper {
       attack: floor(mobTemplate.attackBase + mobTemplate.attackLevelMultiplier * level),
       defense: floor(mobTemplate.defenseBase + mobTemplate.defenseLevelMultiplier * level),
       chargeTimeMs: mobTemplate.chargeTimeTs,
+      activeAbilities: mobTemplate.abilities,
       nextTurnTs: undefined,
       currentExp: 0,
       rewardExp,
-      activeAbilities: [],
     }
 
     return char
   }
 
   static getRewardExpValue(level: number, multiplier: number): number {
-    const rewardExp = 2 + level + Math.pow(1.39, level)
+    // const rewardExp = 2 + level + Math.pow(1.39, level)
+    const rewardExp = 2 + level + Math.pow(1.4, level)
     return floor(rewardExp * multiplier)
   }
 

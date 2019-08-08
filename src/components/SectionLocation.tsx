@@ -157,6 +157,16 @@ class BaseSectionLocation extends React.Component<Props> {
     return availableQuests
   }
 
+  get lockedQuests(): QuestItem[] {
+    const location = LocationHelper.getItemByKey(this.props.game.currentLocation)!
+    const lockedQuests = PlayerHelper.getLockedQuests(this.props.player, location)
+    return lockedQuests
+  }
+
+  get availableMobs(): CharacterItem[] {
+    return this.props.game.mobs!
+  }
+
   async dropItemClickHandler(drop: DropItem) {
     // log('dropItemClickHandler triggered. drop:', drop)
     await this.props.sellDropItem(drop)
@@ -248,7 +258,7 @@ class BaseSectionLocation extends React.Component<Props> {
     const key = drop.key
     const sellPrice = PriceMultiplierHelper.calculatePrice(drop.basePrice, priceMultiplierValue)
     const heading = drop.name
-    const subheading = `(${sellPrice} gold) (owns ${availableDropItem.quantity})`
+    const subheading = `(${sellPrice.toLocaleString()} gold) (owns ${availableDropItem.quantity})`
     const flavor = drop.flavor
     const ctaType = 'blue'
     const ctaLabel = 'Sell'
@@ -276,7 +286,7 @@ class BaseSectionLocation extends React.Component<Props> {
 
     const key = consumable.key
     const heading = consumable.name
-    const subheading = `(${cost} gold) (owns ${PlayerHelper.countAvailableConsumableByKey(this.props.player, consumable.key)})`
+    const subheading = `(${cost.toLocaleString()} gold) (owns ${PlayerHelper.countAvailableConsumableByKey(this.props.player, consumable.key)})`
     const flavor = consumable.flavor
     const ctaType = 'blue'
     const ctaLabel = 'Buy'
@@ -298,22 +308,48 @@ class BaseSectionLocation extends React.Component<Props> {
 
   private renderQuests(): JSX.Element {
     if (this.availableQuests.length > 0) {
-      return <QuestContainer>{this.availableQuests.map((quest) => this.renderQuestItem(quest))}</QuestContainer>
+      return (
+        <QuestContainer>
+          {this.availableQuests.map((quest) => this.renderQuestItem(quest, true))}
+          {this.lockedQuests.map((quest) => this.renderQuestItem(quest, false))}
+        </QuestContainer>
+      )
     } else {
       return <NoQuestContainer>There are no quests available.</NoQuestContainer>
     }
   }
 
-  private renderQuestItem(quest: QuestItem): JSX.Element {
+  private renderQuestItem(quest: QuestItem, isAvailable: boolean): JSX.Element {
     const key = quest.key
     const heading = quest.name
     const subheading = ``
     const conversation = quest.conversation
     const explanations = [QuestHelper.getRequestLabel(quest), QuestHelper.getRewardLabel(quest)]
-    const ctaType = 'blue'
     const ctaLabel = 'Deliver'
 
-    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} conversation={conversation} explanations={explanations} ctaLabel={ctaLabel} onClick={() => this.questItemClickHandler(quest)} />
+    let ctaType = 'blue'
+    let textColor: string | undefined
+    let opacity: string | undefined
+    if (!isAvailable) {
+      ctaType = 'disabled'
+      textColor = 'gray'
+      opacity = '0.4'
+    }
+
+    return (
+      <ListItem
+        key={key}
+        ctaType={ctaType as any}
+        heading={heading}
+        subheading={subheading}
+        conversation={conversation}
+        explanations={explanations}
+        ctaLabel={ctaLabel}
+        textColor={textColor}
+        opacity={opacity}
+        onClick={() => this.questItemClickHandler(quest)}
+      />
+    )
   }
 
   private renderDungeon(): JSX.Element {
@@ -325,7 +361,7 @@ class BaseSectionLocation extends React.Component<Props> {
             <PropertyKey>Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>
           </DescriptionWrapper>
         </DescriptionContainer>
-        <MobContainer>{this.props.game.mobs!.map((mob) => this.renderMobItem(mob))}</MobContainer>
+        <MobContainer>{this.availableMobs.map((mob) => this.renderMobItem(mob))}</MobContainer>
       </React.Fragment>
     )
   }
@@ -341,7 +377,6 @@ class BaseSectionLocation extends React.Component<Props> {
     const key = mob.id
     const heading = mobTemplate.name
     const subheading = `(Lvl ${mob.currentLevel.toLocaleString()})`
-    const flavor = ''
 
     let ctaType = 'blue'
     let ctaLabel = 'Fight'
@@ -350,7 +385,14 @@ class BaseSectionLocation extends React.Component<Props> {
       ctaLabel = 'In Combat'
     }
 
-    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.mobItemClickHandler(mob)} />
+    let flavor = ''
+    let textColor: string | undefined
+    if (mobTemplate.category === 'unique') {
+      flavor = mobTemplate.flavor
+      textColor = '#d000b1'
+    }
+
+    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} textColor={textColor} onClick={() => this.mobItemClickHandler(mob)} />
   }
 }
 
