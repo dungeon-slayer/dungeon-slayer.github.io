@@ -10,6 +10,7 @@ import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
+import { CtaItem } from 'src/common/interfaces'
 
 const log = Bows('SectionInventory')
 
@@ -114,10 +115,13 @@ class BaseSectionInventory extends React.Component<Props> {
     const heading = consumable.name
     const subheading = `(×${availableItem.quantity.toLocaleString()})`
     const flavor = consumable.flavor
-    const ctaType = 'blue'
-    const ctaLabel = 'Use'
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Use',
+      onClick: () => this.operatorClickHandler(consumable),
+    }
 
-    return <ListItem ctaType={ctaType} key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(consumable)} />
+    return <ListItem key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
   }
 
   private renderDrops(): JSX.Element {
@@ -152,7 +156,7 @@ class BaseSectionInventory extends React.Component<Props> {
     const subheading = `(×${availableItem.quantity.toLocaleString()})`
     const flavor = drop.flavor
 
-    return <ListItem key={drop.key} heading={heading} subheading={subheading} flavor={flavor} />
+    return <ListItem key={drop.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[]} />
   }
 }
 

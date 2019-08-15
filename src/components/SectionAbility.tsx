@@ -10,6 +10,7 @@ import { AbilityItem } from 'src/data'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
+import { CtaItem } from 'src/common/interfaces'
 
 const log = Bows('SectionAbility')
 
@@ -109,14 +110,17 @@ class BaseSectionAbility extends React.Component<Props> {
     const subheading = `(AP: ${ability.apCost})`
     const flavor = ability.flavor
 
-    let ctaType = 'red'
-    let ctaLabel = 'Off'
+    const ctaItem: CtaItem = {
+      type: 'red',
+      label: 'Off',
+      onClick: () => this.operatorClickHandler(ability),
+    }
     if (AbilityHelper.isActivated(this.props.player, ability.key)) {
-      ctaType = 'green'
-      ctaLabel = 'On'
+      ctaItem.type = 'green'
+      ctaItem.label = 'On'
     }
 
-    return <ListItem ctaType={ctaType as any} key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(ability)} />
+    return <ListItem key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
   }
 }
 

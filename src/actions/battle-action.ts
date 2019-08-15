@@ -23,12 +23,12 @@ export class BattleAction {
       const state: StoreState = getState()
 
       if (BattleHelper.isEngaging(state.battle)) {
-        await dispatch(TraceAction.appendBattleLog(`You are already in the middle of a battle.`))
+        await dispatch(TraceAction.addBattleLog(`You are already in the middle of a battle.`))
         return
       }
 
       if (state.player.character!.currentHp <= 0) {
-        await dispatch(TraceAction.appendBattleLog(`You do not have enough HP to start a battle.`))
+        await dispatch(TraceAction.addBattleLog(`You do not have enough HP to start a battle.`))
         return
       }
 
@@ -55,7 +55,7 @@ export class BattleAction {
         payload: playerPayload,
       })
 
-      await dispatch(TraceAction.appendBattleLog(`You now engaging in a battle with <strong>${MobHelper.getMobNameByKey(mob.key)}</strong> (Lvl ${mob.currentLevel}).`))
+      await dispatch(TraceAction.addBattleLog(`You now engaging in a battle with <strong>${MobHelper.getMobNameByKey(mob.key)}</strong> (Lvl ${mob.currentLevel}).`))
     }
   }
 
@@ -164,9 +164,9 @@ export class BattleAction {
 
   private static async dispatchAppendDodgeLog(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem): Promise<void> {
     if (attacker.key === 'player') {
-      await dispatch(TraceAction.appendBattleLog(`Your attack to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong> was <strong>dodged</strong>.`))
+      await dispatch(TraceAction.addBattleLog(`Your attack to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong> was <strong>dodged</strong>.`))
     } else {
-      await dispatch(TraceAction.appendBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong>'s attack to you was <strong>dodged</strong>.`))
+      await dispatch(TraceAction.addBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong>'s attack to you was <strong>dodged</strong>.`))
     }
   }
 
@@ -183,9 +183,9 @@ export class BattleAction {
     }
 
     if (attacker.key === 'player') {
-      await dispatch(TraceAction.appendBattleLog(`You ${dealWord} ${damageLabel} to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>.`))
+      await dispatch(TraceAction.addBattleLog(`You ${dealWord} ${damageLabel} to <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>.`))
     } else {
-      await dispatch(TraceAction.appendBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong> ${dealWord} ${damageLabel} to you.`))
+      await dispatch(TraceAction.addBattleLog(`<strong>${MobHelper.getMobNameByKey(attacker.key)}</strong> ${dealWord} ${damageLabel} to you.`))
     }
   }
 
@@ -201,7 +201,7 @@ export class BattleAction {
 
   private static async dispatchDefeatCharacter(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem): Promise<void> {
     if (defender.key === 'player') {
-      await dispatch(TraceAction.appendBattleLog(`You have been defeated. All your abilities have now deactivated.`))
+      await dispatch(TraceAction.addBattleLog(`You have been defeated. All your abilities have now deactivated.`))
       // TODO: log loss
       await dispatch(PlayerAction.disableAllAbilities())
       await dispatch({ type: battleConstants.CLOSURE })
@@ -209,7 +209,7 @@ export class BattleAction {
       // Gain experience
       const rewardExpPoint = floor(defender.rewardExp * CharacterHelper.getExperienceMultiplier(attacker))
       attacker.currentExp += rewardExpPoint
-      await dispatch(TraceAction.appendBattleLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>, gained <strong>${rewardExpPoint.toLocaleString()}</strong> experience.`))
+      await dispatch(TraceAction.addBattleLog(`You won the battle against <strong>${MobHelper.getMobNameByKey(defender.key)}</strong>, gained <strong>${rewardExpPoint.toLocaleString()}</strong> experience.`))
       await dispatch(PlayerAction.trackAWin(defender))
       await BattleAction.dispatchUpdateCharacter(dispatch, attacker)
 
@@ -219,7 +219,7 @@ export class BattleAction {
       // Level up
       if (attacker.currentExp >= PlayerHelper.getExpRequiredToLevelUp(attacker.currentLevel)) {
         const newLevel = attacker.currentLevel + 1
-        await dispatch(TraceAction.appendLog(`You have now reached level <strong>${newLevel}</strong>.`))
+        await dispatch(TraceAction.addLog(`You have now reached level <strong>${newLevel}</strong>.`))
         await dispatch(TraceAction.loreByLevelUp(newLevel))
         await dispatch({ type: playerConstants.LEVEL_UP })
       }

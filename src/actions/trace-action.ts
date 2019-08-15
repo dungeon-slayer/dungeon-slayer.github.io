@@ -5,27 +5,27 @@ import { LogItem, LogType } from 'src/common/interfaces'
 import { LoreHelper } from 'src/helpers'
 
 export class TraceAction {
-  static appendBattleLog(message: string): StoreAction {
-    return TraceAction.appendLog(message, 'battle')
+  static addBattleLog(message: string): StoreAction {
+    return TraceAction.addLog(message, 'battle')
   }
 
-  static appendLoreLog(message: string): StoreAction {
-    return TraceAction.appendLog(message, 'lore')
+  static addLoreLog(message: string): StoreAction {
+    return TraceAction.addLog(message, 'lore')
   }
 
-  static appendTravelLog(message: string): StoreAction {
-    return TraceAction.appendLog(message, 'travel')
+  static addTravelLog(message: string): StoreAction {
+    return TraceAction.addLog(message, 'travel')
   }
 
-  static appendConsumelLog(message: string): StoreAction {
-    return TraceAction.appendLog(message, 'consume')
+  static addConsumelLog(message: string): StoreAction {
+    return TraceAction.addLog(message, 'consume')
   }
 
-  static appendShoplLog(message: string): StoreAction {
-    return TraceAction.appendLog(message, 'shop')
+  static addShoplLog(message: string): StoreAction {
+    return TraceAction.addLog(message, 'shop')
   }
 
-  static appendLog(message: string, type: LogType = 'normal'): StoreAction {
+  static addLog(message: string, type: LogType = 'normal'): StoreAction {
     const log: LogItem = {
       timestamp: Date.now(),
       type,
@@ -33,7 +33,7 @@ export class TraceAction {
     }
 
     return {
-      type: traceConstants.APPEND_LOG,
+      type: traceConstants.ADD_LOG,
       payload: {
         log,
       },
@@ -53,7 +53,7 @@ export class TraceAction {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       const targetLores = LoreHelper.getLevelLoresByKey(level.toString())
       for (const targetLore of targetLores) {
-        dispatch(TraceAction.appendLoreLog(targetLore.message))
+        dispatch(TraceAction.addLoreLog(targetLore.message))
       }
     }
   }
@@ -62,7 +62,7 @@ export class TraceAction {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       const targetLores = LoreHelper.getQuestLoresByKey(questKey)
       for (const targetLore of targetLores) {
-        dispatch(TraceAction.appendLoreLog(targetLore.message))
+        dispatch(TraceAction.addLoreLog(targetLore.message))
       }
     }
   }

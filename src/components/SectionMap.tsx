@@ -10,6 +10,7 @@ import { LocationHelper } from 'src/helpers'
 import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
+import { CtaItem } from 'src/common/interfaces'
 
 const log = Bows('SectionMap')
 
@@ -101,17 +102,21 @@ class BaseSectionMap extends React.Component<Props> {
     if (!isAvailable) {
       flavor = `(Player level requirement: ${location.levelRequired.toLocaleString()})`
     }
-    let ctaType = 'blue'
-    let ctaLabel = 'Travel To'
+
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Travel To',
+      onClick: () => this.operatorClickHandler(location),
+    }
     if (this.props.game.currentLocation === location.key) {
-      ctaType = 'disabled'
-      ctaLabel = `You're Here`
+      ctaItem.type = 'disabled'
+      ctaItem.label = `You're Here`
     } else if (!isAvailable) {
-      ctaType = 'disabled'
-      ctaLabel = 'N/A'
+      ctaItem.type = 'disabled'
+      ctaItem.label = 'N/A'
     }
 
-    return <ListItem ctaType={ctaType as any} key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.operatorClickHandler(location)} />
+    return <ListItem key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
   }
 }
 

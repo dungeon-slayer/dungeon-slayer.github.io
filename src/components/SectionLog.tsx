@@ -2,8 +2,8 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import styled from 'styled-components'
+// import { reverse } from 'lodash'
 // import { css } from 'glamor'
-import ScrollToBottom from 'react-scroll-to-bottom'
 import * as Bows from 'bows'
 import { GiBroadsword, GiScrollUnfurled, GiPotionBall, GiBootPrints, GiShakingHands } from 'react-icons/gi'
 import { MdChatBubbleOutline } from 'react-icons/md'
@@ -13,35 +13,49 @@ import { LogItem, LogType } from 'src/common/interfaces'
 import { DateHelper, HtmlParseHelper } from 'src/helpers'
 import { RandomHelper } from '../helpers/random-helper'
 import { mediaQueries } from 'src/constants'
+import { GameState } from 'src/reducers'
 
 const log = Bows('SectionLog')
 
 const ComponentWrapper = styled.div`
-  padding: 24px;
+  // padding: 24px;
   background-color: rgba(119, 199, 199, 0.2);
-  height: calc(100% - 48px);
-
-  .scroll-to-bottom-component {
-    height: 150px;
-
-    @media ${mediaQueries.xlargeUp} {
-      height: 100%;
-    }
-  }
+  // height: calc(100% - 48px);
+  height: 100%;
+  overflow: auto;
 `
 
-const LogContainer = styled.div``
+const LogContainer = styled.div`
+  height: 150px;
+
+  @media ${mediaQueries.xlargeUp} {
+    height: 100%;
+  }
+`
 
 const LogWrapper = styled.div`
   display: flex;
-  padding: 4px 0;
-  font-size: 12px;
+  // padding: 4px 0;
+  padding: 4px 24px;
+  // font-size: 12px;
   transition: background-color 0.3s;
 
-  &:hover {
+  &:nth-child(1) {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+  &:nth-child(2) {
     background-color: rgba(0, 0, 0, 0.02);
   }
+  &:nth-child(3) {
+    background-color: rgba(0, 0, 0, 0.01);
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
 `
+
+const SpecialLogWrapper = styled(LogWrapper)``
 
 const LogTimestamp = styled.div`
   color: #6f88c5;
@@ -63,6 +77,7 @@ const LoreLogMessage = styled(LogMessage)`
 
 interface Props {
   trace: TraceState
+  game: GameState
 }
 
 class BaseSectionLog extends React.Component<Props> {
@@ -74,24 +89,32 @@ class BaseSectionLog extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  render(): JSX.Element {
-    // const ROOT_CSS = css({
-    //   height: 150,
-    // })
+  get logs(): LogItem[] {
+    return this.props.trace.logs
+  }
 
-    return (
-      <ComponentWrapper>
-        <ScrollToBottom className="scroll-to-bottom-component">{this.renderContent()}</ScrollToBottom>
-      </ComponentWrapper>
-    )
+  render(): JSX.Element {
+    return <ComponentWrapper>{this.renderContent()}</ComponentWrapper>
   }
 
   private renderContent(): JSX.Element | null {
-    if (this.props.trace.logs.length === 0) {
-      return <div>No logs...</div>
+    if (!this.props.game.displayLogs) {
+      return (
+        <LogContainer>
+          <SpecialLogWrapper>Logs disabled</SpecialLogWrapper>
+        </LogContainer>
+      )
     }
 
-    return <LogContainer>{this.props.trace.logs.map((item) => this.renderItem(item))}</LogContainer>
+    if (this.logs.length === 0) {
+      return (
+        <LogContainer>
+          <SpecialLogWrapper>No logs...</SpecialLogWrapper>
+        </LogContainer>
+      )
+    }
+
+    return <LogContainer>{this.logs.map((item) => this.renderItem(item))}</LogContainer>
   }
 
   private renderItem(item: LogItem): JSX.Element {
@@ -135,9 +158,10 @@ class BaseSectionLog extends React.Component<Props> {
 }
 
 function mapStateToProps(state: StoreState) {
-  const { trace } = state
+  const { trace, game } = state
   return {
     trace,
+    game,
   }
 }
 

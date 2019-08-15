@@ -7,7 +7,7 @@ import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { ProgressState, GameState, BattleState, PlayerState } from 'src/reducers'
 import { MobHelper, LocationHelper, BattleHelper, PlayerHelper, HtmlParseHelper, PriceMultiplierHelper, ConsumableHelper, QuestHelper } from 'src/helpers'
-import { CharacterItem, PriceMultiplierItem, QuestItem } from 'src/common/interfaces'
+import { CharacterItem, PriceMultiplierItem, QuestItem, CtaItem } from 'src/common/interfaces'
 import { BattleAction, GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
@@ -260,10 +260,13 @@ class BaseSectionLocation extends React.Component<Props> {
     const heading = drop.name
     const subheading = `(${sellPrice.toLocaleString()} gold) (owns ${availableDropItem.quantity})`
     const flavor = drop.flavor
-    const ctaType = 'blue'
-    const ctaLabel = 'Sell'
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Sell',
+      onClick: () => this.dropItemClickHandler(drop),
+    }
 
-    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.dropItemClickHandler(drop)} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
   }
 
   private renderMerchant(): JSX.Element {
@@ -288,10 +291,13 @@ class BaseSectionLocation extends React.Component<Props> {
     const heading = consumable.name
     const subheading = `(${cost.toLocaleString()} gold) (owns ${PlayerHelper.countAvailableConsumableByKey(this.props.player, consumable.key)})`
     const flavor = consumable.flavor
-    const ctaType = 'blue'
-    const ctaLabel = 'Buy'
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Buy',
+      onClick: () => this.consumableItemClickHandler(consumable),
+    }
 
-    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} onClick={() => this.consumableItemClickHandler(consumable)} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
   }
 
   private renderQuestGiver(): JSX.Element {
@@ -325,31 +331,23 @@ class BaseSectionLocation extends React.Component<Props> {
     const subheading = ``
     const conversation = quest.conversation
     const explanations = [QuestHelper.getRequestLabel(quest), QuestHelper.getRewardLabel(quest)]
-    const ctaLabel = 'Deliver'
 
-    let ctaType = 'blue'
     let textColor: string | undefined
     let opacity: string | undefined
-    if (!isAvailable) {
-      ctaType = 'disabled'
-      textColor = 'gray'
-      opacity = '0.4'
+
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Deliver',
+      onClick: () => this.questItemClickHandler(quest),
     }
 
-    return (
-      <ListItem
-        key={key}
-        ctaType={ctaType as any}
-        heading={heading}
-        subheading={subheading}
-        conversation={conversation}
-        explanations={explanations}
-        ctaLabel={ctaLabel}
-        textColor={textColor}
-        opacity={opacity}
-        onClick={() => this.questItemClickHandler(quest)}
-      />
-    )
+    if (!isAvailable) {
+      textColor = 'gray'
+      opacity = '0.4'
+      ctaItem.type = 'disabled'
+    }
+
+    return <ListItem key={key} heading={heading} subheading={subheading} conversation={conversation} explanations={explanations} textColor={textColor} opacity={opacity} ctaItems={[ctaItem]} />
   }
 
   private renderDungeon(): JSX.Element {
@@ -378,11 +376,14 @@ class BaseSectionLocation extends React.Component<Props> {
     const heading = mobTemplate.name
     const subheading = `(Lvl ${mob.currentLevel.toLocaleString()})`
 
-    let ctaType = 'blue'
-    let ctaLabel = 'Fight'
+    const ctaItem: CtaItem = {
+      type: 'blue',
+      label: 'Fight',
+      onClick: () => this.mobItemClickHandler(mob),
+    }
     if (BattleHelper.isEngaging(this.props.battle) && this.props.battle.targetMob!.id === mob.id) {
-      ctaType = 'disabled'
-      ctaLabel = 'In Combat'
+      ctaItem.type = 'disabled'
+      ctaItem.label = 'In Combat'
     }
 
     let flavor = ''
@@ -392,7 +393,7 @@ class BaseSectionLocation extends React.Component<Props> {
       textColor = '#d000b1'
     }
 
-    return <ListItem key={key} ctaType={ctaType as any} heading={heading} subheading={subheading} flavor={flavor} ctaLabel={ctaLabel} textColor={textColor} onClick={() => this.mobItemClickHandler(mob)} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} textColor={textColor} ctaItems={[ctaItem]} />
   }
 }
 

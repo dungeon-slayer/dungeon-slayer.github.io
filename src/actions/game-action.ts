@@ -116,11 +116,11 @@ export class GameAction {
       }
 
       if (BattleHelper.isEngaging(state.battle)) {
-        await dispatch(TraceAction.appendTravelLog(`You cannot travel during a battle.`))
+        await dispatch(TraceAction.addTravelLog(`You cannot travel during a battle.`))
         return
       }
 
-      await dispatch(TraceAction.appendTravelLog(`You are now at <strong>${location.name}</strong>.`))
+      await dispatch(TraceAction.addTravelLog(`You are now at <strong>${location.name}</strong>.`))
 
       const payload: GameState = {
         currentLocation: location.key,
@@ -164,7 +164,7 @@ export class GameAction {
       }
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
-      await dispatch(TraceAction.appendShoplLog(`You sold <strong>${drop.name}</strong> ×1 for <strong>${sellPrice}</strong> gold.`))
+      await dispatch(TraceAction.addShoplLog(`You sold <strong>${drop.name}</strong> ×1 for <strong>${sellPrice}</strong> gold.`))
     }
   }
 
@@ -189,7 +189,7 @@ export class GameAction {
 
       // Check if has enough gold
       if (state.player.gold! < sellPrice) {
-        await dispatch(TraceAction.appendShoplLog(`You do not have enough gold to buy <strong>${consumable.name}</strong>.`))
+        await dispatch(TraceAction.addShoplLog(`You do not have enough gold to buy <strong>${consumable.name}</strong>.`))
         return
       }
 
@@ -204,7 +204,7 @@ export class GameAction {
       }
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
-      await dispatch(TraceAction.appendShoplLog(`You bought <strong>${consumable.name}</strong> with <strong>${sellPrice}</strong> gold.`))
+      await dispatch(TraceAction.addShoplLog(`You bought <strong>${consumable.name}</strong> with <strong>${sellPrice}</strong> gold.`))
     }
   }
 
@@ -222,7 +222,7 @@ export class GameAction {
 
       // Verify if player has fulfilled the quest
       if (!PlayerHelper.hasFulfillQuestRequirement(state.player, quest)) {
-        await dispatch(TraceAction.appendLog(`You have not met the requirement to complete quest <strong>${quest.name}</strong>.`))
+        await dispatch(TraceAction.addLog(`You have not met the requirement to complete quest <strong>${quest.name}</strong>.`))
         return
       }
 
@@ -245,7 +245,7 @@ export class GameAction {
       playerPayload.questDeliveredStats!.push(quest.key)
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
-      await dispatch(TraceAction.appendLog(`You completed and rewarded for the quest <strong>${quest.name}</strong>.`))
+      await dispatch(TraceAction.addLog(`You completed and rewarded for the quest <strong>${quest.name}</strong>.`))
       await dispatch(TraceAction.loreByQuestCompletion(quest.key))
     }
   }

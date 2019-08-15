@@ -88,3 +88,9 @@ export interface DamageDataItem {
   damageDealt: number
   isCriticalHit: boolean
 }
+
+export interface CtaItem {
+  type: string
+  label: string
+  onClick: any
+}

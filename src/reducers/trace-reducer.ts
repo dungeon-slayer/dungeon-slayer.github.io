@@ -1,4 +1,4 @@
-import { takeRight } from 'lodash'
+import { take } from 'lodash'
 // import * as Bows from 'bows'
 import { LogItem } from 'src/common/interfaces'
 import { traceConstants } from 'src/actions'
@@ -16,8 +16,8 @@ const initialState: TraceState = {
 
 export function trace(state = initialState, action: any): TraceState {
   switch (action.type) {
-    case traceConstants.APPEND_LOG:
-      return caseAppendLog(state, action)
+    case traceConstants.ADD_LOG:
+      return caseAddLog(state, action)
 
     case traceConstants.TRUNCATE_LOGS:
       return caseTruncateLogs(state, action)
@@ -29,13 +29,13 @@ export function trace(state = initialState, action: any): TraceState {
 
 // -- Cases
 
-function caseAppendLog(state: TraceState, action: StoreAction): TraceState {
+function caseAddLog(state: TraceState, action: StoreAction): TraceState {
   const log: LogItem = (action.payload as any).log
 
   const newState: TraceState = {
     ...state,
   }
-  newState.logs.push(log)
+  newState.logs.unshift(log)
 
   return newState
 }
@@ -43,7 +43,7 @@ function caseAppendLog(state: TraceState, action: StoreAction): TraceState {
 function caseTruncateLogs(state: TraceState, action: StoreAction): TraceState {
   const size: number = (action.payload as any).size
 
-  const newLogs = takeRight(state.logs, size)
+  const newLogs = take(state.logs, size)
   const newState: TraceState = {
     ...state,
     logs: newLogs,

@@ -52,11 +52,11 @@ export class ControlAction {
       if (gameSave!.saveVersion < EnvironmentDelegate.SaveVersion) {
         try {
           gameSave = GameSaveHelper.attemptToUpgrade(gameSave!)
-          await dispatch(TraceAction.appendLoreLog(LoreHelper.getCustomLoreMessageByKey('SAVE_UPGRADE')))
+          await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('SAVE_UPGRADE')))
         } catch (err) {
           log('Failed to upgrade save. err:', err)
-          await dispatch(TraceAction.appendLoreLog(LoreHelper.getCustomLoreMessageByKey('GAME_RESET')))
-          await dispatch(TraceAction.appendLoreLog('...'))
+          await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('GAME_RESET')))
+          await dispatch(TraceAction.addLoreLog('...'))
           await ControlAction.dispatchLogForNewGame(dispatch, state)
           return
         }
@@ -72,7 +72,7 @@ export class ControlAction {
         await dispatch({ type: playerConstants.UPDATE, payload: newPlayerState })
       }
 
-      await dispatch(TraceAction.appendLoreLog(LoreHelper.getCustomLoreMessageByKey('CONTINUE_GAME')))
+      await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('CONTINUE_GAME')))
       await ControlAction.dispatchLogForCurrentLocation(dispatch, gameSave!.state.game.currentLocation)
     }
   }
@@ -80,6 +80,17 @@ export class ControlAction {
   static setGameSpeed(clockSpeedMultiplier: number): StoreAction {
     const stateOverride: GameState = {
       clockSpeedMultiplier,
+    }
+
+    return {
+      type: gameConstants.UPDATE,
+      payload: stateOverride,
+    }
+  }
+
+  static setDisplayLogs(displayLogs: boolean): StoreAction {
+    const stateOverride: GameState = {
+      displayLogs,
     }
 
     return {
@@ -112,13 +123,13 @@ export class ControlAction {
   }
 
   private static async dispatchLogForNewGame(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {
-    await dispatch(TraceAction.appendLoreLog(LoreHelper.getCustomLoreMessageByKey('NEW_GAME')))
+    await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('NEW_GAME')))
     await ControlAction.dispatchLogForCurrentLocation(dispatch, state.game.currentLocation)
   }
 
   private static async dispatchLogForCurrentLocation(dispatch: Dispatch<StoreAction>, currentLocation: string | undefined): Promise<void> {
     const location = LocationHelper.getItemByKey(currentLocation)!
-    await dispatch(TraceAction.appendTravelLog(`You are now at <strong>${location.name}</strong>.`))
+    await dispatch(TraceAction.addTravelLog(`You are now at <strong>${location.name}</strong>.`))
   }
 
   private static async dispatchNewGameWithGodMode(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {

@@ -2,6 +2,8 @@ import * as React from 'react'
 import styled, { css } from 'styled-components'
 import * as Bows from 'bows'
 import Button from './Button'
+import { CtaItem } from 'src/common/interfaces'
+import { RandomHelper } from 'src/helpers'
 
 const log = Bows('ListItem')
 
@@ -68,9 +70,11 @@ const ExplanationWrapper = styled.div`
   line-height 1.1;
   margin: 4px 0;
 `
-const OperatorWrapper = styled.div`
+const OperatorContainer = styled.div`
   margin-left: 12px;
 `
+
+const ButtonWrapper = styled.div``
 
 interface Props {
   heading: string
@@ -79,12 +83,13 @@ interface Props {
   flavor: string
   conversation: string
   explanations: string[]
-  ctaType: 'default' | 'blue' | 'red' | 'disabled'
-  ctaLabel: string
+  // ctaType: 'default' | 'blue' | 'red' | 'disabled'
+  // ctaLabel: string
   textColor: string
   opacity: string
+  ctaItems: CtaItem[]
 
-  onClick: any
+  // onClick: any
 }
 
 export default class ListItem extends React.Component<Props> {
@@ -92,11 +97,12 @@ export default class ListItem extends React.Component<Props> {
     flavor: '',
     conversation: '',
     explanations: [],
-    ctaType: 'default',
-    ctaLabel: 'Click',
+    // ctaType: 'default',
+    // ctaLabel: 'Click',
     textColor: '#033649',
     opacity: '1',
-    onClick: undefined,
+    ctaItems: [],
+    // onClick: undefined,
   }
 
   constructor(props: Props) {
@@ -111,15 +117,15 @@ export default class ListItem extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  get displayCta(): boolean {
-    return !!this.props.onClick
+  get displayOperators(): boolean {
+    return this.props.ctaItems.length > 0
   }
 
-  clickHandler(e: Event) {
-    if (this.props.onClick) {
-      this.props.onClick()
-    }
-  }
+  // clickHandler(e: Event) {
+  //   if (this.props.onClick) {
+  //     this.props.onClick()
+  //   }
+  // }
 
   render(): JSX.Element {
     return (
@@ -130,7 +136,7 @@ export default class ListItem extends React.Component<Props> {
           </HeadingWrapper>
           {this.renderDescription()}
         </ContentWrapper>
-        {this.displayCta && this.renderOperator()}
+        {this.displayOperators && this.renderOperators()}
       </ComponentWrapper>
     )
   }
@@ -149,11 +155,15 @@ export default class ListItem extends React.Component<Props> {
     return <ExplanationWrapper>{explanation}</ExplanationWrapper>
   }
 
-  private renderOperator(): JSX.Element {
+  private renderOperators(): JSX.Element {
+    return <OperatorContainer>{this.props.ctaItems.map((cta) => this.renderOperator(cta))}</OperatorContainer>
+  }
+
+  private renderOperator(cta: CtaItem): JSX.Element {
     return (
-      <OperatorWrapper>
-        <Button type={this.props.ctaType} label={this.props.ctaLabel} onClick={this.clickHandler.bind(this)} />
-      </OperatorWrapper>
+      <ButtonWrapper key={RandomHelper.generateId()}>
+        <Button type={cta.type as any} label={cta.label} onClick={cta.onClick} />
+      </ButtonWrapper>
     )
   }
 }
