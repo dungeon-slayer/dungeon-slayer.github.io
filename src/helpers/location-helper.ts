@@ -1,5 +1,8 @@
-import { find, filter, sortBy, head, isArray } from 'lodash'
+import { find, filter, head, difference, isArray } from 'lodash'
 import { locations, LocationItem } from 'src/data'
+import { PlayerState } from 'src/reducers'
+import { PlayerHelper } from './player-helper'
+import { ConsumableHelper } from './consumable-helper'
 
 export class LocationHelper {
   static getItemByKey(key: string | undefined): LocationItem | undefined {
@@ -11,14 +14,21 @@ export class LocationHelper {
     return matchedItem
   }
 
-  static getAvailableItems(playerLevel: number): LocationItem[] {
-    return filter(locations, (item) => item.levelRequired <= playerLevel)
+  static getAvailableItems(player: PlayerState): LocationItem[] {
+    const targetLocations = filter(locations, (location) => {
+      return player.character!.currentLevel >= location.levelRequired && PlayerHelper.hasConsumedItems(player, location.consumeRequired)
+    })
+    return targetLocations
   }
 
-  static getNextUnavailableItem(playerLevel: number): LocationItem | undefined {
-    const unavailableLocations = filter(locations, (item) => item.levelRequired > playerLevel)
-    const sortedUnavailableLocations = sortBy(unavailableLocations, (item) => item.levelRequired)
-    return head(sortedUnavailableLocations)
+  static getUnavailableItems(player: PlayerState): LocationItem[] {
+    const availableItems = LocationHelper.getAvailableItems(player)
+    return difference(locations, availableItems)
+  }
+
+  static getNextUnavailableItem(player: PlayerState): LocationItem | undefined {
+    const unavailableItems = LocationHelper.getUnavailableItems(player)
+    return head(unavailableItems)
   }
 
   static hasDungeonByKey(key: string | undefined): boolean {
@@ -51,5 +61,15 @@ export class LocationHelper {
       return false
     }
     return isArray(location.questGiver)
+  }
+
+  static getRequirementLabel(location: LocationItem): string {
+    const requirements: string[] = []
+    requirements.push(`Player level ${location.levelRequired}`)
+    for (const consumableKey of location.consumeRequired) {
+      const consumableName = ConsumableHelper.getNameByKey(consumableKey, consumableKey)
+      requirements.push(consumableName)
+    }
+    return `(Requirement: ${requirements.join(', ')})`
   }
 }

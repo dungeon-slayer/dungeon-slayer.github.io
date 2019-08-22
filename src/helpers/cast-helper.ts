@@ -1,4 +1,4 @@
-import { toNumber, isNaN } from 'lodash'
+import { toNumber, isNaN, round } from 'lodash'
 
 export class CastHelper {
   static toString(val: string | undefined, defaultValue = ''): string {
@@ -21,5 +21,9 @@ export class CastHelper {
     } else {
       return defaultValue
     }
+  }
+
+  static toPercentageLabel(val: number, precision = 0): string {
+    return round(val * 100, precision) + '%'
   }
 }

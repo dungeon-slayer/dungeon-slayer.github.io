@@ -1,9 +1,12 @@
 import { floor, find, filter } from 'lodash'
 import { playerTemplate, LocationItem, DropItem, drops, ConsumableItem, consumables } from 'src/data'
-import { AvailableItem, QuestItem } from 'src/common/interfaces'
-import { PlayerState } from 'src/reducers'
+import { AvailableItem, QuestItem, ActiveAbilityItem } from 'src/common/interfaces'
+import { PlayerState, BattleState } from 'src/reducers'
 import { ConsumableHelper } from './consumable-helper'
 import { AbilityHelper } from './ability-helper'
+import { BattleHelper } from './battle-helper'
+import { PriceMultiplierHelper } from './price-multiplier-helper'
+import { LocationHelper } from './location-helper'
 
 export class PlayerHelper {
   static getHp(level: number): number {
@@ -27,7 +30,7 @@ export class PlayerHelper {
   }
 
   static getExpRequiredToLevelUp(level: number): number {
-    return floor((10 + level / 2) * Math.pow(1.4, level))
+    return floor((10 + level / 2) * Math.pow(1.2, level))
   }
 
   static getAvailableItemByKey(availableItems: AvailableItem[], key: string): AvailableItem | undefined {
@@ -73,10 +76,10 @@ export class PlayerHelper {
     }
 
     let usedAP = 0
-    for (const abilityKey of player.character.activeAbilities) {
-      const ability = AbilityHelper.getItemByKey(abilityKey)
+    for (const activeAbilityItem of player.character.activeAbilities) {
+      const ability = AbilityHelper.getItemByKey(activeAbilityItem.key)
       if (ability) {
-        usedAP += ability.apCost
+        usedAP += AbilityHelper.getApCost(ability, activeAbilityItem.level)
       }
     }
     return usedAP
@@ -197,6 +200,15 @@ export class PlayerHelper {
     return targetAvailableItem.quantity >= qualifiedQuantity
   }
 
+  static hasConsumedItems(player: PlayerState, itemKeys: string[], qualifiedQuantity = 1): boolean {
+    for (const itemKey of itemKeys) {
+      if (!PlayerHelper.hasConsumedItem(player, itemKey, qualifiedQuantity)) {
+        return false
+      }
+    }
+    return true
+  }
+
   static hasDropItem(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
     if (!player.availableDrops) {
       return false
@@ -210,24 +222,75 @@ export class PlayerHelper {
     return targetAvailableItem.quantity >= qualifiedQuantity
   }
 
-  static getAvailableAbilityKeys(player: PlayerState): string[] {
-    const outputAbilityKeys: string[] = []
+  static getAvailableAbilityItems(player: PlayerState): ActiveAbilityItem[] {
+    const outputAbilityKeys: ActiveAbilityItem[] = []
 
     if (!player.itemUsedStats) {
       return outputAbilityKeys
     }
 
-    for (const availableItem of player.itemUsedStats) {
-      if (availableItem.quantity > 0) {
-        const targetConsumable = ConsumableHelper.getItemByKey(availableItem.key)
-        if (!!targetConsumable && targetConsumable.effect.gainAbilities) {
+    for (const usedItem of player.itemUsedStats) {
+      if (usedItem.quantity > 0) {
+        const targetConsumable = ConsumableHelper.getItemByKey(usedItem.key)
+        if (targetConsumable && targetConsumable.effect.gainAbilities) {
           for (const abilityKey of targetConsumable.effect.gainAbilities) {
-            outputAbilityKeys.push(abilityKey)
+            const aaItem: ActiveAbilityItem = { key: abilityKey, level: usedItem.quantity }
+            outputAbilityKeys.push(aaItem)
           }
         }
       }
     }
 
     return outputAbilityKeys
+  }
+
+  // TODO: this is inefficient, more thought required to make this step less cumbersome
+  static getAvailableAbilityItemByAbilityKey(player: PlayerState, abilityKey: string): ActiveAbilityItem | undefined {
+    if (!player.itemUsedStats) {
+      return undefined
+    }
+
+    for (const usedItem of player.itemUsedStats) {
+      if (usedItem.quantity > 0) {
+        const targetConsumable = ConsumableHelper.getItemByKey(usedItem.key)
+        if (targetConsumable && targetConsumable.effect.gainAbilities) {
+          if (targetConsumable.effect.gainAbilities.indexOf(abilityKey) > -1) {
+            // NOTE: This is assume that you cannot stake ability levels from different consumables
+            const aaItem: ActiveAbilityItem = { key: abilityKey, level: usedItem.quantity }
+            return aaItem
+          }
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  static isInFightingMode(player: PlayerState, battle: BattleState): boolean {
+    if (player.autoBattleEnabled) {
+      return true
+    }
+
+    if (BattleHelper.isEngaging(battle)) {
+      return true
+    }
+
+    return false
+  }
+
+  static hasEnoughDrops(player: PlayerState, dropKey: string, quantity: number): boolean {
+    const availableDropItem = find(player.availableDrops!, (ad) => ad.key === dropKey)
+    return !!availableDropItem && availableDropItem.quantity >= quantity
+  }
+
+  static hasEnoughGold(player: PlayerState, locationKey: string, consumable: ConsumableItem, quantity: number): boolean {
+    const currentLocation = LocationHelper.getItemByKey(locationKey)!
+    const priceMultiplierItem = find(currentLocation.merchant!, (pmi) => pmi.key === consumable.key)
+    if (!priceMultiplierItem) {
+      return true
+    }
+    const totalSellPrice = PriceMultiplierHelper.calculatePrice(consumable.basePrice, priceMultiplierItem.multiplier, quantity)
+
+    return player.gold! >= totalSellPrice
   }
 }

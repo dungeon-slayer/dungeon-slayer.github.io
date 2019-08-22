@@ -1,5 +1,5 @@
 import { find, cloneDeep, floor } from 'lodash'
-import { CharacterItem, CharacterEffectItem } from 'src/common/interfaces'
+import { CharacterItem, ConsumableEffectItem } from 'src/common/interfaces'
 import { mobTemplates } from 'src/data'
 import { AbilityHelper } from './ability-helper'
 import { GameState } from 'src/reducers'
@@ -9,12 +9,16 @@ export class CharacterHelper {
     return !character.nextTurnTs || character.nextTurnTs < Date.now()
   }
 
+  static isAbleToFight(character: CharacterItem): boolean {
+    return character.currentHp > 0
+  }
+
   static updateHpValue(currentHp: number, damageValue: number): number {
     const val = currentHp - damageValue
     return val < 0 ? 0 : val
   }
 
-  static updateConsumableEffect(character: CharacterItem, effect: CharacterEffectItem): CharacterItem {
+  static updateConsumableEffect(character: CharacterItem, effect: ConsumableEffectItem): CharacterItem {
     const characterCopy = cloneDeep(character)
 
     if (effect.hpModifier) {
@@ -46,7 +50,7 @@ export class CharacterHelper {
   }
 
   static hasActiveAbility(character: CharacterItem, abilityKey: string): boolean {
-    return !!find(character.activeAbilities, (aa) => aa === abilityKey)
+    return !!find(character.activeAbilities, (item) => item.key === abilityKey)
   }
 
   static getAttackMultiplier(character: CharacterItem): number {
@@ -56,10 +60,12 @@ export class CharacterHelper {
       return multiplier
     }
 
-    for (const activeAbilityKey of character.activeAbilities) {
-      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
-      if (!!targetAbility && targetAbility.effect.attackMultiplier) {
-        multiplier += targetAbility.effect.attackMultiplier - 1
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.attackBaseMultiplier && targetAbility.effect.attackLevelMultiplier) {
+          multiplier += targetAbility.effect.attackBaseMultiplier + targetAbility.effect.attackLevelMultiplier * activeAbilityItem.level
+        }
       }
     }
 
@@ -73,10 +79,12 @@ export class CharacterHelper {
       return multiplier
     }
 
-    for (const activeAbilityKey of character.activeAbilities) {
-      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
-      if (!!targetAbility && targetAbility.effect.defenseMultiplier) {
-        multiplier += targetAbility.effect.defenseMultiplier - 1
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.defenseBaseMultiplier && targetAbility.effect.defenseLevelMultiplier) {
+          multiplier += targetAbility.effect.defenseBaseMultiplier + targetAbility.effect.defenseLevelMultiplier * activeAbilityItem.level
+        }
       }
     }
 
@@ -103,10 +111,12 @@ export class CharacterHelper {
       return multiplier
     }
 
-    for (const activeAbilityKey of character.activeAbilities) {
-      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
-      if (!!targetAbility && targetAbility.effect.chargeTimeMultiplier) {
-        multiplier += targetAbility.effect.chargeTimeMultiplier - 1
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.chargeTimeBaseMultiplier && targetAbility.effect.chargeTimeLevelMultiplier) {
+          multiplier += targetAbility.effect.chargeTimeBaseMultiplier + targetAbility.effect.chargeTimeLevelMultiplier * activeAbilityItem.level
+        }
       }
     }
 
@@ -120,10 +130,12 @@ export class CharacterHelper {
       return multiplier
     }
 
-    for (const activeAbilityKey of character.activeAbilities) {
-      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
-      if (!!targetAbility && targetAbility.effect.experienceMultiplier) {
-        multiplier += targetAbility.effect.experienceMultiplier - 1
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.experienceBaseMultiplier && targetAbility.effect.experienceLevelMultiplier) {
+          multiplier += targetAbility.effect.experienceBaseMultiplier + targetAbility.effect.experienceLevelMultiplier * activeAbilityItem.level
+        }
       }
     }
 
@@ -137,27 +149,53 @@ export class CharacterHelper {
       return multiplier
     }
 
-    for (const activeAbilityKey of character.activeAbilities) {
-      const targetAbility = AbilityHelper.getItemByKey(activeAbilityKey)
-      if (!!targetAbility && targetAbility.effect.evasionMultiplier) {
-        multiplier += targetAbility.effect.evasionMultiplier
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.evasionBaseMultiplier && targetAbility.effect.evasionLevelMultiplier) {
+          multiplier += targetAbility.effect.evasionBaseMultiplier + targetAbility.effect.evasionLevelMultiplier * activeAbilityItem.level
+        }
       }
     }
 
     return multiplier
   }
 
-  static getBaseCriticalHitRate(attacker: CharacterItem): number {
-    if (CharacterHelper.hasActiveAbility(attacker, 'focus-strike')) {
-      return 0.2
+  static getCriticalChance(character: CharacterItem): number {
+    let multiplier = 0
+
+    if (!character.activeAbilities) {
+      return multiplier
     }
-    return 0.12
+
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.criticalChanceBaseMultiplier && targetAbility.effect.criticalChanceLevelMultiplier) {
+          multiplier += targetAbility.effect.criticalChanceBaseMultiplier + targetAbility.effect.criticalChanceLevelMultiplier * activeAbilityItem.level
+        }
+      }
+    }
+
+    return multiplier
   }
 
-  static getBaseCriticalHitMultiplier(attacker: CharacterItem): number {
-    if (CharacterHelper.hasActiveAbility(attacker, 'focus-strength')) {
-      return 1.4
+  static getCriticalBonusMultiplier(character: CharacterItem): number {
+    let multiplier = 1.2
+
+    if (!character.activeAbilities) {
+      return multiplier
     }
-    return 1.2
+
+    for (const activeAbilityItem of character.activeAbilities) {
+      const targetAbility = AbilityHelper.getItemByKey(activeAbilityItem.key)
+      if (targetAbility) {
+        if (targetAbility.effect.criticalBonusBaseMultiplier && targetAbility.effect.criticalBonusLevelMultiplier) {
+          multiplier += targetAbility.effect.criticalBonusBaseMultiplier + targetAbility.effect.criticalBonusLevelMultiplier * activeAbilityItem.level
+        }
+      }
+    }
+
+    return multiplier
   }
 }

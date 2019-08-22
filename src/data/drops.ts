@@ -60,6 +60,12 @@ export const drops: DropItem[] = [
     name: `Kolift's Scale`,
     flavor: '',
     // flavor: `A while piece of scale from Kolift's body.`,
-    basePrice: 2000,
+    basePrice: 0,
+  },
+  {
+    key: 'gummy-slime',
+    name: 'Gummy Slime',
+    flavor: '',
+    basePrice: 48,
   },
 ]

@@ -1,8 +1,10 @@
 import { Dispatch } from 'redux'
+import { map } from 'lodash'
 import { StoreAction } from 'src/store/interface'
 import { traceConstants } from './constants'
 import { LogItem, LogType } from 'src/common/interfaces'
 import { LoreHelper } from 'src/helpers'
+import { DropItem } from 'src/data'
 
 export class TraceAction {
   static addBattleLog(message: string): StoreAction {
@@ -23,6 +25,12 @@ export class TraceAction {
 
   static addShoplLog(message: string): StoreAction {
     return TraceAction.addLog(message, 'shop')
+  }
+
+  static addObtainDropsLog(drops: DropItem[]): StoreAction {
+    const dropNames = map(drops, (drop) => `<strong>${drop.name}</strong>`)
+    const message = `You obtained ${dropNames.join(', ')}.`
+    return TraceAction.addLog(message)
   }
 
   static addLog(message: string, type: LogType = 'normal'): StoreAction {

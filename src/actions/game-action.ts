@@ -115,6 +115,11 @@ export class GameAction {
         return
       }
 
+      if (!PlayerHelper.hasConsumedItems(state.player, location.consumeRequired)) {
+        // log('Has not met consumed items requirement.')
+        return
+      }
+
       if (BattleHelper.isEngaging(state.battle)) {
         await dispatch(TraceAction.addTravelLog(`You cannot travel during a battle.`))
         return
@@ -134,41 +139,43 @@ export class GameAction {
     }
   }
 
-  static sellDropItem(drop: DropItem): any {
+  static sellDropItem(drop: DropItem, quantity: number): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('sellDropItem triggered.')
 
       // State properties
       const state: StoreState = getState()
 
-      const availableDropItem = find(state.player.availableDrops!, (ad) => ad.key === drop.key)
-      if (!availableDropItem || availableDropItem.quantity <= 0) {
-        throw new Error('Cannot sell drop item that you do not have.')
+      if (!PlayerHelper.hasEnoughDrops(state.player, drop.key, quantity)) {
+        // throw new Error('Cannot sell drop item that you do not have.')
+        await dispatch(TraceAction.addShoplLog(`You do not have enough <strong>${drop.name}</strong> for sell.`))
+        return
       }
 
+      const availableDropItem = find(state.player.availableDrops!, (ad) => ad.key === drop.key)!
       const currentLocation = LocationHelper.getItemByKey(state.game.currentLocation)!
       const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(currentLocation.alchemist!, drop)
       if (priceMultiplierValue === 0) {
         throw new Error('Alchemist here does not buy this drop item.')
       }
 
-      const sellPrice = PriceMultiplierHelper.calculatePrice(drop.basePrice, priceMultiplierValue)
+      const totalSellPrice = PriceMultiplierHelper.calculatePrice(drop.basePrice, priceMultiplierValue, quantity)
 
       const playerPayload = cloneDeep(state.player)
-      playerPayload.gold! += sellPrice
-      if (availableDropItem.quantity === 1) {
+      playerPayload.gold! += totalSellPrice
+      if (availableDropItem.quantity === quantity) {
         playerPayload.availableDrops = filter(playerPayload.availableDrops!, (ad) => ad.key !== availableDropItem.key)
       } else {
         const targetAvailableDrop = find(playerPayload.availableDrops!, (ad) => ad.key === availableDropItem.key)!
-        targetAvailableDrop.quantity -= 1
+        targetAvailableDrop.quantity -= quantity
       }
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
-      await dispatch(TraceAction.addShoplLog(`You sold <strong>${drop.name}</strong> ×1 for <strong>${sellPrice}</strong> gold.`))
+      await dispatch(TraceAction.addShoplLog(`You sold <strong>${drop.name}</strong> ×${quantity} for <strong>${totalSellPrice.toLocaleString()}</strong> gold.`))
     }
   }
 
-  static buyConsumableItem(consumable: ConsumableItem): any {
+  static buyConsumableItem(consumable: ConsumableItem, quantity: number): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('buyConsumableItem triggered.')
 
@@ -185,26 +192,26 @@ export class GameAction {
         throw new Error('Merchant here does not sell this consumable item.')
       }
 
-      const sellPrice = PriceMultiplierHelper.calculatePrice(consumable.basePrice, priceMultiplierItem.multiplier)
+      const totalSellPrice = PriceMultiplierHelper.calculatePrice(consumable.basePrice, priceMultiplierItem.multiplier, quantity)
 
       // Check if has enough gold
-      if (state.player.gold! < sellPrice) {
+      if (state.player.gold! < totalSellPrice) {
         await dispatch(TraceAction.addShoplLog(`You do not have enough gold to buy <strong>${consumable.name}</strong>.`))
         return
       }
 
       const playerPayload = cloneDeep(state.player)
       const availableConsumable = find(playerPayload.availableConsumables!, (con) => con.key === consumable.key)!
-      playerPayload.gold! -= sellPrice
+      playerPayload.gold! -= totalSellPrice
 
       if (availableConsumable) {
-        availableConsumable.quantity += 1
+        availableConsumable.quantity += quantity
       } else {
-        playerPayload.availableConsumables!.push({ key: consumable.key, quantity: 1 })
+        playerPayload.availableConsumables!.push({ key: consumable.key, quantity })
       }
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
-      await dispatch(TraceAction.addShoplLog(`You bought <strong>${consumable.name}</strong> with <strong>${sellPrice}</strong> gold.`))
+      await dispatch(TraceAction.addShoplLog(`You bought <strong>${consumable.name}</strong> ×${quantity} with <strong>${totalSellPrice.toLocaleString()}</strong> gold.`))
     }
   }
 

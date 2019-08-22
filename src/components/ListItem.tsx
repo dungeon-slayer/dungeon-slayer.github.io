@@ -10,6 +10,7 @@ const log = Bows('ListItem')
 interface ComponentWrapperProps {
   textColor: string
   opacity: string
+  bgColor: string
 }
 
 const ComponentWrapper = styled.div`
@@ -25,6 +26,7 @@ const ComponentWrapper = styled.div`
   ${(props: ComponentWrapperProps) => css`
     color: ${props.textColor};
     opacity: ${props.opacity};
+    background-color: ${props.bgColor};
   `}
 
   &:hover {
@@ -72,9 +74,21 @@ const ExplanationWrapper = styled.div`
 `
 const OperatorContainer = styled.div`
   margin-left: 12px;
+  display: flex;
+  align-items: center;
 `
 
-const ButtonWrapper = styled.div``
+interface ButtonWrapperProps {
+  minWidth: string
+}
+
+const ButtonWrapper = styled.div`
+  margin: 0 4px;
+
+  ${(props: ButtonWrapperProps) => css`
+    min-width: ${props.minWidth};
+  `}
+`
 
 interface Props {
   heading: string
@@ -83,13 +97,11 @@ interface Props {
   flavor: string
   conversation: string
   explanations: string[]
-  // ctaType: 'default' | 'blue' | 'red' | 'disabled'
-  // ctaLabel: string
   textColor: string
   opacity: string
   ctaItems: CtaItem[]
-
-  // onClick: any
+  ctaMinWidth: string
+  bgColor: string
 }
 
 export default class ListItem extends React.Component<Props> {
@@ -97,12 +109,11 @@ export default class ListItem extends React.Component<Props> {
     flavor: '',
     conversation: '',
     explanations: [],
-    // ctaType: 'default',
-    // ctaLabel: 'Click',
     textColor: '#033649',
     opacity: '1',
     ctaItems: [],
-    // onClick: undefined,
+    ctaMinWidth: '60px',
+    bgColor: '#d9ebf0',
   }
 
   constructor(props: Props) {
@@ -121,15 +132,10 @@ export default class ListItem extends React.Component<Props> {
     return this.props.ctaItems.length > 0
   }
 
-  // clickHandler(e: Event) {
-  //   if (this.props.onClick) {
-  //     this.props.onClick()
-  //   }
-  // }
-
   render(): JSX.Element {
+    // log('render triggered. heading:', this.props.heading, 'bgColor:', this.props.bgColor)
     return (
-      <ComponentWrapper textColor={this.props.textColor} opacity={this.props.opacity}>
+      <ComponentWrapper textColor={this.props.textColor} opacity={this.props.opacity} bgColor={this.props.bgColor}>
         <ContentWrapper>
           <HeadingWrapper>
             <Heading>{this.props.heading}</Heading> <Subheading>{this.props.subheading}</Subheading>
@@ -161,7 +167,7 @@ export default class ListItem extends React.Component<Props> {
 
   private renderOperator(cta: CtaItem): JSX.Element {
     return (
-      <ButtonWrapper key={RandomHelper.generateId()}>
+      <ButtonWrapper key={RandomHelper.generateId()} minWidth={this.props.ctaMinWidth}>
         <Button type={cta.type as any} label={cta.label} onClick={cta.onClick} />
       </ButtonWrapper>
     )

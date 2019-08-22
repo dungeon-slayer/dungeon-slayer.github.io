@@ -10,7 +10,7 @@ import { AbilityItem } from 'src/data'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
-import { CtaItem } from 'src/common/interfaces'
+import { CtaItem, ActiveAbilityItem } from 'src/common/interfaces'
 
 const log = Bows('SectionAbility')
 
@@ -31,6 +31,13 @@ const DescriptionContainer = styled.div``
 
 const DescriptionWrapper = styled.div`
   margin: 4px 0;
+`
+
+const EmphasisDescriptionWrapper = styled.div`
+  margin-top: 12px;
+  background-color: rgba(255, 184, 98, 0.1);
+  border-radius: 4px;
+  padding: 12px;
 `
 
 const AbilityContainer = styled.div`
@@ -81,37 +88,40 @@ class BaseSectionAbility extends React.Component<Props> {
     return (
       <DescriptionContainer>
         <DescriptionWrapper>Abilities you have acquired throughout the adventure.</DescriptionWrapper>
-        <DescriptionWrapper>
+        <EmphasisDescriptionWrapper>
           You allocated <strong>{usedAP}</strong> out of total <strong>{totalAP}</strong> Ability Points.
-        </DescriptionWrapper>
+        </EmphasisDescriptionWrapper>
       </DescriptionContainer>
     )
   }
 
   private renderItems(): JSX.Element | null {
-    const availableAbilities = PlayerHelper.getAvailableAbilityKeys(this.props.player)
+    const availableAbilities = PlayerHelper.getAvailableAbilityItems(this.props.player)
 
     if (availableAbilities.length === 0) {
       return <NoAbilityContainer>You do not have any abilities available.</NoAbilityContainer>
     }
 
-    return <AbilityContainer>{availableAbilities.map((key) => this.renderItem(key))}</AbilityContainer>
+    return <AbilityContainer>{availableAbilities.map((item) => this.renderItem(item))}</AbilityContainer>
   }
 
-  private renderItem(abilityKey: string): JSX.Element | null {
-    const ability = AbilityHelper.getItemByKey(abilityKey)
+  private renderItem(aaItem: ActiveAbilityItem): JSX.Element | null {
+    const ability = AbilityHelper.getItemByKey(aaItem.key)
 
     if (!ability) {
-      log('Failed to find ability:', abilityKey)
+      log('Failed to find ability:', aaItem)
       return null
     }
 
-    const heading = ability.name
-    const subheading = `(AP: ${ability.apCost})`
-    const flavor = ability.flavor
+    const availableAP = PlayerHelper.getAvailableAbilityPoint(this.props.player)
+    const apCost = AbilityHelper.getApCost(ability, aaItem.level)
+
+    const heading = AbilityHelper.getFullName(ability, aaItem.level)
+    const subheading = `(AP: ${apCost})`
+    const flavor = AbilityHelper.getFlavorText(ability, aaItem.level)
 
     const ctaItem: CtaItem = {
-      type: 'red',
+      type: availableAP > apCost ? 'red' : 'disabled',
       label: 'Off',
       onClick: () => this.operatorClickHandler(ability),
     }
@@ -120,7 +130,7 @@ class BaseSectionAbility extends React.Component<Props> {
       ctaItem.label = 'On'
     }
 
-    return <ListItem key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
+    return <ListItem key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 

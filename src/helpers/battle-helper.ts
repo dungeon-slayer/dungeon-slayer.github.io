@@ -11,10 +11,10 @@ export class BattleHelper {
     // Attack point
     let attackPoint = attacker.attack * 4 * CharacterHelper.getAttackMultiplier(attacker)
     if (attackPoint > 0) {
-      const attackerCriticalHitRate = CharacterHelper.getBaseCriticalHitRate(attacker)
-      const attackerCriticalHitMultiplier = CharacterHelper.getBaseCriticalHitMultiplier(attacker)
-      if (RandomHelper.takeChance(attackerCriticalHitRate)) {
-        attackPoint = attackPoint * attackerCriticalHitMultiplier
+      const attackerCriticalChance = CharacterHelper.getCriticalChance(attacker)
+      const attackerCriticalBonusMultiplier = CharacterHelper.getCriticalBonusMultiplier(attacker)
+      if (RandomHelper.takeChance(attackerCriticalChance)) {
+        attackPoint = attackPoint * attackerCriticalBonusMultiplier
         output.isCriticalHit = true
       }
     }

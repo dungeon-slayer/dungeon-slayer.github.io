@@ -1,11 +1,11 @@
-import { CharacterEffectItem } from 'src/common/interfaces'
+import { ConsumableEffectItem } from 'src/common/interfaces'
 
 export interface ConsumableItem {
   key: string
   name: string
   flavor: string
   basePrice: number
-  effect: CharacterEffectItem
+  effect: ConsumableEffectItem
 }
 
 export const consumables: ConsumableItem[] = [
@@ -25,15 +25,6 @@ export const consumables: ConsumableItem[] = [
     basePrice: 200,
     effect: {
       hpModifier: 200,
-    },
-  },
-  {
-    key: 'relic-auto-battle',
-    name: 'Relic of Auto Battle',
-    flavor: `Magic stone holds the power of 'Auto Battle' ability.`,
-    basePrice: 0,
-    effect: {
-      gainAbilities: ['auto-battle'],
     },
   },
   {
@@ -102,7 +93,14 @@ export const consumables: ConsumableItem[] = [
   {
     key: 'horn-kolift',
     name: 'Horn of Kolift',
-    flavor: 'A blow horn used to summary Kolift from his residency.',
+    flavor: 'A blow horn used to summon Kolift from his residency.',
+    basePrice: 0,
+    effect: {},
+  },
+  {
+    key: 'map-earley',
+    name: 'Map of Earley',
+    flavor: '',
     basePrice: 0,
     effect: {},
   },

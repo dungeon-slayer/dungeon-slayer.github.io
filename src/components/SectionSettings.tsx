@@ -55,7 +55,9 @@ const ConfigBlurb = styled.div`
   margin-bottom: 6px;
 `
 
-const ConfigOperator = styled.div``
+const ConfigOperator = styled.div`
+  width: 100px;
+`
 
 interface Props {
   game: GameState
@@ -109,8 +111,8 @@ class BaseSectionSettings extends React.Component<Props> {
   private renderContent(): JSX.Element {
     return (
       <ConfigContainer>
-        {this.renderGameSpeed()}
-        {this.renderDisplayLogs()}
+        {false && this.renderGameSpeed()}
+        {false && this.renderDisplayLogs()}
         {this.renderResetGame()}
       </ConfigContainer>
     )

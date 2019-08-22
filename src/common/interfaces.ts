@@ -1,6 +1,11 @@
 import { SvgIconProps } from '@material-ui/core/SvgIcon'
 import { GameState, PlayerState } from 'src/reducers'
 
+export interface ActiveAbilityItem {
+  key: string
+  level: number
+}
+
 export interface CharacterItem {
   key: string
   id: string
@@ -15,7 +20,7 @@ export interface CharacterItem {
   nextTurnTs: number | undefined // Timestamp in ms
   currentExp: number
   rewardExp: number
-  activeAbilities?: string[]
+  activeAbilities?: ActiveAbilityItem[]
 }
 
 export type LogType = 'normal' | 'battle' | 'lore' | 'travel' | 'consume' | 'shop'
@@ -74,13 +79,25 @@ export interface DungeonTemplateItem {
   mobLevelSkew: number // 1 for standard, 0.5 for skew to right, 2 for skew to left
 }
 
-export interface CharacterEffectItem {
+export interface AbilityEffectItem {
+  attackBaseMultiplier?: number
+  attackLevelMultiplier?: number
+  defenseBaseMultiplier?: number
+  defenseLevelMultiplier?: number
+  evasionBaseMultiplier?: number
+  evasionLevelMultiplier?: number
+  chargeTimeBaseMultiplier?: number
+  chargeTimeLevelMultiplier?: number
+  experienceBaseMultiplier?: number
+  experienceLevelMultiplier?: number
+  criticalChanceBaseMultiplier?: number
+  criticalChanceLevelMultiplier?: number
+  criticalBonusBaseMultiplier?: number
+  criticalBonusLevelMultiplier?: number
+}
+
+export interface ConsumableEffectItem {
   hpModifier?: number
-  attackMultiplier?: number
-  defenseMultiplier?: number
-  evasionMultiplier?: number
-  chargeTimeMultiplier?: number
-  experienceMultiplier?: number
   gainAbilities?: string[]
 }
 

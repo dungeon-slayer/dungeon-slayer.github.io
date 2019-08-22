@@ -16,7 +16,8 @@ const ComponentWrapper = styled.div`
   background-color: #d5d5d5;
   color: #1c1c1c;
   transition: opacity 0.3s, background-color 0.3s, color 0.3s;
-  min-width: 100px;
+  // min-width: 100px;
+  width: calc(100% - 24px);
   text-align: center;
   // font-weight: bold;
 

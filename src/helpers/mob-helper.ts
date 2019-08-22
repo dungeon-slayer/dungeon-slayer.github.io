@@ -56,8 +56,7 @@ export class MobHelper {
   }
 
   static getRewardExpValue(level: number, multiplier: number): number {
-    // const rewardExp = 2 + level + Math.pow(1.39, level)
-    const rewardExp = 2 + level + Math.pow(1.4, level)
+    const rewardExp = 2 + level + Math.pow(1.215, level)
     return floor(rewardExp * multiplier)
   }
 

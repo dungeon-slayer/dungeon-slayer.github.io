@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { ConsumableItem, DropItem } from 'src/data'
-import { PlayerState } from 'src/reducers'
+import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
@@ -53,6 +53,7 @@ const DropContainer = styled.div`
 
 interface Props {
   player: PlayerState
+  battle: BattleState
   useConsumable: (consumable: ConsumableItem) => Promise<void>
 }
 
@@ -120,8 +121,11 @@ class BaseSectionInventory extends React.Component<Props> {
       label: 'Use',
       onClick: () => this.operatorClickHandler(consumable),
     }
+    if (PlayerHelper.isInFightingMode(this.props.player, this.props.battle)) {
+      ctaItem.type = 'disabled'
+    }
 
-    return <ListItem key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
+    return <ListItem key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 
   private renderDrops(): JSX.Element {
@@ -161,9 +165,10 @@ class BaseSectionInventory extends React.Component<Props> {
 }
 
 function mapStateToProps(state: StoreState) {
-  const { player } = state
+  const { player, battle } = state
   return {
     player,
+    battle,
   }
 }
 

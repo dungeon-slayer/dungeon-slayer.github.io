@@ -1,78 +1,82 @@
-import { CharacterEffectItem } from 'src/common/interfaces'
+import { AbilityEffectItem } from 'src/common/interfaces'
 
 export interface AbilityItem {
   key: string
   name: string
   flavor: string
   apCost: number
-  effect: CharacterEffectItem
+  effect: AbilityEffectItem
 }
 
 export const abilities: AbilityItem[] = [
   {
-    key: 'auto-battle',
-    name: 'Auto Battle',
-    flavor: 'Pick a battle automatically when idle.',
-    apCost: 20,
-    effect: {},
-  },
-  {
     key: 'inner-strength',
     name: 'Inner Strength',
-    flavor: 'Increase base attack power by 10%.',
+    flavor: 'Increase base attack power by [%].',
     apCost: 20,
     effect: {
-      attackMultiplier: 1.1,
+      attackBaseMultiplier: 0,
+      attackLevelMultiplier: 0.1,
     },
   },
   {
     key: 'focus-strike',
     name: 'Focus Strike',
-    flavor: 'Increase chance of critical hit to 20%.',
+    flavor: 'Increase critical hit chance to [%].',
     apCost: 20,
-    effect: {},
+    effect: {
+      criticalChanceBaseMultiplier: 0.08,
+      criticalChanceLevelMultiplier: 0.07,
+    },
   },
   {
     key: 'focus-strength',
     name: 'Focus Strength',
-    flavor: 'Increase critical hit bonus to 40%.',
+    flavor: 'Increase critical hit bonus to [%].',
     apCost: 20,
-    effect: {},
+    effect: {
+      criticalBonusBaseMultiplier: 0.16,
+      criticalBonusLevelMultiplier: 0.12,
+    },
   },
   {
     key: 'evasion',
     name: 'Evasion',
-    flavor: '15% chance to dodge an attack.',
+    flavor: 'Increase evasion chance to [%].',
     apCost: 20,
     effect: {
-      evasionMultiplier: 0.15,
+      evasionBaseMultiplier: 0.11,
+      evasionLevelMultiplier: 0.04,
     },
   },
   {
     key: 'quicken',
     name: 'Quicken',
-    flavor: 'Reduce required turn charge time by 5%.',
+    flavor: 'Reduce required turn charge time by [%].',
     apCost: 40,
     effect: {
-      chargeTimeMultiplier: 0.95,
+      chargeTimeBaseMultiplier: 0,
+      chargeTimeLevelMultiplier: -0.05,
     },
   },
   {
     key: 'enlightenment',
     name: 'Enlightenment',
-    flavor: '5% bonus experience point.',
-    apCost: 60,
+    flavor: 'Increase experience point by [%].',
+    apCost: 40,
     effect: {
-      experienceMultiplier: 1.05,
+      experienceBaseMultiplier: 0.02,
+      experienceLevelMultiplier: 0.08,
     },
   },
   {
     key: 'devotion',
     name: 'Devotion',
-    flavor: 'Increase base defense power by 10%.',
+    flavor: 'Increase base defense power by [%].',
     apCost: 20,
     effect: {
-      defenseMultiplier: 1.1,
+      defenseBaseMultiplier: 0.06,
+      defenseLevelMultiplier: 0.04,
     },
   },
   // {
@@ -90,7 +94,8 @@ export const abilities: AbilityItem[] = [
     flavor: 'Increase base attack power by 1000 times.',
     apCost: 20,
     effect: {
-      attackMultiplier: 1000,
+      attackBaseMultiplier: 1000,
+      attackLevelMultiplier: 0,
     },
   },
   {
@@ -99,7 +104,8 @@ export const abilities: AbilityItem[] = [
     flavor: 'Increase attack frequency by 4 times.',
     apCost: 20,
     effect: {
-      chargeTimeMultiplier: 0.25,
+      chargeTimeBaseMultiplier: -0.75,
+      chargeTimeLevelMultiplier: 0,
     },
   },
 ]

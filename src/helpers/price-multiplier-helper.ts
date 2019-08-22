@@ -17,7 +17,7 @@ export class PriceMultiplierHelper {
     return priceMultiplierItem.multiplier
   }
 
-  static calculatePrice(basePrice: number, multiplier: number): number {
-    return floor(basePrice * multiplier)
+  static calculatePrice(basePrice: number, multiplier: number, quantity = 1): number {
+    return floor(basePrice * multiplier * quantity)
   }
 }

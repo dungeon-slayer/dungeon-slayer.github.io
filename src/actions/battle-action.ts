@@ -5,11 +5,12 @@ import { StoreAction, StoreState } from 'src/store/interface'
 import { CharacterItem, DamageDataItem } from 'src/common/interfaces'
 import { battleConstants, playerConstants } from './constants'
 import { BattleState, PlayerState } from 'src/reducers'
-import { BattleHelper, PlayerHelper, AbilityHelper, CharacterHelper, RandomHelper, DropHelper } from 'src/helpers'
+import { BattleHelper, PlayerHelper, CharacterHelper, RandomHelper, DropHelper } from 'src/helpers'
 import { TraceAction } from './trace-action'
 import { GameAction } from './game-action'
 import { PlayerAction } from './player-action'
 import { MobHelper } from '../helpers/mob-helper'
+import { DropItem } from 'src/data'
 
 const log = Bows('BattleAction')
 
@@ -27,7 +28,7 @@ export class BattleAction {
         return
       }
 
-      if (state.player.character!.currentHp <= 0) {
+      if (!CharacterHelper.isAbleToFight(state.player.character!)) {
         await dispatch(TraceAction.addBattleLog(`You do not have enough HP to start a battle.`))
         return
       }
@@ -64,7 +65,7 @@ export class BattleAction {
       // State properties
       const state: StoreState = getState()
 
-      if (!AbilityHelper.isActivated(state.player, 'auto-battle')) {
+      if (!state.player.autoBattleEnabled) {
         // log('Auto battle is not enabled.')
         return
       }
@@ -235,11 +236,13 @@ export class BattleAction {
       return
     }
 
+    const obtainedDropItems: DropItem[] = []
     for (const dropRate of mobTemplate.dropRates) {
       if (RandomHelper.takeChance(dropRate.dropRate)) {
         const dropItem = DropHelper.getItemByKey(dropRate.dropKey)!
-        await dispatch(PlayerAction.obtainDrop(dropItem))
+        obtainedDropItems.push(dropItem)
       }
     }
+    await dispatch(PlayerAction.obtainDrop(obtainedDropItems))
   }
 }

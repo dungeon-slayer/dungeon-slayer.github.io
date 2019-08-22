@@ -14,6 +14,7 @@ export interface PlayerState {
   mobKillStats?: AvailableItem[]
   itemUsedStats?: AvailableItem[]
   questDeliveredStats?: string[]
+  autoBattleEnabled?: boolean
 }
 
 const initialState: PlayerState = {
@@ -43,6 +44,7 @@ const initialState: PlayerState = {
   mobKillStats: [],
   itemUsedStats: [],
   questDeliveredStats: [],
+  autoBattleEnabled: false,
 }
 
 export function player(state = initialState, action: any): PlayerState {

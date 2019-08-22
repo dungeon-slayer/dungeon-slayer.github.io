@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux'
-import { filter, find, cloneDeep } from 'lodash'
+import { filter, find, cloneDeep, concat } from 'lodash'
 import * as Bows from 'bows'
 import { AbilityItem, ConsumableItem, DropItem, LoreItem } from 'src/data'
 import { StoreAction, StoreState } from 'src/store/interface'
@@ -7,7 +7,7 @@ import { AbilityHelper, BattleHelper, PlayerHelper, CharacterHelper, ConsumableH
 import { TraceAction } from './trace-action'
 import { PlayerState } from 'src/reducers'
 import { playerConstants } from './constants'
-import { CharacterItem } from 'src/common/interfaces'
+import { CharacterItem, ActiveAbilityItem } from 'src/common/interfaces'
 import { GameAction } from './game-action'
 
 const log = Bows('PlayerAction')
@@ -53,6 +53,21 @@ export class PlayerAction {
     }
   }
 
+  static toggleAutoBattle(): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const currentAutoBattleEnabled = state.player.autoBattleEnabled!
+      const newAutoBattleEnabled = !currentAutoBattleEnabled
+
+      const payload: PlayerState = {
+        autoBattleEnabled: newAutoBattleEnabled,
+      }
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
   static toggleAbility(ability: AbilityItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       log('toggleAbility triggered.')
@@ -60,20 +75,25 @@ export class PlayerAction {
       // State properties
       const state: StoreState = getState()
 
-      let modifiedActiveAbilities: string[] = state.player.character!.activeAbilities || []
+      let modifiedActiveAbilities: ActiveAbilityItem[] = state.player.character!.activeAbilities || []
+
+      const aaItem = PlayerHelper.getAvailableAbilityItemByAbilityKey(state.player, ability.key)!
+      const abilityName = AbilityHelper.getFullName(ability, aaItem.level)
+
       if (AbilityHelper.isActivated(state.player, ability.key)) {
-        modifiedActiveAbilities = filter(modifiedActiveAbilities, (key) => key !== ability.key)
-        await dispatch(TraceAction.addLog(`Disabled <strong>${ability.name}</strong> ability.`))
+        modifiedActiveAbilities = filter(modifiedActiveAbilities, (item) => item.key !== ability.key)
+        await dispatch(TraceAction.addLog(`Disabled <strong>${abilityName}</strong> ability.`))
       } else {
         // Check if there's enough AP points
         const availableAP = PlayerHelper.getAvailableAbilityPoint(state.player)
-        if (availableAP < ability.apCost) {
+        const requiredApCost = AbilityHelper.getApCost(ability, aaItem.level)
+        if (availableAP < requiredApCost) {
           await dispatch(TraceAction.addLog(`You don't have enough AP to activate this ability.`))
           return
         }
 
-        modifiedActiveAbilities.push(ability.key)
-        await dispatch(TraceAction.addLog(`Enabled <strong>${ability.name}</strong> ability.`))
+        modifiedActiveAbilities.push({ key: ability.key, level: aaItem.level })
+        await dispatch(TraceAction.addLog(`Enabled <strong>${abilityName}</strong> ability.`))
       }
 
       const payload: PlayerState = {
@@ -125,9 +145,14 @@ export class PlayerAction {
     }
   }
 
-  static obtainDrop(drop: DropItem): any {
+  static obtainDrop(drops: DropItem[]): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('obtainDrop triggered.')
+
+      // Business logic validation
+      if (drops.length <= 0) {
+        return
+      }
 
       // State properties
       const state: StoreState = getState()
@@ -136,24 +161,28 @@ export class PlayerAction {
         availableDrops: cloneDeep(state.player.availableDrops),
       }
 
-      const matchedAvailableDrop = find(payload.availableDrops!, (item) => item.key === drop.key)
-      if (matchedAvailableDrop) {
-        matchedAvailableDrop.quantity += 1
-      } else {
-        payload.availableDrops!.push({ key: drop.key, quantity: 1 })
-      }
-
-      // Check for available drop lores
       let targetLores: LoreItem[] = []
-      if (!PlayerHelper.hasDropItem(state.player, drop.key)) {
-        targetLores = LoreHelper.getDropLoresByKey(drop.key)
+
+      for (const drop of drops) {
+        // Update inventory
+        const matchedAvailableDrop = find(payload.availableDrops!, (item) => item.key === drop.key)
+        if (matchedAvailableDrop) {
+          matchedAvailableDrop.quantity += 1
+        } else {
+          payload.availableDrops!.push({ key: drop.key, quantity: 1 })
+        }
+
+        // Check for available drop lores
+        if (!PlayerHelper.hasDropItem(state.player, drop.key)) {
+          targetLores = concat(targetLores, LoreHelper.getDropLoresByKey(drop.key))
+        }
       }
 
       // Dispatches
-      await dispatch(TraceAction.addLog(`You obtained <strong>${drop.name}</strong>.`))
+      await dispatch(TraceAction.addObtainDropsLog(drops))
       await dispatch({ type: playerConstants.UPDATE, payload })
       for (const targetLore of targetLores) {
-        dispatch(TraceAction.addLoreLog(targetLore.message))
+        await dispatch(TraceAction.addLoreLog(targetLore.message))
       }
     }
   }

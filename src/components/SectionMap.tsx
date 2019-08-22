@@ -5,8 +5,8 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { LocationItem } from 'src/data'
-import { PlayerState, GameState } from 'src/reducers'
-import { LocationHelper } from 'src/helpers'
+import { PlayerState, GameState, BattleState } from 'src/reducers'
+import { LocationHelper, PlayerHelper } from 'src/helpers'
 import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
@@ -40,6 +40,7 @@ const LocationContainer = styled.div`
 interface Props {
   player: PlayerState
   game: GameState
+  battle: BattleState
   travelTo: (location: LocationItem) => Promise<void>
 }
 
@@ -80,8 +81,8 @@ class BaseSectionMap extends React.Component<Props> {
   }
 
   private renderLocations(): JSX.Element {
-    const availableLocations = LocationHelper.getAvailableItems(this.props.player.character!.currentLevel)
-    const nextLocation = LocationHelper.getNextUnavailableItem(this.props.player.character!.currentLevel)
+    const availableLocations = LocationHelper.getAvailableItems(this.props.player)
+    const nextLocation = LocationHelper.getNextUnavailableItem(this.props.player)
 
     return (
       <LocationContainer>
@@ -98,16 +99,18 @@ class BaseSectionMap extends React.Component<Props> {
     if (LocationHelper.hasDungeonByKey(location.key)) {
       subheading = `(Dungeon Lvl ${location.dungeon!.mobLevelBase.toLocaleString()})`
     }
-    let flavor = ''
+    // let flavor = ''
+    let flavor = location.flavor
     if (!isAvailable) {
-      flavor = `(Player level requirement: ${location.levelRequired.toLocaleString()})`
+      flavor = LocationHelper.getRequirementLabel(location)
     }
 
     const ctaItem: CtaItem = {
-      type: 'blue',
+      type: PlayerHelper.isInFightingMode(this.props.player, this.props.battle) ? 'disabled' : 'blue',
       label: 'Travel To',
       onClick: () => this.operatorClickHandler(location),
     }
+
     if (this.props.game.currentLocation === location.key) {
       ctaItem.type = 'disabled'
       ctaItem.label = `You're Here`
@@ -116,15 +119,16 @@ class BaseSectionMap extends React.Component<Props> {
       ctaItem.label = 'N/A'
     }
 
-    return <ListItem key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
+    return <ListItem key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="120px" />
   }
 }
 
 function mapStateToProps(state: StoreState) {
-  const { player, game } = state
+  const { player, game, battle } = state
   return {
     player,
     game,
+    battle,
   }
 }
 

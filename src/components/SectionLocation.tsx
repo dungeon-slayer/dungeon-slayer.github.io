@@ -40,8 +40,11 @@ const DescriptionWrapper = styled.div`
   margin: 4px 0;
 `
 
-const GoldDescriptionWrapper = styled(DescriptionWrapper)`
+const EmphasisDescriptionWrapper = styled.div`
   margin-top: 12px;
+  background-color: rgba(255, 184, 98, 0.1);
+  border-radius: 4px;
+  padding: 12px;
 `
 
 const PropertyKey = styled.div`
@@ -82,8 +85,8 @@ interface Props {
   game: GameState
   battle: BattleState
   player: PlayerState
-  sellDropItem: (drop: DropItem) => Promise<void>
-  buyConsumableItem: (consumable: ConsumableItem) => Promise<void>
+  sellDropItem: (drop: DropItem, quantity: number) => Promise<void>
+  buyConsumableItem: (consumable: ConsumableItem, quantity: number) => Promise<void>
   deliverQuestItem: (quest: QuestItem) => Promise<void>
   engageBattle: (mob: CharacterItem) => Promise<void>
 }
@@ -135,15 +138,17 @@ class BaseSectionLocation extends React.Component<Props> {
     return this.currentLocation.flavor
   }
 
-  get availableDropsToSell(): DropItem[] {
+  get availableDropsForSell(): DropItem[] {
     const outputDrops: DropItem[] = []
 
     for (const drop of drops) {
-      const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(this.currentLocation!.alchemist!, drop)
-      if (priceMultiplierValue > 0) {
-        const availableDropItem = find(this.props.player.availableDrops!, (ad) => ad.key === drop.key)
-        if (availableDropItem && availableDropItem.quantity > 0) {
-          outputDrops.push(drop)
+      if (drop.basePrice > 0) {
+        const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(this.currentLocation!.alchemist!, drop)
+        if (priceMultiplierValue > 0) {
+          const availableDropItem = find(this.props.player.availableDrops!, (ad) => ad.key === drop.key)
+          if (availableDropItem && availableDropItem.quantity > 0) {
+            outputDrops.push(drop)
+          }
         }
       }
     }
@@ -167,14 +172,14 @@ class BaseSectionLocation extends React.Component<Props> {
     return this.props.game.mobs!
   }
 
-  async dropItemClickHandler(drop: DropItem) {
+  async dropItemClickHandler(drop: DropItem, quantity: number) {
     // log('dropItemClickHandler triggered. drop:', drop)
-    await this.props.sellDropItem(drop)
+    await this.props.sellDropItem(drop, quantity)
   }
 
-  async consumableItemClickHandler(consumable: ConsumableItem) {
+  async consumableItemClickHandler(consumable: ConsumableItem, quantity: number) {
     // log('consumableItemClickHandler triggered. consumable:', consumable)
-    await this.props.buyConsumableItem(consumable)
+    await this.props.buyConsumableItem(consumable, quantity)
   }
 
   async questItemClickHandler(quest: QuestItem) {
@@ -216,9 +221,9 @@ class BaseSectionLocation extends React.Component<Props> {
       <DescriptionContainer>
         <DescriptionWrapper>{HtmlParseHelper.parse(sentences.join(' '))}</DescriptionWrapper>
         {this.displayGoldDescription && (
-          <GoldDescriptionWrapper>
+          <EmphasisDescriptionWrapper>
             You have <strong>{this.props.player.gold!.toLocaleString()}</strong> gold.
-          </GoldDescriptionWrapper>
+          </EmphasisDescriptionWrapper>
         )}
       </DescriptionContainer>
     )
@@ -237,10 +242,10 @@ class BaseSectionLocation extends React.Component<Props> {
   }
 
   private renderDrops(): JSX.Element {
-    if (this.availableDropsToSell.length === 0) {
+    if (this.availableDropsForSell.length === 0) {
       return <NoDropContainer>There are no items you can sell.</NoDropContainer>
     } else {
-      return <DropContainer>{drops.map((drop) => this.renderDropItem(drop))}</DropContainer>
+      return <DropContainer>{this.availableDropsForSell.map((drop) => this.renderDropItem(drop))}</DropContainer>
     }
   }
 
@@ -260,13 +265,13 @@ class BaseSectionLocation extends React.Component<Props> {
     const heading = drop.name
     const subheading = `(${sellPrice.toLocaleString()} gold) (owns ${availableDropItem.quantity})`
     const flavor = drop.flavor
-    const ctaItem: CtaItem = {
-      type: 'blue',
-      label: 'Sell',
-      onClick: () => this.dropItemClickHandler(drop),
-    }
+    const ctaItems: CtaItem[] = [
+      { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 1) ? 'blue' : 'disabled', label: 'Sell', onClick: () => this.dropItemClickHandler(drop, 1) },
+      { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 10) ? 'blue' : 'disabled', label: 'x10', onClick: () => this.dropItemClickHandler(drop, 10) },
+      { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.dropItemClickHandler(drop, 100) },
+    ]
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={ctaItems} />
   }
 
   private renderMerchant(): JSX.Element {
@@ -291,13 +296,13 @@ class BaseSectionLocation extends React.Component<Props> {
     const heading = consumable.name
     const subheading = `(${cost.toLocaleString()} gold) (owns ${PlayerHelper.countAvailableConsumableByKey(this.props.player, consumable.key)})`
     const flavor = consumable.flavor
-    const ctaItem: CtaItem = {
-      type: 'blue',
-      label: 'Buy',
-      onClick: () => this.consumableItemClickHandler(consumable),
-    }
+    const ctaItems: CtaItem[] = [
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 1) ? 'blue' : 'disabled', label: 'Buy', onClick: () => this.consumableItemClickHandler(consumable, 1) },
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 10) ? 'blue' : 'disabled', label: 'x10', onClick: () => this.consumableItemClickHandler(consumable, 10) },
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.consumableItemClickHandler(consumable, 100) },
+    ]
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={ctaItems} />
   }
 
   private renderQuestGiver(): JSX.Element {
@@ -341,6 +346,10 @@ class BaseSectionLocation extends React.Component<Props> {
       onClick: () => this.questItemClickHandler(quest),
     }
 
+    if (!PlayerHelper.hasFulfillQuestRequirement(this.props.player, quest)) {
+      ctaItem.type = 'disabled'
+    }
+
     if (!isAvailable) {
       textColor = 'gray'
       opacity = '0.4'
@@ -375,7 +384,6 @@ class BaseSectionLocation extends React.Component<Props> {
     const key = mob.id
     const heading = mobTemplate.name
     const subheading = `(Lvl ${mob.currentLevel.toLocaleString()})`
-
     const ctaItem: CtaItem = {
       type: 'blue',
       label: 'Fight',
@@ -385,6 +393,9 @@ class BaseSectionLocation extends React.Component<Props> {
       ctaItem.type = 'disabled'
       ctaItem.label = 'In Combat'
     }
+    if (PlayerHelper.isInFightingMode(this.props.player, this.props.battle)) {
+      ctaItem.type = 'disabled'
+    }
 
     let flavor = ''
     let textColor: string | undefined
@@ -393,7 +404,7 @@ class BaseSectionLocation extends React.Component<Props> {
       textColor = '#d000b1'
     }
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} textColor={textColor} ctaItems={[ctaItem]} />
+    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} textColor={textColor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 
@@ -409,11 +420,11 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    sellDropItem: async (drop: DropItem): Promise<void> => {
-      await dispatch(GameAction.sellDropItem(drop))
+    sellDropItem: async (drop: DropItem, quantity: number): Promise<void> => {
+      await dispatch(GameAction.sellDropItem(drop, quantity))
     },
-    buyConsumableItem: async (consumable: ConsumableItem): Promise<void> => {
-      await dispatch(GameAction.buyConsumableItem(consumable))
+    buyConsumableItem: async (consumable: ConsumableItem, quantity: number): Promise<void> => {
+      await dispatch(GameAction.buyConsumableItem(consumable, quantity))
     },
     deliverQuestItem: async (quest: QuestItem): Promise<void> => {
       await dispatch(GameAction.deliverQuestItem(quest))

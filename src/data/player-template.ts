@@ -15,5 +15,5 @@ export const playerTemplate: PlayerTemplate = {
   attackLevelMultiplier: 1.8,
   defenseBase: 6,
   defenseLevelMultiplier: 1.8,
-  chargeTimeMs: 1500,
+  chargeTimeMs: 1000,
 }

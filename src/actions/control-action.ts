@@ -135,7 +135,6 @@ export class ControlAction {
   private static async dispatchNewGameWithGodMode(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {
     // prettier-ignore
     const consumedItems: AvailableItem[] = [
-      { key: 'relic-auto-battle', quantity: 1 },
       { key: 'relic-divine-strength', quantity: 1 },
       { key: 'relic-divine-speed', quantity: 1 },
     ]

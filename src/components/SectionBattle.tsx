@@ -5,16 +5,22 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { ProgressState, GameState, BattleState, PlayerState } from 'src/reducers'
-import { CharacterItem } from 'src/common/interfaces'
+import { CharacterItem, CtaItem } from 'src/common/interfaces'
 import { PlayerHelper, CharacterHelper, BattleHelper, AbilityHelper } from 'src/helpers'
 import { mediaQueries } from 'src/constants'
+import ListItem from './ListItem'
+import { PlayerAction } from 'src/actions'
 
 const log = Bows('SectionBattle')
 
 const ComponentWrapper = styled.div``
 
-const ComponentInnerWrapper = styled.div`
-  padding: 24px;
+const OperatorContainer = styled.div`
+  margin: 24px 24px 0 24px;
+`
+
+const BattlePanelContainer = styled.div`
+  padding: 12px 24px 24px 24px;
   display: flex;
   margin: 0 -12px;
 
@@ -41,6 +47,11 @@ const InfoContainer = styled.div`
   padding: 12px;
   flex-grow: 1;
   height: 100%;
+  min-height: 180px;
+
+  @media ${mediaQueries.mediumUp} {
+    min-height: 190px;
+  }
 `
 
 const DisabledInfoContainer = styled(InfoContainer)`
@@ -82,6 +93,7 @@ interface Props {
   game: GameState
   player: PlayerState
   battle: BattleState
+  toggleAutoBattle: () => Promise<void>
 }
 
 class BaseSectionBattle extends React.Component<Props> {
@@ -93,15 +105,40 @@ class BaseSectionBattle extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
+  async operatorClickHandler() {
+    log('operatorClickHandler triggered.')
+    this.props.toggleAutoBattle()
+  }
+
   render(): JSX.Element {
     return (
       <ComponentWrapper>
-        <ComponentInnerWrapper>
+        <OperatorContainer>{this.renderOperator()}</OperatorContainer>
+        <BattlePanelContainer>
           <CharacterContainer>{this.renderPlayerInfo()}</CharacterContainer>
           <CharacterContainer>{this.renderMobInfo()}</CharacterContainer>
-        </ComponentInnerWrapper>
+        </BattlePanelContainer>
       </ComponentWrapper>
     )
+  }
+
+  private renderOperator(): JSX.Element {
+    const ctaItem: CtaItem = {
+      type: 'red',
+      label: 'Off',
+      onClick: () => this.operatorClickHandler(),
+    }
+    if (this.props.player.autoBattleEnabled) {
+      ctaItem.type = 'green'
+      ctaItem.label = 'On'
+    }
+
+    const heading = 'Auto Battle'
+    const subheading = ''
+    const flavor = 'Automatically engage in combat when idle.'
+    const bgColor = '#edf5fd'
+
+    return <ListItem heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" bgColor={bgColor} />
   }
 
   private renderPlayerInfo(): JSX.Element {
@@ -144,7 +181,8 @@ class BaseSectionBattle extends React.Component<Props> {
 
   private renderExperience(character: CharacterItem): JSX.Element | null {
     if (character.key !== 'player') {
-      return null
+      // return null
+      return <StatWrapper>{'\u00a0'}</StatWrapper>
     }
 
     return (
@@ -163,10 +201,14 @@ class BaseSectionBattle extends React.Component<Props> {
     }
 
     const activeAbilityNames: string[] = []
-    for (const abilityKey of character.activeAbilities) {
-      const ability = AbilityHelper.getItemByKey(abilityKey)
+    for (const activeAbilityItem of character.activeAbilities) {
+      const ability = AbilityHelper.getItemByKey(activeAbilityItem.key)
       if (ability) {
-        activeAbilityNames.push(ability.name)
+        const aaItem = PlayerHelper.getAvailableAbilityItemByAbilityKey(this.props.player, ability.key)
+        if (aaItem) {
+          const abilityName = AbilityHelper.getFullName(ability, aaItem.level)
+          activeAbilityNames.push(abilityName)
+        }
       }
     }
 
@@ -190,7 +232,11 @@ function mapStateToProps(state: StoreState) {
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
-  return {}
+  return {
+    toggleAutoBattle: async (): Promise<void> => {
+      await dispatch(PlayerAction.toggleAutoBattle())
+    },
+  }
 }
 
 const SectionBattle = connect(
