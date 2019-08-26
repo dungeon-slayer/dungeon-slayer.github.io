@@ -105,7 +105,11 @@ class BaseSectionSettings extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Settings</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Settings
+      </CaptionContainer>
+    )
   }
 
   private renderContent(): JSX.Element {

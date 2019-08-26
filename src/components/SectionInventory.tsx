@@ -82,7 +82,11 @@ class BaseSectionInventory extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Inventory</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Inventory
+      </CaptionContainer>
+    )
   }
 
   private renderConsumables(): JSX.Element {
@@ -97,7 +101,9 @@ class BaseSectionInventory extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer>Consumables</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Consumables
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
         </DescriptionContainer>
@@ -140,7 +146,9 @@ class BaseSectionInventory extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer>Obtained Drops</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Obtained Drops
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Collectable items from all those battle rewards.</DescriptionWrapper>
         </DescriptionContainer>

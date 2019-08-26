@@ -69,7 +69,11 @@ class BaseSectionMap extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Map</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Map
+      </CaptionContainer>
+    )
   }
 
   private renderDescription(): JSX.Element {

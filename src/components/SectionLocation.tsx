@@ -206,7 +206,11 @@ class BaseSectionLocation extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Location</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Location
+      </CaptionContainer>
+    )
   }
 
   private renderDescription(): JSX.Element {
@@ -232,7 +236,9 @@ class BaseSectionLocation extends React.Component<Props> {
   private renderAlchemist(): JSX.Element | null {
     return (
       <React.Fragment>
-        <SubcaptionContainer>Alchemist</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Alchemist
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>The residential alchemist seeks out for exotic items found in the dungeons.</DescriptionWrapper>
         </DescriptionContainer>
@@ -279,7 +285,9 @@ class BaseSectionLocation extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer>Merchant</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Merchant
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>A merchant might sell things you may need.</DescriptionWrapper>
         </DescriptionContainer>
@@ -308,7 +316,9 @@ class BaseSectionLocation extends React.Component<Props> {
   private renderQuestGiver(): JSX.Element {
     return (
       <React.Fragment>
-        <SubcaptionContainer>Quest Giver</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Quest Giver
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Locals who may wish to seek assistance from adventurers use quest giver as proxy to deliver the job request.</DescriptionWrapper>
         </DescriptionContainer>
@@ -362,7 +372,9 @@ class BaseSectionLocation extends React.Component<Props> {
   private renderDungeon(): JSX.Element {
     return (
       <React.Fragment>
-        <SubcaptionContainer>Dungeon</SubcaptionContainer>
+        <SubcaptionContainer role="heading" aria-level={2}>
+          Dungeon
+        </SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>
             <PropertyKey>Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>

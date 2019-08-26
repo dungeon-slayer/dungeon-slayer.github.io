@@ -78,7 +78,11 @@ class BaseSectionAbility extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Ability</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Ability
+      </CaptionContainer>
+    )
   }
 
   private renderDescription(): JSX.Element {
