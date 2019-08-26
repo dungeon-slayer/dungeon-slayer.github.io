@@ -22,7 +22,7 @@ export const abilities: AbilityItem[] = [
   {
     key: 'focus-strike',
     name: 'Focus Strike',
-    flavor: 'Increase critical hit chance to [%].',
+    flavor: '[%] chance to deal a critical hit.',
     apCost: 20,
     effect: {
       criticalChanceBaseMultiplier: 0.08,
