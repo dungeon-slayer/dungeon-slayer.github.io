@@ -67,8 +67,12 @@ export class RandomHelper {
   }
 
   static weightedRandomIndex(weightArr: number[]): number {
-    if (weightArr.length < 2) {
+    if (weightArr.length < 1) {
       throw new Error('Invalid weightArr length.')
+    }
+
+    if (weightArr.length === 1) {
+      return 0
     }
 
     const weightSum = sum(weightArr)
