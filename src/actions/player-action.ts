@@ -68,6 +68,22 @@ export class PlayerAction {
     }
   }
 
+  static setAutoBattle(isActive: boolean): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      if (state.player.autoBattleEnabled === isActive) {
+        return
+      }
+
+      const payload: PlayerState = {
+        autoBattleEnabled: isActive,
+      }
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
   static toggleAbility(ability: AbilityItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       log('toggleAbility triggered.')
