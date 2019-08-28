@@ -231,9 +231,7 @@ export class BattleAction {
 
   private static async dispatchDefeatCharacter(dispatch: Dispatch<StoreAction>, attacker: CharacterItem, defender: CharacterItem): Promise<void> {
     if (defender.key === 'player') {
-      await dispatch(TraceAction.addBattleLog(`You have been defeated. All your abilities have now deactivated.`))
-      // TODO: log loss
-      // await dispatch(PlayerAction.disableAllAbilities())
+      await dispatch(TraceAction.addBattleLog(`You have been defeated.`))
       await dispatch(PlayerAction.setAutoBattle(false))
       await dispatch({ type: battleConstants.CLOSURE })
     } else {
