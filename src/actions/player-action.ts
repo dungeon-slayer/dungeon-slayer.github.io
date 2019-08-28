@@ -194,20 +194,20 @@ export class PlayerAction {
     }
   }
 
-  static disableAllAbilities(): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // State properties
-      const state: StoreState = getState()
+  // static disableAllAbilities(): any {
+  //   return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+  //     // State properties
+  //     const state: StoreState = getState()
 
-      const payload: PlayerState = {
-        character: {
-          ...state.player.character!,
-          activeAbilities: [],
-        },
-      }
-      dispatch({ type: playerConstants.UPDATE, payload })
-    }
-  }
+  //     const payload: PlayerState = {
+  //       character: {
+  //         ...state.player.character!,
+  //         activeAbilities: [],
+  //       },
+  //     }
+  //     dispatch({ type: playerConstants.UPDATE, payload })
+  //   }
+  // }
 
   private static async dispatchSpecialLog(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: ConsumableItem): Promise<void> {
     if (consumable.key === 'horn-kolift') {

@@ -233,7 +233,7 @@ export class BattleAction {
     if (defender.key === 'player') {
       await dispatch(TraceAction.addBattleLog(`You have been defeated. All your abilities have now deactivated.`))
       // TODO: log loss
-      await dispatch(PlayerAction.disableAllAbilities())
+      // await dispatch(PlayerAction.disableAllAbilities())
       await dispatch({ type: battleConstants.CLOSURE })
     } else {
       // Gain experience
