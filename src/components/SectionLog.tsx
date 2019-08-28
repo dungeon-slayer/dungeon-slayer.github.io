@@ -85,7 +85,7 @@ class BaseSectionLog extends React.Component<Props, State> {
   componentDidMount() {
     log('componentDidMount triggered.')
 
-    refreshLogsIntervalId = setInterval(() => this.reviewLogs(), 300)
+    refreshLogsIntervalId = setInterval(() => this.reviewLogs(), 100)
   }
 
   componentWillUnmount() {
