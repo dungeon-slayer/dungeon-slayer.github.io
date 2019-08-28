@@ -104,6 +104,15 @@ export const consumables: ConsumableItem[] = [
     basePrice: 0,
     effect: {},
   },
+  {
+    key: 'relic-auto-potion',
+    name: 'Relic of Auto Potion',
+    flavor: `Magic stone holds the power of 'Auto Potion' ability.`,
+    basePrice: 0,
+    effect: {
+      gainAbilities: ['auto-potion'],
+    },
+  },
 
   // God tier items
   {

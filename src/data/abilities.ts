@@ -79,13 +79,13 @@ export const abilities: AbilityItem[] = [
       defenseLevelMultiplier: 0.04,
     },
   },
-  // {
-  //   key: 'auto-potion',
-  //   name: 'Auto Potion',
-  //   flavor: '30% chance of use a recovery item when hit.',
-  //   apCost: 40,
-  //   effect: {},
-  // },
+  {
+    key: 'auto-potion',
+    name: 'Auto Potion',
+    flavor: '[%] chance of use a recovery item when hit.',
+    apCost: 40,
+    effect: {},
+  },
 
   // God tier abilities
   {

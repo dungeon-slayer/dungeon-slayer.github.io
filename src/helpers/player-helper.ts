@@ -209,6 +209,19 @@ export class PlayerHelper {
     return true
   }
 
+  static hasConsumable(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
+    if (!player.availableDrops) {
+      return false
+    }
+
+    const targetAvailableItem = find(player.availableConsumables, (item) => item.key === itemKey)
+    if (!targetAvailableItem) {
+      return false
+    }
+
+    return targetAvailableItem.quantity >= qualifiedQuantity
+  }
+
   static hasDropItem(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
     if (!player.availableDrops) {
       return false

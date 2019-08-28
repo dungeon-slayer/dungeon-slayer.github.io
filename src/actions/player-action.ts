@@ -137,12 +137,19 @@ export class PlayerAction {
       payload.availableConsumables = PlayerHelper.reducerAvailableItem(state.player.availableConsumables!, consumable.key)
       await dispatch(TraceAction.addConsumelLog(`You used <strong>${consumable.name}</strong>.`))
       await PlayerAction.dispatchSpecialLog(dispatch, state, consumable)
-      await dispatch(PlayerAction.trackConsumption(consumable))
-      await dispatch({ type: playerConstants.UPDATE, payload })
+      await PlayerAction.dispatchUseConsumable(dispatch, state, consumable)
 
       // In case of special actions
       await dispatch(GameAction.appendSummonMob(consumable))
     }
+  }
+
+  static async dispatchUseConsumable(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: ConsumableItem): Promise<void> {
+    const payload: PlayerState = {}
+    payload.character = CharacterHelper.updateConsumableEffect(state.player.character!, consumable.effect)
+    payload.availableConsumables = PlayerHelper.reducerAvailableItem(state.player.availableConsumables!, consumable.key)
+    await dispatch(PlayerAction.trackConsumption(consumable))
+    await dispatch({ type: playerConstants.UPDATE, payload })
   }
 
   static obtainDrop(drops: DropItem[]): any {

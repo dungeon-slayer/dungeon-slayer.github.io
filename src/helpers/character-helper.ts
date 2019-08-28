@@ -198,4 +198,17 @@ export class CharacterHelper {
 
     return multiplier
   }
+
+  static getAutoPotionChance(character: CharacterItem): number {
+    if (!character.activeAbilities) {
+      return 0
+    }
+
+    const activeAbility = find(character.activeAbilities, (aa) => aa.key === 'auto-potion')
+    if (!activeAbility) {
+      return 0
+    }
+
+    return AbilityHelper.getAutoPotionChance(activeAbility.level)
+  }
 }

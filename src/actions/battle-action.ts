@@ -5,7 +5,7 @@ import { StoreAction, StoreState } from 'src/store/interface'
 import { CharacterItem, DamageDataItem } from 'src/common/interfaces'
 import { battleConstants, playerConstants } from './constants'
 import { BattleState, PlayerState } from 'src/reducers'
-import { BattleHelper, PlayerHelper, CharacterHelper, RandomHelper, DropHelper } from 'src/helpers'
+import { BattleHelper, PlayerHelper, CharacterHelper, RandomHelper, DropHelper, ConsumableHelper } from 'src/helpers'
 import { TraceAction } from './trace-action'
 import { GameAction } from './game-action'
 import { PlayerAction } from './player-action'
@@ -157,9 +157,38 @@ export class BattleAction {
     await BattleAction.dispatchUpdateCharacter(dispatch, defender)
     await BattleAction.dispatchUpdateCharacter(dispatch, attacker)
 
-    // Check if defender is defeated
     if (defender.currentHp <= 0) {
+      // Determined that character is defeated
       await BattleAction.dispatchDefeatCharacter(dispatch, attacker, defender)
+    } else if (damageData.damageDealt > 0) {
+      // Check for available enraged activities
+      await BattleAction.dispatchAutoPotion(dispatch, state, attacker, defender)
+    }
+  }
+
+  private static async dispatchAutoPotion(dispatch: Dispatch<StoreAction>, state: StoreState, attacker: CharacterItem, defender: CharacterItem): Promise<void> {
+    const autoPotionChance = CharacterHelper.getAutoPotionChance(defender)
+    if (!RandomHelper.takeChance(autoPotionChance)) {
+      return
+    }
+
+    if (defender.key !== 'player') {
+      // For mob, it always heals 30 HP without worry about inventory logic
+      const mobName = CharacterHelper.getName(defender)
+      await dispatch(TraceAction.addBattleLog(`<strong>${mobName}</strong> react with <strong>Auto-Potion</strong>.`))
+      defender.currentHp = CharacterHelper.updateHpValue(defender.currentHp, -30)
+      await BattleAction.dispatchUpdateCharacter(dispatch, defender)
+      return
+    }
+
+    const potionKeys = ['potion', 'hi-potion']
+    for (const potionKey of potionKeys) {
+      if (PlayerHelper.hasConsumable(state.player, potionKey)) {
+        const potionItem = ConsumableHelper.getItemByKey(potionKey)!
+        await dispatch(TraceAction.addBattleLog(`You react with <strong>Auto-Potion</strong>.`))
+        await PlayerAction.dispatchUseConsumable(dispatch, state, potionItem)
+        return
+      }
     }
   }
 
