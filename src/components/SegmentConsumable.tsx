@@ -15,7 +15,7 @@ const log = Bows('SegmentConsumable')
 
 const ComponentWrapper = styled.div``
 
-const SubcaptionContainer = styled.div`
+const SegmentCaptionContainer = styled.div`
   font-size: 20px;
   font-weight: bold;
   margin: 24px 0 12px 0;
@@ -71,9 +71,9 @@ class BaseSegmentConsumable extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer role="heading" aria-level={2}>
+        <SegmentCaptionContainer role="heading" aria-level={2}>
           Consumables
-        </SubcaptionContainer>
+        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
         </DescriptionContainer>

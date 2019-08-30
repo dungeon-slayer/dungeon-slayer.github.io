@@ -15,7 +15,7 @@ const log = Bows('SegmentAbility')
 
 const ComponentWrapper = styled.div``
 
-const SubcaptionContainer = styled.div`
+const SegmentCaptionContainer = styled.div`
   font-size: 20px;
   font-weight: bold;
   margin: 24px 0 12px 0;
@@ -78,9 +78,9 @@ class BaseSegmentAbility extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer role="heading" aria-level={2}>
+        <SegmentCaptionContainer role="heading" aria-level={2}>
           Abilities
-        </SubcaptionContainer>
+        </SegmentCaptionContainer>
         <DescriptionWrapper>Abilities you have acquired throughout the adventure.</DescriptionWrapper>
         <EmphasisDescriptionWrapper>
           You allocated <strong>{usedAP}</strong> out of total <strong>{totalAP}</strong> Ability Points.
