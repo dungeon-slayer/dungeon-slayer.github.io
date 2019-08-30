@@ -8,16 +8,17 @@ import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import ListItem from './ListItem'
 import { DropItem } from 'src/data'
+import { AccordionContainer } from './AccordionContainer'
 
 const log = Bows('SegmentDrop')
 
 const ComponentWrapper = styled.div``
 
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
+// const SegmentCaptionContainer = styled.div`
+//   font-size: 20px;
+//   font-weight: bold;
+//   margin: 24px 0 12px 0;
+// `
 
 const DescriptionContainer = styled.div``
 
@@ -48,7 +49,12 @@ class BaseSegmentDrop extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderDrops()}</ComponentWrapper>
+    // return <ComponentWrapper>{this.renderDrops()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer caption="Obtained Drops">{this.renderDrops()}</AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderDrops(): JSX.Element {
@@ -63,9 +69,6 @@ class BaseSegmentDrop extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Obtained Drops
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Collectable items from all those battle rewards.</DescriptionWrapper>
         </DescriptionContainer>
