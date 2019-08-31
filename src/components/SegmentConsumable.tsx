@@ -10,16 +10,11 @@ import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentConsumable')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -56,7 +51,13 @@ class BaseSegmentConsumable extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderConsumables()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="consumables" caption="Consumables">
+          {this.renderConsumables()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderConsumables(): JSX.Element {
@@ -71,9 +72,6 @@ class BaseSegmentConsumable extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Consumables
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
         </DescriptionContainer>

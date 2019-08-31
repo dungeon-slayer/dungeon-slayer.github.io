@@ -10,16 +10,11 @@ import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem, PriceMultiplierItem } from 'src/common/interfaces'
 import { ConsumableItem } from 'src/data'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentMerchant')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -53,7 +48,13 @@ class BaseSegmentMerchant extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderMerchant()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="merchant" caption="Merchant">
+          {this.renderMerchant()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderMerchant(): JSX.Element {
@@ -61,9 +62,6 @@ class BaseSegmentMerchant extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Merchant
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>A merchant might sell things you may need.</DescriptionWrapper>
         </DescriptionContainer>

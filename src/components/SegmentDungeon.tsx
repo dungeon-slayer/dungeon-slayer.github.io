@@ -9,16 +9,11 @@ import { PlayerHelper, MobHelper, BattleHelper } from 'src/helpers'
 import { BattleAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem, CharacterItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentDungeon')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -66,15 +61,18 @@ class BaseSegmentDungeon extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderDungeon()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="dungeon" caption="Dungeon">
+          {this.renderDungeon()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderDungeon(): JSX.Element {
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Dungeon
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>
             <PropertyKey>Queue Size:</PropertyKey> <PropertyValue>{PlayerHelper.getMobQueueSize(this.props.player.character!.currentLevel).toLocaleString()}</PropertyValue>

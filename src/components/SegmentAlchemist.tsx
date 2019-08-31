@@ -11,16 +11,11 @@ import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem } from 'src/common/interfaces'
 import { DropItem, drops, LocationItem } from 'src/data'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentAlchemist')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -80,15 +75,18 @@ class BaseSegmentAlchemist extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderAlchemist()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="alchemist" caption="Alchemist">
+          {this.renderAlchemist()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderAlchemist(): JSX.Element | null {
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Alchemist
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>The residential alchemist seeks out for exotic items found in the dungeons.</DescriptionWrapper>
         </DescriptionContainer>

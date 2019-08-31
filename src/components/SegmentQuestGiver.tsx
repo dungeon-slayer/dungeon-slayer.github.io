@@ -9,16 +9,11 @@ import { PlayerHelper, LocationHelper, QuestHelper } from 'src/helpers'
 import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem, QuestItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentQuestGiver')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -72,15 +67,19 @@ class BaseSegmentQuestGiver extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderQuestGiver()}</ComponentWrapper>
+    // return <ComponentWrapper>{this.renderQuestGiver()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="quest-giver" caption="Quest Giver">
+          {this.renderQuestGiver()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderQuestGiver(): JSX.Element {
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Quest Giver
-        </SegmentCaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Locals who may wish to seek assistance from adventurers use quest giver as proxy to deliver the job request.</DescriptionWrapper>
         </DescriptionContainer>

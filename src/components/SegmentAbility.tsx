@@ -10,16 +10,11 @@ import { PlayerHelper, AbilityHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
 import { CtaItem, ActiveAbilityItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentAbility')
 
 const ComponentWrapper = styled.div``
-
-const SegmentCaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionWrapper = styled.div`
   margin: 4px 0;
@@ -61,7 +56,13 @@ class BaseSegmentAbility extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{this.renderAbilities()}</ComponentWrapper>
+    return (
+      <ComponentWrapper>
+        <AccordionContainer componentKey="ability" caption="Abilities">
+          {this.renderAbilities()}
+        </AccordionContainer>
+      </ComponentWrapper>
+    )
   }
 
   private renderAbilities(): JSX.Element {
@@ -78,9 +79,6 @@ class BaseSegmentAbility extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SegmentCaptionContainer role="heading" aria-level={2}>
-          Abilities
-        </SegmentCaptionContainer>
         <DescriptionWrapper>Abilities you have acquired throughout the adventure.</DescriptionWrapper>
         <EmphasisDescriptionWrapper>
           You allocated <strong>{usedAP}</strong> out of total <strong>{totalAP}</strong> Ability Points.
