@@ -1,10 +1,15 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import ArrowRightIcon from '@material-ui/icons/ArrowRight'
-
 import * as Bows from 'bows'
 import { IconComponent } from 'src/common/interfaces'
+import { StoreState } from 'src/store/interface'
+import { GameState } from 'src/reducers'
+import { GameHelper } from 'src/helpers'
+import { ControlAction } from 'src/actions'
 
 const log = Bows('AccordionContainer')
 
@@ -29,23 +34,14 @@ const Caption = styled.div``
 const ContentContainer = styled.div``
 
 interface Props {
+  game: GameState
+  toggleAccordion: (accordionKey: string) => Promise<void>
+
+  componentKey: string
   caption: string
 }
 
-interface State {
-  isActive: boolean
-}
-
-const defaultState: State = {
-  isActive: true,
-}
-
-export class AccordionContainer extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = defaultState
-  }
-
+class BaseAccordionContainer extends React.Component<Props> {
   componentDidMount() {
     log('componentDidMount triggered.')
   }
@@ -54,22 +50,24 @@ export class AccordionContainer extends React.Component<Props, State> {
     log('componentWillUnmount triggered.')
   }
 
+  get isActive(): boolean {
+    return GameHelper.isAccordionActive(this.props.game, this.props.componentKey)
+  }
+
   get ArrowIcon(): IconComponent {
-    return this.state.isActive ? ArrowDropDownIcon : ArrowRightIcon
+    return this.isActive ? ArrowDropDownIcon : ArrowRightIcon
   }
 
   clickHandler() {
-    log('clickHandler triggered.')
-    this.setState({
-      isActive: !this.state.isActive,
-    })
+    // log('clickHandler triggered. componentKey:', this.props.componentKey)
+    this.props.toggleAccordion(this.props.componentKey)
   }
 
   render(): JSX.Element {
     return (
       <ComponentWrapper>
         {this.renderCaption()}
-        {this.state.isActive && this.renderContent()}
+        {this.isActive && this.renderContent()}
       </ComponentWrapper>
     )
   }
@@ -89,3 +87,24 @@ export class AccordionContainer extends React.Component<Props, State> {
     return <ContentContainer {...restProps} />
   }
 }
+
+function mapStateToProps(state: StoreState) {
+  const { game } = state
+  return {
+    game,
+  }
+}
+
+function mapDispatchToProps(dispatch: Dispatch) {
+  return {
+    toggleAccordion: async (accordionKey: string): Promise<void> => {
+      await dispatch(ControlAction.toggleAccordion(accordionKey))
+    },
+  }
+}
+
+const AccordionContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BaseAccordionContainer)
+export default AccordionContainer

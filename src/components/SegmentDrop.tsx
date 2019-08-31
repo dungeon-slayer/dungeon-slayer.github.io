@@ -8,7 +8,7 @@ import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import ListItem from './ListItem'
 import { DropItem } from 'src/data'
-import { AccordionContainer } from './AccordionContainer'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentDrop')
 
@@ -49,10 +49,11 @@ class BaseSegmentDrop extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    // return <ComponentWrapper>{this.renderDrops()}</ComponentWrapper>
     return (
       <ComponentWrapper>
-        <AccordionContainer caption="Obtained Drops">{this.renderDrops()}</AccordionContainer>
+        <AccordionContainer componentKey="drops" caption="Obtained Drops">
+          {this.renderDrops()}
+        </AccordionContainer>
       </ComponentWrapper>
     )
   }

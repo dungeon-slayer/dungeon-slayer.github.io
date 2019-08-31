@@ -14,6 +14,7 @@ export interface GameState {
   clockSpeedMultiplier?: number
   currentLocation?: string
   displayLogs?: boolean
+  closedAccordionKeys?: string[]
 }
 
 const initialState: GameState = {
@@ -24,6 +25,7 @@ const initialState: GameState = {
   clockSpeedMultiplier: EnvironmentDelegate.DefaultGameSpeed,
   currentLocation: 'abbotsford-cave',
   displayLogs: true,
+  closedAccordionKeys: [],
 }
 
 export function game(state = initialState, action: any): GameState {
