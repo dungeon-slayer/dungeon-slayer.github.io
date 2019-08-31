@@ -89,17 +89,6 @@ export class ControlAction {
     }
   }
 
-  static setDisplayLogs(displayLogs: boolean): StoreAction {
-    const stateOverride: GameState = {
-      displayLogs,
-    }
-
-    return {
-      type: gameConstants.UPDATE,
-      payload: stateOverride,
-    }
-  }
-
   static restart(): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('restart triggered.')
