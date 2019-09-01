@@ -135,6 +135,33 @@ export class ControlAction {
     }
   }
 
+  static setAccordion(accordionKey: string, isActive: boolean): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const isCurrentlyActive = GameHelper.isAccordionActive(state.game, accordionKey)
+      if (isCurrentlyActive === isActive) {
+        return
+      }
+
+      let mutatedClosedAccordionKeys = clone(state.game.closedAccordionKeys!)
+      if (isCurrentlyActive) {
+        // Add
+        mutatedClosedAccordionKeys.push(accordionKey)
+      } else {
+        // Remove
+        mutatedClosedAccordionKeys = filter(mutatedClosedAccordionKeys, (key) => key !== accordionKey)
+      }
+
+      // Update
+      const payload: GameState = {
+        closedAccordionKeys: mutatedClosedAccordionKeys,
+      }
+      dispatch({ type: gameConstants.UPDATE, payload })
+    }
+  }
+
   private static async dispatchLogForNewGame(dispatch: Dispatch<StoreAction>, state: StoreState): Promise<void> {
     await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('NEW_GAME')))
     await ControlAction.dispatchLogForCurrentLocation(dispatch, state.game.currentLocation)

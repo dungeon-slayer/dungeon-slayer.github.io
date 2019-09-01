@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import ArrowRightIcon from '@material-ui/icons/ArrowRight'
+import { omit, keys } from 'lodash'
 import * as Bows from 'bows'
 import { IconComponent } from 'src/common/interfaces'
 import { StoreState } from 'src/store/interface'
@@ -15,14 +16,26 @@ const log = Bows('AccordionContainer')
 
 const ComponentWrapper = styled.div``
 
+interface CaptionContainerProps {
+  type: string | undefined
+}
+
 const CaptionContainer = styled.div`
-  padding: 12px 0;
-  font-size: 20px;
+  padding: 4px 0;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
   transition: opacity 0.3s;
+
+  ${(props: CaptionContainerProps) => css`
+    ${props.type === 'heading' &&
+      `
+      padding: 12px 0;
+      font-size: 20px;
+    `}
+  `}
 
   &:hover {
     opacity: 0.8;
@@ -36,14 +49,26 @@ const ContentContainer = styled.div``
 interface Props {
   game: GameState
   toggleAccordion: (accordionKey: string) => Promise<void>
+  setAccordion: (accordionKey: string, isActive: boolean) => Promise<void>
 
   componentKey: string
   caption: string
+  captionType?: string
+  isClosedByDefault?: boolean
 }
 
 class BaseAccordionContainer extends React.Component<Props> {
+  static defaultProps = {
+    captionType: 'heading',
+    isClosedByDefault: false,
+  }
+
   componentDidMount() {
     log('componentDidMount triggered.')
+
+    if (this.props.isClosedByDefault) {
+      this.props.setAccordion(this.props.componentKey, false)
+    }
   }
 
   componentWillUnmount() {
@@ -73,8 +98,17 @@ class BaseAccordionContainer extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
+    if (this.props.captionType === 'heading') {
+      return (
+        <CaptionContainer type={this.props.captionType} role="heading" aria-level={2} onClick={() => this.clickHandler()}>
+          <this.ArrowIcon />
+          <Caption>{this.props.caption}</Caption>
+        </CaptionContainer>
+      )
+    }
+
     return (
-      <CaptionContainer role="heading" aria-level={2} onClick={() => this.clickHandler()}>
+      <CaptionContainer type={this.props.captionType} onClick={() => this.clickHandler()}>
         <this.ArrowIcon />
         <Caption>{this.props.caption}</Caption>
       </CaptionContainer>
@@ -82,8 +116,8 @@ class BaseAccordionContainer extends React.Component<Props> {
   }
 
   private renderContent(): JSX.Element {
-    const restProps = this.props
-
+    // const restProps = this.props
+    const restProps = omit(this.props, keys(BaseAccordionContainer.defaultProps))
     return <ContentContainer {...restProps} />
   }
 }
@@ -99,6 +133,10 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     toggleAccordion: async (accordionKey: string): Promise<void> => {
       await dispatch(ControlAction.toggleAccordion(accordionKey))
+    },
+
+    setAccordion: async (accordionKey: string, isActive: boolean): Promise<void> => {
+      await dispatch(ControlAction.setAccordion(accordionKey, isActive))
     },
   }
 }

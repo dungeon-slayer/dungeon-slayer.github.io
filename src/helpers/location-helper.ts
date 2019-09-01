@@ -3,6 +3,7 @@ import { locations, LocationItem } from 'src/data'
 import { PlayerState } from 'src/reducers'
 import { PlayerHelper } from './player-helper'
 import { ConsumableHelper } from './consumable-helper'
+import { MobHelper } from './mob-helper'
 
 export class LocationHelper {
   static getItemByKey(key: string | undefined): LocationItem | undefined {
@@ -71,5 +72,20 @@ export class LocationHelper {
       requirements.push(consumableName)
     }
     return `(Requirement: ${requirements.join(', ')})`
+  }
+
+  static getMobListLabel(location: LocationItem): string {
+    const parts: string[] = []
+
+    if (!location.dungeon || location.dungeon.mobAppearances.length === 0) {
+      parts.push('N/A')
+    } else {
+      for (const maItem of location.dungeon.mobAppearances) {
+        const mobName = MobHelper.getMobNameByKey(maItem.key)
+        parts.push(mobName)
+      }
+    }
+
+    return `Mobs: ${parts.join(', ')}`
   }
 }

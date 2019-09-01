@@ -38,6 +38,18 @@ const MainContainer = styled.div`
   min-height: 64px;
 `
 
+const ExtraContentContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  padding: 8px;
+  margin-bottom: 8px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+`
+
 const ContentContainer = styled.div`
   flex-grow: 1;
 `
@@ -83,6 +95,7 @@ interface Props {
   heading: string | JSX.Element
   subheading: string | JSX.Element
   blurb?: string | JSX.Element
+  extraContent?: JSX.Element
 
   textColor: string
   opacity: string
@@ -126,6 +139,7 @@ export default class ListItem extends React.Component<Props> {
           </ContentContainer>
           {this.displayOperators && this.renderOperators()}
         </MainContainer>
+        {!!this.props.extraContent && this.renderExtraContent()}
       </ComponentWrapper>
     )
   }
@@ -152,5 +166,9 @@ export default class ListItem extends React.Component<Props> {
         <Button type={cta.type as any} label={cta.label} onClick={cta.onClick} />
       </ButtonWrapper>
     )
+  }
+
+  private renderExtraContent(): JSX.Element {
+    return <ExtraContentContainer>{this.props.extraContent}</ExtraContentContainer>
   }
 }

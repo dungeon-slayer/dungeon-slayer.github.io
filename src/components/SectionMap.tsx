@@ -11,6 +11,7 @@ import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
 import { mediaQueries } from 'src/constants'
 import { CtaItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SectionMap')
 
@@ -35,6 +36,10 @@ const DescriptionWrapper = styled.div`
 
 const LocationContainer = styled.div`
   margin-top: 24px;
+`
+
+const MobListBlurb = styled.div`
+  color: #1692bb;
 `
 
 interface Props {
@@ -99,9 +104,15 @@ class BaseSectionMap extends React.Component<Props> {
   private renderItem(location: LocationItem, isAvailable: boolean): JSX.Element {
     const heading = location.name
     let subheading = ''
+    let extraContent: JSX.Element | undefined
 
     if (LocationHelper.hasDungeonByKey(location.key)) {
       subheading = `(Dungeon Lvl ${location.dungeon!.mobLevelBase.toLocaleString()})`
+      extraContent = (
+        <AccordionContainer componentKey={`ec_${location.key}`} caption="More information" captionType="normal" isClosedByDefault={true}>
+          <MobListBlurb>{LocationHelper.getMobListLabel(location)}</MobListBlurb>
+        </AccordionContainer>
+      )
     }
     // let flavor = ''
     let flavor = location.flavor
@@ -121,9 +132,10 @@ class BaseSectionMap extends React.Component<Props> {
     } else if (!isAvailable) {
       ctaItem.type = 'disabled'
       ctaItem.label = 'N/A'
+      extraContent = undefined
     }
 
-    return <ListItem key={location.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="120px" />
+    return <ListItem key={location.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="120px" extraContent={extraContent} />
   }
 }
 
