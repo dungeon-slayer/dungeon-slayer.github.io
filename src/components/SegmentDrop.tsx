@@ -89,7 +89,7 @@ class BaseSegmentDrop extends React.Component<Props> {
     const subheading = `(×${availableItem.quantity.toLocaleString()})`
     const flavor = drop.flavor
 
-    return <ListItem key={drop.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[]} />
+    return <ListItem key={drop.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[]} />
   }
 }
 

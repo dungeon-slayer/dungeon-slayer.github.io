@@ -123,7 +123,7 @@ class BaseSectionMap extends React.Component<Props> {
       ctaItem.label = 'N/A'
     }
 
-    return <ListItem key={location.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="120px" />
+    return <ListItem key={location.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="120px" />
   }
 }
 

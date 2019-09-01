@@ -135,10 +135,10 @@ class BaseSectionBattle extends React.Component<Props> {
 
     const heading = 'Auto Battle'
     const subheading = ''
-    const flavor = 'Automatically engage in combat when idle.'
+    const blurb = 'Automatically engage in combat when idle.'
     const bgColor = '#edf5fd'
 
-    return <ListItem heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" bgColor={bgColor} />
+    return <ListItem heading={heading} subheading={subheading} blurb={blurb} ctaItems={[ctaItem]} ctaMinWidth="100px" bgColor={bgColor} />
   }
 
   private renderPlayerInfo(): JSX.Element {

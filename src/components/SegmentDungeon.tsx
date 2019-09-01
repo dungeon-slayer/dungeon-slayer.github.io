@@ -114,7 +114,7 @@ class BaseSegmentDungeon extends React.Component<Props> {
       textColor = '#d000b1'
     }
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} textColor={textColor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
+    return <ListItem key={key} heading={heading} subheading={subheading} blurb={flavor} textColor={textColor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 

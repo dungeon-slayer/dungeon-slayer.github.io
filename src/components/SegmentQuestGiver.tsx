@@ -21,16 +21,21 @@ const DescriptionWrapper = styled.div`
   margin: 4px 0;
 `
 
-// const ConsumableContainer = styled.div`
-//   margin-top: 24px;
-// `
-
 const QuestContainer = styled.div`
   margin-top: 24px;
 `
 
 const NoQuestContainer = styled(QuestContainer)`
   color: #dc0073;
+`
+
+const QuestBlurbContainer = styled.div`
+  color: #1692bb;
+  line-height 1.1;
+`
+
+const QuestBlurb = styled.div`
+  margin: 4px 0;
 `
 
 interface Props {
@@ -62,12 +67,10 @@ class BaseSegmentQuestGiver extends React.Component<Props> {
   }
 
   async questItemClickHandler(quest: QuestItem) {
-    // log('questItemClickHandler triggered. quest:', quest)
     await this.props.deliverQuestItem(quest)
   }
 
   render(): JSX.Element {
-    // return <ComponentWrapper>{this.renderQuestGiver()}</ComponentWrapper>
     return (
       <ComponentWrapper>
         <AccordionContainer componentKey="quest-giver" caption="Quest Giver">
@@ -105,9 +108,12 @@ class BaseSegmentQuestGiver extends React.Component<Props> {
     const key = quest.key
     const heading = quest.name
     const subheading = ``
-    const conversation = quest.conversation
-    const explanations = [QuestHelper.getRequestLabel(quest), QuestHelper.getRewardLabel(quest)]
-
+    const blurb = (
+      <QuestBlurbContainer>
+        <QuestBlurb>{QuestHelper.getRequestLabel(quest)}</QuestBlurb>
+        <QuestBlurb>{QuestHelper.getRewardLabel(quest)}</QuestBlurb>
+      </QuestBlurbContainer>
+    )
     let textColor: string | undefined
     let opacity: string | undefined
 
@@ -127,7 +133,7 @@ class BaseSegmentQuestGiver extends React.Component<Props> {
       ctaItem.type = 'disabled'
     }
 
-    return <ListItem key={key} heading={heading} subheading={subheading} conversation={conversation} explanations={explanations} textColor={textColor} opacity={opacity} ctaItems={[ctaItem]} />
+    return <ListItem key={key} heading={heading} subheading={subheading} blurb={blurb} textColor={textColor} opacity={opacity} ctaItems={[ctaItem]} />
   }
 }
 

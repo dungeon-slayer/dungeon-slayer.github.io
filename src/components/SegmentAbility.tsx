@@ -113,7 +113,7 @@ class BaseSegmentAbility extends React.Component<Props> {
       ctaItem.label = 'On'
     }
 
-    return <ListItem key={ability.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
+    return <ListItem key={ability.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 

@@ -125,7 +125,7 @@ class BaseSegmentAlchemist extends React.Component<Props> {
       { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.dropItemClickHandler(drop, 100) },
     ]
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={ctaItems} />
+    return <ListItem key={key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={ctaItems} />
   }
 }
 

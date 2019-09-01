@@ -84,7 +84,7 @@ class BaseSegmentMerchant extends React.Component<Props> {
       { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.consumableItemClickHandler(consumable, 100) },
     ]
 
-    return <ListItem key={key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={ctaItems} />
+    return <ListItem key={key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={ctaItems} />
   }
 }
 

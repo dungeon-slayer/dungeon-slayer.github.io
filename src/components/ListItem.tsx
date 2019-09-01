@@ -54,27 +54,12 @@ const SubheadingWrapper = styled.div`
 
 const DescriptionContainer = styled.div``
 
-const FlavorWrapper = styled.div`
+const BlurbWrapper = styled.div`
   color: #838383;
   line-height 1.1;
   margin: 4px 0;
 `
 
-const ConversationWrapper = styled.div`
-  color: #838383;
-  line-height 1.1;
-  margin: 6px 0;
-  font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
-  letter-spacing: 0;
-  font-style: italic;
-`
-
-const ExplanationWrapper = styled.div`
-  color: #1692bb;
-  // font-style: italic;
-  line-height 1.1;
-  margin: 4px 0;
-`
 const OperatorContainer = styled.div`
   margin-left: 12px;
   display: flex;
@@ -94,12 +79,10 @@ const ButtonWrapper = styled.div`
 `
 
 interface Props {
-  heading: string
-  subheading: string
+  heading: string | JSX.Element
+  subheading: string | JSX.Element
+  blurb?: string | JSX.Element
 
-  flavor: string
-  conversation: string
-  explanations: string[]
   textColor: string
   opacity: string
   ctaItems: CtaItem[]
@@ -109,9 +92,6 @@ interface Props {
 
 export default class ListItem extends React.Component<Props> {
   static defaultProps = {
-    flavor: '',
-    conversation: '',
-    explanations: [],
     textColor: '#033649',
     opacity: '1',
     ctaItems: [],
@@ -158,17 +138,7 @@ export default class ListItem extends React.Component<Props> {
   }
 
   private renderDescription(): JSX.Element {
-    return (
-      <DescriptionContainer>
-        {this.props.flavor && <FlavorWrapper>{this.props.flavor}</FlavorWrapper>}
-        {this.props.conversation && <ConversationWrapper>"{this.props.conversation}"</ConversationWrapper>}
-        {this.props.explanations.map((explanation) => this.renderExplanation(explanation))}
-      </DescriptionContainer>
-    )
-  }
-
-  private renderExplanation(explanation: string): JSX.Element {
-    return <ExplanationWrapper>{explanation}</ExplanationWrapper>
+    return <DescriptionContainer>{this.props.blurb && <BlurbWrapper>{this.props.blurb}</BlurbWrapper>}</DescriptionContainer>
   }
 
   private renderOperators(): JSX.Element {

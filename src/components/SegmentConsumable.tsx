@@ -99,7 +99,7 @@ class BaseSegmentConsumable extends React.Component<Props> {
       ctaItem.type = 'disabled'
     }
 
-    return <ListItem key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
+    return <ListItem key={consumable.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 
