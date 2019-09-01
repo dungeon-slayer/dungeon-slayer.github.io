@@ -38,6 +38,10 @@ const LocationContainer = styled.div`
   margin-top: 24px;
 `
 
+const MobListContainer = styled.div`
+  opacity: 0.7;
+`
+
 const MobListBlurb = styled.div`
   color: #1692bb;
 `
@@ -109,9 +113,11 @@ class BaseSectionMap extends React.Component<Props> {
     if (LocationHelper.hasDungeonByKey(location.key)) {
       subheading = `(Dungeon Lvl ${location.dungeon!.mobLevelBase.toLocaleString()})`
       extraContent = (
-        <AccordionContainer componentKey={`ec_${location.key}`} caption="More information" captionType="normal" isClosedByDefault={true}>
-          <MobListBlurb>{LocationHelper.getMobListLabel(location)}</MobListBlurb>
-        </AccordionContainer>
+        <MobListContainer>
+          <AccordionContainer componentKey={`ec_${location.key}`} caption="More information" captionType="normal" isClosedByDefault={true}>
+            <MobListBlurb>{LocationHelper.getMobListLabel(location)}</MobListBlurb>
+          </AccordionContainer>
+        </MobListContainer>
       )
     }
     // let flavor = ''
