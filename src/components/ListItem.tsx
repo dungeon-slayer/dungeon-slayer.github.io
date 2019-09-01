@@ -20,8 +20,6 @@ const ComponentWrapper = styled.div`
   transition: background-color 0.3s;
   background-color: #d9ebf0;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
 
   ${(props: ComponentWrapperProps) => css`
     color: ${props.textColor};
@@ -34,22 +32,27 @@ const ComponentWrapper = styled.div`
   }
 `
 
-const ContentWrapper = styled.div`
+const MainContainer = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const ContentContainer = styled.div`
   flex-grow: 1;
 `
 
-const HeadingWrapper = styled.div``
+const HeadingContainer = styled.div``
 
-const Heading = styled.div`
+const HeadingWrapper = styled.div`
   display: inline-block;
   font-weight: bold;
 `
 
-const Subheading = styled.div`
+const SubheadingWrapper = styled.div`
   display: inline-block;
 `
 
-const DescriptionWrapper = styled.div``
+const DescriptionContainer = styled.div``
 
 const FlavorWrapper = styled.div`
   color: #838383;
@@ -133,27 +136,34 @@ export default class ListItem extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    // log('render triggered. heading:', this.props.heading, 'bgColor:', this.props.bgColor)
     return (
       <ComponentWrapper textColor={this.props.textColor} opacity={this.props.opacity} bgColor={this.props.bgColor}>
-        <ContentWrapper>
-          <HeadingWrapper>
-            <Heading>{this.props.heading}</Heading> <Subheading>{this.props.subheading}</Subheading>
-          </HeadingWrapper>
-          {this.renderDescription()}
-        </ContentWrapper>
-        {this.displayOperators && this.renderOperators()}
+        <MainContainer>
+          <ContentContainer>
+            {this.renderHeading()}
+            {this.renderDescription()}
+          </ContentContainer>
+          {this.displayOperators && this.renderOperators()}
+        </MainContainer>
       </ComponentWrapper>
+    )
+  }
+
+  private renderHeading(): JSX.Element {
+    return (
+      <HeadingContainer>
+        <HeadingWrapper>{this.props.heading}</HeadingWrapper> <SubheadingWrapper>{this.props.subheading}</SubheadingWrapper>
+      </HeadingContainer>
     )
   }
 
   private renderDescription(): JSX.Element {
     return (
-      <DescriptionWrapper>
+      <DescriptionContainer>
         {this.props.flavor && <FlavorWrapper>{this.props.flavor}</FlavorWrapper>}
         {this.props.conversation && <ConversationWrapper>"{this.props.conversation}"</ConversationWrapper>}
         {this.props.explanations.map((explanation) => this.renderExplanation(explanation))}
-      </DescriptionWrapper>
+      </DescriptionContainer>
     )
   }
 
