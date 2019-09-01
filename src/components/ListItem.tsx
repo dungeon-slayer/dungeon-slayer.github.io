@@ -16,7 +16,7 @@ interface ComponentWrapperProps {
 const ComponentWrapper = styled.div`
   margin: 8px 0;
   padding: 8px 12px;
-  min-height: calc(64px - 16px);
+  // min-height: calc(64px - 16px);
   transition: background-color 0.3s;
   background-color: #d9ebf0;
   border-radius: 4px;
@@ -35,6 +35,7 @@ const ComponentWrapper = styled.div`
 const MainContainer = styled.div`
   display: flex;
   align-items: center;
+  min-height: 64px;
 `
 
 const ContentContainer = styled.div`
