@@ -14,4 +14,12 @@ export class GameHelper {
     const ms = floor(standardTickIntervalMs / baseMultiplier)
     return ms <= 0 ? 1 : ms
   }
+
+  static isAccordionActive(game: GameState, key: string): boolean {
+    if (!game.closedAccordionKeys) {
+      return true
+    }
+    const isClosed = game.closedAccordionKeys.indexOf(key) > -1
+    return !isClosed
+  }
 }

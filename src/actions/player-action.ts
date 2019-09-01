@@ -68,6 +68,22 @@ export class PlayerAction {
     }
   }
 
+  static setAutoBattle(isActive: boolean): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      if (state.player.autoBattleEnabled === isActive) {
+        return
+      }
+
+      const payload: PlayerState = {
+        autoBattleEnabled: isActive,
+      }
+      dispatch({ type: playerConstants.UPDATE, payload })
+    }
+  }
+
   static toggleAbility(ability: AbilityItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       log('toggleAbility triggered.')
@@ -137,12 +153,19 @@ export class PlayerAction {
       payload.availableConsumables = PlayerHelper.reducerAvailableItem(state.player.availableConsumables!, consumable.key)
       await dispatch(TraceAction.addConsumelLog(`You used <strong>${consumable.name}</strong>.`))
       await PlayerAction.dispatchSpecialLog(dispatch, state, consumable)
-      await dispatch(PlayerAction.trackConsumption(consumable))
-      await dispatch({ type: playerConstants.UPDATE, payload })
+      await PlayerAction.dispatchUseConsumable(dispatch, state, consumable)
 
       // In case of special actions
       await dispatch(GameAction.appendSummonMob(consumable))
     }
+  }
+
+  static async dispatchUseConsumable(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: ConsumableItem): Promise<void> {
+    const payload: PlayerState = {}
+    payload.character = CharacterHelper.updateConsumableEffect(state.player.character!, consumable.effect)
+    payload.availableConsumables = PlayerHelper.reducerAvailableItem(state.player.availableConsumables!, consumable.key)
+    await dispatch(PlayerAction.trackConsumption(consumable))
+    await dispatch({ type: playerConstants.UPDATE, payload })
   }
 
   static obtainDrop(drops: DropItem[]): any {
@@ -187,20 +210,20 @@ export class PlayerAction {
     }
   }
 
-  static disableAllAbilities(): any {
-    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // State properties
-      const state: StoreState = getState()
+  // static disableAllAbilities(): any {
+  //   return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+  //     // State properties
+  //     const state: StoreState = getState()
 
-      const payload: PlayerState = {
-        character: {
-          ...state.player.character!,
-          activeAbilities: [],
-        },
-      }
-      dispatch({ type: playerConstants.UPDATE, payload })
-    }
-  }
+  //     const payload: PlayerState = {
+  //       character: {
+  //         ...state.player.character!,
+  //         activeAbilities: [],
+  //       },
+  //     }
+  //     dispatch({ type: playerConstants.UPDATE, payload })
+  //   }
+  // }
 
   private static async dispatchSpecialLog(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: ConsumableItem): Promise<void> {
     if (consumable.key === 'horn-kolift') {

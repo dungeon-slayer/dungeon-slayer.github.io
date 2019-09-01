@@ -230,6 +230,14 @@ export const locations: LocationItem[] = [
         rewardItems: [{ key: 'relic-inner-strength', quantity: 1 }],
         prerequisiteQuests: [],
       },
+      {
+        key: 'alchemist-bargain',
+        name: 'Alchemist Bargain',
+        conversation: '',
+        requestItems: [{ key: 'medicinal-herb', quantity: 20 }],
+        rewardItems: [{ key: 'relic-auto-potion', quantity: 1 }],
+        prerequisiteQuests: [],
+      },
     ],
   },
   {
@@ -252,4 +260,20 @@ export const locations: LocationItem[] = [
       mobLevelSkew: 1,
     },
   },
+  // {
+  //   key: 'gaddha-lagoon',
+  //   name: `Gaddha Lagoon`,
+  //   flavor: 'TBA',
+  //   levelRequired: 18,
+  //   consumeRequired: ['map-earley'],
+  //   dungeon: {
+  //     // prettier-ignore
+  //     mobAppearances: [
+  //       { key: 'slime', appearanceRate: 1 },
+  //     ],
+  //     mobLevelBase: 25,
+  //     mobLevelHalfRange: 2,
+  //     mobLevelSkew: 1,
+  //   },
+  // },
 ]

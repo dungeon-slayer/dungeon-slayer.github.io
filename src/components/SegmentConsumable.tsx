@@ -4,34 +4,17 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { ConsumableItem, DropItem } from 'src/data'
+import { ConsumableItem } from 'src/data'
 import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
-import { mediaQueries } from 'src/constants'
 import { CtaItem } from 'src/common/interfaces'
+import AccordionContainer from './AccordionContainer'
 
-const log = Bows('SectionInventory')
+const log = Bows('SegmentConsumable')
 
 const ComponentWrapper = styled.div``
-
-const CaptionContainer = styled.div`
-  font-size: 24px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-
-  @media ${mediaQueries.mediumUp} {
-    display: none;
-  }
-`
-
-const SubcaptionContainer = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-`
 
 const DescriptionContainer = styled.div``
 
@@ -47,17 +30,13 @@ const ConsumableContainer = styled.div`
   margin-top: 24px;
 `
 
-const DropContainer = styled.div`
-  margin-top: 24px;
-`
-
 interface Props {
   player: PlayerState
   battle: BattleState
   useConsumable: (consumable: ConsumableItem) => Promise<void>
 }
 
-class BaseSectionInventory extends React.Component<Props> {
+class BaseSegmentConsumable extends React.Component<Props> {
   componentDidMount() {
     log('componentDidMount triggered.')
   }
@@ -66,23 +45,19 @@ class BaseSectionInventory extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async operatorClickHandler(consumable: ConsumableItem) {
-    log('operatorClickHandler triggered. consumable:', consumable)
+  async consumableClickHandler(consumable: ConsumableItem) {
+    log('consumableClickHandler triggered. consumable:', consumable)
     await this.props.useConsumable(consumable)
   }
 
   render(): JSX.Element {
     return (
       <ComponentWrapper>
-        {this.renderCaption()}
-        {this.renderConsumables()}
-        {this.renderDrops()}
+        <AccordionContainer componentKey="consumables" caption="Consumables">
+          {this.renderConsumables()}
+        </AccordionContainer>
       </ComponentWrapper>
     )
-  }
-
-  private renderCaption(): JSX.Element {
-    return <CaptionContainer>Inventory</CaptionContainer>
   }
 
   private renderConsumables(): JSX.Element {
@@ -97,7 +72,6 @@ class BaseSectionInventory extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <SubcaptionContainer>Consumables</SubcaptionContainer>
         <DescriptionContainer>
           <DescriptionWrapper>Items that may help you throughout the adventure.</DescriptionWrapper>
         </DescriptionContainer>
@@ -119,48 +93,13 @@ class BaseSectionInventory extends React.Component<Props> {
     const ctaItem: CtaItem = {
       type: 'blue',
       label: 'Use',
-      onClick: () => this.operatorClickHandler(consumable),
+      onClick: () => this.consumableClickHandler(consumable),
     }
     if (PlayerHelper.isInFightingMode(this.props.player, this.props.battle)) {
       ctaItem.type = 'disabled'
     }
 
-    return <ListItem key={consumable.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
-  }
-
-  private renderDrops(): JSX.Element {
-    const availableDrops = PlayerHelper.getAvailableDrops(this.props.player)
-
-    let dynamicContent: JSX.Element
-    if (availableDrops.length === 0) {
-      dynamicContent = <NoContentWrapper>You do not have any drops in your inventory.</NoContentWrapper>
-    } else {
-      dynamicContent = <React.Fragment>{availableDrops.map((item) => this.renderDrop(item))}</React.Fragment>
-    }
-
-    return (
-      <React.Fragment>
-        <SubcaptionContainer>Obtained Drops</SubcaptionContainer>
-        <DescriptionContainer>
-          <DescriptionWrapper>Collectable items from all those battle rewards.</DescriptionWrapper>
-        </DescriptionContainer>
-        <DropContainer>{dynamicContent}</DropContainer>
-      </React.Fragment>
-    )
-  }
-
-  private renderDrop(drop: DropItem): JSX.Element | null {
-    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availableDrops!, drop.key)
-    if (!availableItem) {
-      log('Failed to find available item for drop key:', drop.key)
-      return null
-    }
-
-    const heading = drop.name
-    const subheading = `(×${availableItem.quantity.toLocaleString()})`
-    const flavor = drop.flavor
-
-    return <ListItem key={drop.key} heading={heading} subheading={subheading} flavor={flavor} ctaItems={[]} />
+    return <ListItem key={consumable.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 
@@ -180,8 +119,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
   }
 }
 
-const SectionInventory = connect(
+const SegmentConsumable = connect(
   mapStateToProps,
   mapDispatchToProps
-)(BaseSectionInventory)
-export default SectionInventory
+)(BaseSegmentConsumable)
+export default SegmentConsumable

@@ -97,14 +97,19 @@ class BaseTabs extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    return <ComponentWrapper>{sections.map((sectionItem) => this.renderTab(sectionItem))}</ComponentWrapper>
+    return (
+      <ComponentWrapper role="tablist" aria-label="Sections">
+        {sections.map((sectionItem, index) => this.renderTab(sectionItem, index))}
+      </ComponentWrapper>
+    )
   }
 
-  private renderTab(sectionItem: SectionItem): JSX.Element {
-    const _Wrapper = this.props.game.activeSection === sectionItem.key ? ActiveTabWrapper : TabWrapper
+  private renderTab(sectionItem: SectionItem, index: number): JSX.Element {
+    const isSelected = this.props.game.activeSection === sectionItem.key
+    const _Wrapper = isSelected ? ActiveTabWrapper : TabWrapper
 
     return (
-      <_Wrapper key={sectionItem.key} onClick={() => this.tabClickHandler(sectionItem.key)}>
+      <_Wrapper key={sectionItem.key} role="tab" aria-selected={isSelected} aria-controls={sectionItem.key} tabIndex={index} onClick={() => this.tabClickHandler(sectionItem.key)}>
         <IconWrapper>
           <sectionItem.Icon />
         </IconWrapper>

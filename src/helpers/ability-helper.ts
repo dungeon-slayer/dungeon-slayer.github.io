@@ -39,6 +39,12 @@ export class AbilityHelper {
       return ability.flavor
     }
 
+    // Special case
+    if (ability.key === 'auto-potion') {
+      const percentageValue = CastHelper.toPercentageLabel(AbilityHelper.getAutoPotionChance(level))
+      return ability.flavor.replace('[%]', percentageValue)
+    }
+
     if (!isUndefined(ability.effect.attackBaseMultiplier) && !isUndefined(ability.effect.attackLevelMultiplier)) {
       const multiplier = ability.effect.attackBaseMultiplier + ability.effect.attackLevelMultiplier * level
       return ability.flavor.replace('[%]', CastHelper.toPercentageLabel(multiplier))
@@ -75,5 +81,15 @@ export class AbilityHelper {
     }
 
     return ability.flavor
+  }
+
+  static getAutoPotionChance(level: number): number {
+    if (level === 0) {
+      return 0
+    }
+
+    const baseMultiplier = 0.42
+    const levelMultiplier = 0.08
+    return baseMultiplier + levelMultiplier * level
   }
 }

@@ -16,12 +16,10 @@ interface ComponentWrapperProps {
 const ComponentWrapper = styled.div`
   margin: 8px 0;
   padding: 8px 12px;
-  min-height: calc(64px - 16px);
+  // min-height: calc(64px - 16px);
   transition: background-color 0.3s;
   background-color: #d9ebf0;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
 
   ${(props: ComponentWrapperProps) => css`
     color: ${props.textColor};
@@ -34,44 +32,47 @@ const ComponentWrapper = styled.div`
   }
 `
 
-const ContentWrapper = styled.div`
+const MainContainer = styled.div`
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+`
+
+const ExtraContentContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  padding: 8px;
+  margin-bottom: 8px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+`
+
+const ContentContainer = styled.div`
   flex-grow: 1;
 `
 
-const HeadingWrapper = styled.div``
+const HeadingContainer = styled.div``
 
-const Heading = styled.div`
+const HeadingWrapper = styled.div`
   display: inline-block;
   font-weight: bold;
 `
 
-const Subheading = styled.div`
+const SubheadingWrapper = styled.div`
   display: inline-block;
 `
 
-const DescriptionWrapper = styled.div``
+const DescriptionContainer = styled.div``
 
-const FlavorWrapper = styled.div`
+const BlurbWrapper = styled.div`
   color: #838383;
   line-height 1.1;
   margin: 4px 0;
 `
 
-const ConversationWrapper = styled.div`
-  color: #838383;
-  line-height 1.1;
-  margin: 6px 0;
-  font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
-  letter-spacing: 0;
-  font-style: italic;
-`
-
-const ExplanationWrapper = styled.div`
-  color: #1692bb;
-  // font-style: italic;
-  line-height 1.1;
-  margin: 4px 0;
-`
 const OperatorContainer = styled.div`
   margin-left: 12px;
   display: flex;
@@ -91,12 +92,11 @@ const ButtonWrapper = styled.div`
 `
 
 interface Props {
-  heading: string
-  subheading: string
+  heading: string | JSX.Element
+  subheading: string | JSX.Element
+  blurb?: string | JSX.Element
+  extraContent?: JSX.Element
 
-  flavor: string
-  conversation: string
-  explanations: string[]
   textColor: string
   opacity: string
   ctaItems: CtaItem[]
@@ -106,9 +106,6 @@ interface Props {
 
 export default class ListItem extends React.Component<Props> {
   static defaultProps = {
-    flavor: '',
-    conversation: '',
-    explanations: [],
     textColor: '#033649',
     opacity: '1',
     ctaItems: [],
@@ -133,32 +130,30 @@ export default class ListItem extends React.Component<Props> {
   }
 
   render(): JSX.Element {
-    // log('render triggered. heading:', this.props.heading, 'bgColor:', this.props.bgColor)
     return (
       <ComponentWrapper textColor={this.props.textColor} opacity={this.props.opacity} bgColor={this.props.bgColor}>
-        <ContentWrapper>
-          <HeadingWrapper>
-            <Heading>{this.props.heading}</Heading> <Subheading>{this.props.subheading}</Subheading>
-          </HeadingWrapper>
-          {this.renderDescription()}
-        </ContentWrapper>
-        {this.displayOperators && this.renderOperators()}
+        <MainContainer>
+          <ContentContainer>
+            {this.renderHeading()}
+            {this.renderDescription()}
+          </ContentContainer>
+          {this.displayOperators && this.renderOperators()}
+        </MainContainer>
+        {!!this.props.extraContent && this.renderExtraContent()}
       </ComponentWrapper>
     )
   }
 
-  private renderDescription(): JSX.Element {
+  private renderHeading(): JSX.Element {
     return (
-      <DescriptionWrapper>
-        {this.props.flavor && <FlavorWrapper>{this.props.flavor}</FlavorWrapper>}
-        {this.props.conversation && <ConversationWrapper>"{this.props.conversation}"</ConversationWrapper>}
-        {this.props.explanations.map((explanation) => this.renderExplanation(explanation))}
-      </DescriptionWrapper>
+      <HeadingContainer>
+        <HeadingWrapper>{this.props.heading}</HeadingWrapper> <SubheadingWrapper>{this.props.subheading}</SubheadingWrapper>
+      </HeadingContainer>
     )
   }
 
-  private renderExplanation(explanation: string): JSX.Element {
-    return <ExplanationWrapper>{explanation}</ExplanationWrapper>
+  private renderDescription(): JSX.Element {
+    return <DescriptionContainer>{this.props.blurb && <BlurbWrapper>{this.props.blurb}</BlurbWrapper>}</DescriptionContainer>
   }
 
   private renderOperators(): JSX.Element {
@@ -171,5 +166,9 @@ export default class ListItem extends React.Component<Props> {
         <Button type={cta.type as any} label={cta.label} onClick={cta.onClick} />
       </ButtonWrapper>
     )
+  }
+
+  private renderExtraContent(): JSX.Element {
+    return <ExtraContentContainer>{this.props.extraContent}</ExtraContentContainer>
   }
 }

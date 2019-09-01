@@ -13,7 +13,7 @@ export interface GameState {
   nextMobGenerateTs?: number
   clockSpeedMultiplier?: number
   currentLocation?: string
-  displayLogs?: boolean
+  closedAccordionKeys?: string[]
 }
 
 const initialState: GameState = {
@@ -23,7 +23,7 @@ const initialState: GameState = {
   nextMobGenerateTs: undefined,
   clockSpeedMultiplier: EnvironmentDelegate.DefaultGameSpeed,
   currentLocation: 'abbotsford-cave',
-  displayLogs: true,
+  closedAccordionKeys: [],
 }
 
 export function game(state = initialState, action: any): GameState {

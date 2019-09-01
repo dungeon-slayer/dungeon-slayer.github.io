@@ -1,11 +1,12 @@
 import { Dispatch } from 'redux'
+import { clone, filter } from 'lodash'
 import * as Bows from 'bows'
 import { gameConstants } from './constants/game'
 import { StoreAction, StoreState } from 'src/store/interface'
 import { GameState } from 'src/reducers'
 import { TraceAction } from './trace-action'
 import { LocalstorageDelegate, EnvironmentDelegate } from 'src/delegates'
-import { GameSaveHelper, LocationHelper, LoreHelper } from 'src/helpers'
+import { GameSaveHelper, LocationHelper, LoreHelper, GameHelper } from 'src/helpers'
 import { playerConstants } from './constants'
 import { AvailableItem } from 'src/common/interfaces'
 
@@ -88,17 +89,6 @@ export class ControlAction {
     }
   }
 
-  static setDisplayLogs(displayLogs: boolean): StoreAction {
-    const stateOverride: GameState = {
-      displayLogs,
-    }
-
-    return {
-      type: gameConstants.UPDATE,
-      payload: stateOverride,
-    }
-  }
-
   static restart(): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('restart triggered.')
@@ -119,6 +109,56 @@ export class ControlAction {
         case 'whysoserious':
           return await ControlAction.dispatchNewGameWithGodMode(dispatch, state)
       }
+    }
+  }
+
+  static toggleAccordion(accordionKey: string): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const isCurrentlyActive = GameHelper.isAccordionActive(state.game, accordionKey)
+      let mutatedClosedAccordionKeys = clone(state.game.closedAccordionKeys!)
+      if (isCurrentlyActive) {
+        // Add
+        mutatedClosedAccordionKeys.push(accordionKey)
+      } else {
+        // Remove
+        mutatedClosedAccordionKeys = filter(mutatedClosedAccordionKeys, (key) => key !== accordionKey)
+      }
+
+      // Update
+      const payload: GameState = {
+        closedAccordionKeys: mutatedClosedAccordionKeys,
+      }
+      dispatch({ type: gameConstants.UPDATE, payload })
+    }
+  }
+
+  static setAccordion(accordionKey: string, isActive: boolean): any {
+    return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
+      // State properties
+      const state: StoreState = getState()
+
+      const isCurrentlyActive = GameHelper.isAccordionActive(state.game, accordionKey)
+      if (isCurrentlyActive === isActive) {
+        return
+      }
+
+      let mutatedClosedAccordionKeys = clone(state.game.closedAccordionKeys!)
+      if (isCurrentlyActive) {
+        // Add
+        mutatedClosedAccordionKeys.push(accordionKey)
+      } else {
+        // Remove
+        mutatedClosedAccordionKeys = filter(mutatedClosedAccordionKeys, (key) => key !== accordionKey)
+      }
+
+      // Update
+      const payload: GameState = {
+        closedAccordionKeys: mutatedClosedAccordionKeys,
+      }
+      dispatch({ type: gameConstants.UPDATE, payload })
     }
   }
 

@@ -22,7 +22,7 @@ export const abilities: AbilityItem[] = [
   {
     key: 'focus-strike',
     name: 'Focus Strike',
-    flavor: 'Increase critical hit chance to [%].',
+    flavor: '[%] chance to deal a critical hit.',
     apCost: 20,
     effect: {
       criticalChanceBaseMultiplier: 0.08,
@@ -79,13 +79,13 @@ export const abilities: AbilityItem[] = [
       defenseLevelMultiplier: 0.04,
     },
   },
-  // {
-  //   key: 'auto-potion',
-  //   name: 'Auto Potion',
-  //   flavor: '30% chance of use a recovery item when hit.',
-  //   apCost: 40,
-  //   effect: {},
-  // },
+  {
+    key: 'auto-potion',
+    name: 'Auto Potion',
+    flavor: '[%] chance of use a recovery item when hit.',
+    apCost: 40,
+    effect: {},
+  },
 
   // God tier abilities
   {

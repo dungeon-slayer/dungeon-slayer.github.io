@@ -63,7 +63,6 @@ interface Props {
   game: GameState
   player: PlayerState
   setGameSpeed: (clockSpeedMultiplier: number) => Promise<void>
-  setDisplayLogs: (displayLogs: boolean) => Promise<void>
   restartGame: () => Promise<void>
 }
 
@@ -83,13 +82,6 @@ class BaseSectionSettings extends React.Component<Props> {
     this.props.setGameSpeed(valueNumber)
   }
 
-  async displayLogsChangeHandler(e: Event) {
-    log('displayLogsChangeHandler triggered. e:', e)
-    const { value } = e.target as any
-    const valueBool = CastHelper.toBoolean(value)
-    this.props.setDisplayLogs(valueBool)
-  }
-
   async resetHandler() {
     log('resetHandler triggered.')
     await this.props.restartGame()
@@ -105,14 +97,17 @@ class BaseSectionSettings extends React.Component<Props> {
   }
 
   private renderCaption(): JSX.Element {
-    return <CaptionContainer>Settings</CaptionContainer>
+    return (
+      <CaptionContainer role="heading" aria-level={1}>
+        Settings
+      </CaptionContainer>
+    )
   }
 
   private renderContent(): JSX.Element {
     return (
       <ConfigContainer>
         {false && this.renderGameSpeed()}
-        {false && this.renderDisplayLogs()}
         {this.renderResetGame()}
       </ConfigContainer>
     )
@@ -134,26 +129,6 @@ class BaseSectionSettings extends React.Component<Props> {
         <ConfigBlurb>Change the speed at which your game runs.</ConfigBlurb>
         <ConfigOperator>
           <Select selectedValue={clockSpeedMultiplierText} options={gameSpeedOptions} onChange={(e: Event) => this.gameSpeedChangeHandler(e)} />
-        </ConfigOperator>
-      </ConfigWrapper>
-    )
-  }
-
-  private renderDisplayLogs(): JSX.Element {
-    const displayLogsText = this.props.game.displayLogs!.toString()
-
-    // prettier-ignore
-    const displayOptions: SelectItem[] = [
-      { value: 'true', label: 'Show' },
-      { value: 'false', label: 'Hide' },
-    ]
-
-    return (
-      <ConfigWrapper>
-        <ConfigHeader>Display Logs</ConfigHeader>
-        <ConfigBlurb>Toggle display of logs on interface.</ConfigBlurb>
-        <ConfigOperator>
-          <Select selectedValue={displayLogsText} options={displayOptions} onChange={(e: Event) => this.displayLogsChangeHandler(e)} />
         </ConfigOperator>
       </ConfigWrapper>
     )
@@ -184,10 +159,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     setGameSpeed: async (clockSpeedMultiplier: number): Promise<void> => {
       await dispatch(ControlAction.setGameSpeed(clockSpeedMultiplier))
-    },
-
-    setDisplayLogs: async (displayLogs: boolean): Promise<void> => {
-      await dispatch(ControlAction.setDisplayLogs(displayLogs))
     },
 
     restartGame: async (): Promise<void> => {
