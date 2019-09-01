@@ -260,20 +260,20 @@ export const locations: LocationItem[] = [
       mobLevelSkew: 1,
     },
   },
-  {
-    key: 'gaddha-lagoon',
-    name: `Gaddha Lagoon`,
-    flavor: 'TBA',
-    levelRequired: 18,
-    consumeRequired: ['map-earley'],
-    dungeon: {
-      // prettier-ignore
-      mobAppearances: [
-        { key: 'slime', appearanceRate: 1 },
-      ],
-      mobLevelBase: 25,
-      mobLevelHalfRange: 2,
-      mobLevelSkew: 1,
-    },
-  },
+  // {
+  //   key: 'gaddha-lagoon',
+  //   name: `Gaddha Lagoon`,
+  //   flavor: 'TBA',
+  //   levelRequired: 18,
+  //   consumeRequired: ['map-earley'],
+  //   dungeon: {
+  //     // prettier-ignore
+  //     mobAppearances: [
+  //       { key: 'slime', appearanceRate: 1 },
+  //     ],
+  //     mobLevelBase: 25,
+  //     mobLevelHalfRange: 2,
+  //     mobLevelSkew: 1,
+  //   },
+  // },
 ]
