@@ -8,8 +8,9 @@ import { CharacterItem, AvailableItem } from 'src/common/interfaces'
 
 export interface PlayerState {
   character?: CharacterItem
-  availableConsumables?: AvailableItem[]
-  availableDrops?: AvailableItem[]
+  // availableConsumables?: AvailableItem[]
+  // availableDrops?: AvailableItem[]
+  availablePossessions?: AvailableItem[]
   gold?: number
   mobKillStats?: AvailableItem[]
   itemUsedStats?: AvailableItem[]
@@ -33,13 +34,12 @@ const initialState: PlayerState = {
     rewardExp: 0,
     activeAbilities: [],
   },
-  availableConsumables: [
+  availablePossessions: [
     {
       key: 'potion',
       quantity: 10,
     },
   ],
-  availableDrops: [],
   gold: 0,
   mobKillStats: [],
   itemUsedStats: [],

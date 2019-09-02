@@ -1,12 +1,12 @@
 import { floor, find, filter } from 'lodash'
-import { playerTemplate, LocationItem, DropItem, drops, ConsumableItem, consumables } from 'src/data'
-import { AvailableItem, QuestItem, ActiveAbilityItem } from 'src/common/interfaces'
+import { playerTemplate, LocationItem, possessions } from 'src/data'
+import { AvailableItem, QuestItem, ActiveAbilityItem, PossessionItem } from 'src/common/interfaces'
 import { PlayerState, BattleState } from 'src/reducers'
-import { ConsumableHelper } from './consumable-helper'
 import { AbilityHelper } from './ability-helper'
 import { BattleHelper } from './battle-helper'
 import { PriceMultiplierHelper } from './price-multiplier-helper'
 import { LocationHelper } from './location-helper'
+import { PossessionHelper } from './possession-helper'
 
 export class PlayerHelper {
   static getHp(level: number): number {
@@ -54,11 +54,11 @@ export class PlayerHelper {
   }
 
   static countAvailableConsumableByKey(player: PlayerState, consumableKey: string): number {
-    if (!player.availableConsumables) {
+    if (!player.availablePossessions) {
       return 0
     }
 
-    const targetAvailableItem = find(player.availableConsumables, (ac) => ac.key === consumableKey)
+    const targetAvailableItem = find(player.availablePossessions, (ac) => ac.key === consumableKey)
     if (!targetAvailableItem) {
       return 0
     }
@@ -113,7 +113,7 @@ export class PlayerHelper {
 
   static hasFulfillQuestRequirement(player: PlayerState, quest: QuestItem): boolean {
     for (const requestItem of quest.requestItems) {
-      const targetDrop = find(player.availableDrops!, (ad) => ad.key === requestItem.key)
+      const targetDrop = find(player.availablePossessions!, (ad) => ad.key === requestItem.key)
       if (!targetDrop || targetDrop.quantity < requestItem.quantity) {
         return false
       }
@@ -121,38 +121,21 @@ export class PlayerHelper {
     return true
   }
 
-  static getAvailableDrops(player: PlayerState): DropItem[] {
-    if (!player.availableDrops) {
+  static getAvailablePossessions(player: PlayerState): PossessionItem[] {
+    if (!player.availablePossessions) {
       return []
     }
 
-    const availableDrops: DropItem[] = []
-    for (const availableItem of player.availableDrops) {
+    const availablePossessions: PossessionItem[] = []
+    for (const availableItem of player.availablePossessions) {
       if (availableItem.quantity > 0) {
-        const targetDrop = find(drops, (drop) => drop.key === availableItem.key)
+        const targetDrop = find(possessions, (drop) => drop.key === availableItem.key)
         if (targetDrop) {
-          availableDrops.push(targetDrop)
+          availablePossessions.push(targetDrop)
         }
       }
     }
-    return availableDrops
-  }
-
-  static getAvailableConsumables(player: PlayerState): ConsumableItem[] {
-    if (!player.availableConsumables) {
-      return []
-    }
-
-    const availableConsumables: ConsumableItem[] = []
-    for (const availableItem of player.availableConsumables) {
-      if (availableItem.quantity > 0) {
-        const targetConsumable = find(consumables, (consumable) => consumable.key === availableItem.key)
-        if (targetConsumable) {
-          availableConsumables.push(targetConsumable)
-        }
-      }
-    }
-    return availableConsumables
+    return availablePossessions
   }
 
   static getAvailableQuests(player: PlayerState, location: LocationItem): QuestItem[] {
@@ -210,11 +193,11 @@ export class PlayerHelper {
   }
 
   static hasConsumable(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
-    if (!player.availableDrops) {
+    if (!player.availablePossessions) {
       return false
     }
 
-    const targetAvailableItem = find(player.availableConsumables, (item) => item.key === itemKey)
+    const targetAvailableItem = find(player.availablePossessions, (item) => item.key === itemKey)
     if (!targetAvailableItem) {
       return false
     }
@@ -223,11 +206,11 @@ export class PlayerHelper {
   }
 
   static hasDropItem(player: PlayerState, itemKey: string, qualifiedQuantity = 1): boolean {
-    if (!player.availableDrops) {
+    if (!player.availablePossessions) {
       return false
     }
 
-    const targetAvailableItem = find(player.availableDrops, (item) => item.key === itemKey)
+    const targetAvailableItem = find(player.availablePossessions, (item) => item.key === itemKey)
     if (!targetAvailableItem) {
       return false
     }
@@ -244,7 +227,7 @@ export class PlayerHelper {
 
     for (const usedItem of player.itemUsedStats) {
       if (usedItem.quantity > 0) {
-        const targetConsumable = ConsumableHelper.getItemByKey(usedItem.key)
+        const targetConsumable = PossessionHelper.getItemByKey(usedItem.key)
         if (targetConsumable && targetConsumable.effect.gainAbilities) {
           for (const abilityKey of targetConsumable.effect.gainAbilities) {
             const aaItem: ActiveAbilityItem = { key: abilityKey, level: usedItem.quantity }
@@ -265,7 +248,7 @@ export class PlayerHelper {
 
     for (const usedItem of player.itemUsedStats) {
       if (usedItem.quantity > 0) {
-        const targetConsumable = ConsumableHelper.getItemByKey(usedItem.key)
+        const targetConsumable = PossessionHelper.getItemByKey(usedItem.key)
         if (targetConsumable && targetConsumable.effect.gainAbilities) {
           if (targetConsumable.effect.gainAbilities.indexOf(abilityKey) > -1) {
             // NOTE: This is assume that you cannot stake ability levels from different consumables
@@ -292,11 +275,11 @@ export class PlayerHelper {
   }
 
   static hasEnoughDrops(player: PlayerState, dropKey: string, quantity: number): boolean {
-    const availableDropItem = find(player.availableDrops!, (ad) => ad.key === dropKey)
+    const availableDropItem = find(player.availablePossessions!, (ad) => ad.key === dropKey)
     return !!availableDropItem && availableDropItem.quantity >= quantity
   }
 
-  static hasEnoughGold(player: PlayerState, locationKey: string, consumable: ConsumableItem, quantity: number): boolean {
+  static hasEnoughGold(player: PlayerState, locationKey: string, consumable: PossessionItem, quantity: number): boolean {
     const currentLocation = LocationHelper.getItemByKey(locationKey)!
     const priceMultiplierItem = find(currentLocation.merchant!, (pmi) => pmi.key === consumable.key)
     if (!priceMultiplierItem) {

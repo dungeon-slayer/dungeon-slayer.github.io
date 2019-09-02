@@ -1,71 +1,84 @@
-export interface DropItem {
-  key: string
-  name: string
-  flavor: string
-  basePrice: number
-}
+import { PossessionItem } from 'src/common/interfaces'
 
-export const drops: DropItem[] = [
+export const drops: PossessionItem[] = [
   {
     key: 'slimeball',
     name: 'Slimeball',
+    type: 'drop',
     flavor: '',
     // flavor: 'Pure, concentrated slime.',
     basePrice: 12,
+    effect: {},
   },
   {
     key: 'small-critter-tail',
     name: 'Small Critter Tail',
+    type: 'drop',
     flavor: '',
     // flavor: 'Tail of common small creature.',
     basePrice: 12,
+    effect: {},
   },
   {
     key: 'small-critter-paw',
     name: 'Small Critter Paw',
+    type: 'drop',
     flavor: '',
     // flavor: 'Undamaged paw of common small creature.',
     basePrice: 12,
+    effect: {},
   },
   {
     key: 'medicinal-herb',
     name: 'Medicinal Herb',
+    type: 'drop',
     flavor: '',
     // flavor: `Smells minty, doesn't hurt if you want to snack on it.`,
     basePrice: 22,
+    effect: {},
   },
   {
     key: 'ethereal-pebble',
     name: 'Ethereal Pebble',
+    type: 'drop',
     flavor: '',
     // flavor: 'Small shinny stone that contains very low spiritual energy.',
     basePrice: 22,
+    effect: {},
   },
   {
     key: 'catnip',
     name: 'Catnip',
+    type: 'drop',
     flavor: '',
     // flavor: 'Love of any felid creature.',
     basePrice: 36,
+    effect: {},
   },
   {
     key: 'glass-nugget',
     name: 'Glass Nugget',
+    type: 'drop',
     flavor: '',
     // flavor: 'Semi-transparent river stone, shines in water under sunlight.',
     basePrice: 36,
+    effect: {},
   },
   {
     key: 'kolifts-scale',
     name: `Kolift's Scale`,
+    type: 'drop',
     flavor: '',
     // flavor: `A while piece of scale from Kolift's body.`,
     basePrice: 0,
+    effect: {},
   },
   {
     key: 'gummy-slime',
     name: 'Gummy Slime',
+    type: 'drop',
     flavor: '',
     basePrice: 48,
+    effect: {},
   },
 ]

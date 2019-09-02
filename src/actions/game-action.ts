@@ -5,8 +5,8 @@ import { gameConstants } from './constants/game'
 import { StoreAction, StoreState } from 'src/store/interface'
 import { GameState } from 'src/reducers'
 import { MobHelper, PlayerHelper, LocationHelper, BattleHelper, PriceMultiplierHelper, GameHelper } from 'src/helpers'
-import { CharacterItem, QuestItem } from 'src/common/interfaces'
-import { LocationItem, DropItem, ConsumableItem } from 'src/data'
+import { CharacterItem, QuestItem, PossessionItem } from 'src/common/interfaces'
+import { LocationItem } from 'src/data'
 import { TraceAction } from './trace-action'
 import { EnvironmentDelegate } from 'src/delegates'
 import { playerConstants } from './constants'
@@ -51,7 +51,7 @@ export class GameAction {
     }
   }
 
-  static appendSummonMob(consumable: ConsumableItem): any {
+  static appendSummonMob(consumable: PossessionItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('appendSummonMob triggered. consumable:', consumable)
 
@@ -139,7 +139,7 @@ export class GameAction {
     }
   }
 
-  static sellDropItem(drop: DropItem, quantity: number): any {
+  static sellDropItem(drop: PossessionItem, quantity: number): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('sellDropItem triggered.')
 
@@ -152,7 +152,7 @@ export class GameAction {
         return
       }
 
-      const availableDropItem = find(state.player.availableDrops!, (ad) => ad.key === drop.key)!
+      const availableDropItem = find(state.player.availablePossessions!, (ad) => ad.key === drop.key)!
       const currentLocation = LocationHelper.getItemByKey(state.game.currentLocation)!
       const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(currentLocation.alchemist!, drop)
       if (priceMultiplierValue === 0) {
@@ -164,9 +164,9 @@ export class GameAction {
       const playerPayload = cloneDeep(state.player)
       playerPayload.gold! += totalSellPrice
       if (availableDropItem.quantity === quantity) {
-        playerPayload.availableDrops = filter(playerPayload.availableDrops!, (ad) => ad.key !== availableDropItem.key)
+        playerPayload.availablePossessions = filter(playerPayload.availablePossessions!, (ad) => ad.key !== availableDropItem.key)
       } else {
-        const targetAvailableDrop = find(playerPayload.availableDrops!, (ad) => ad.key === availableDropItem.key)!
+        const targetAvailableDrop = find(playerPayload.availablePossessions!, (ad) => ad.key === availableDropItem.key)!
         targetAvailableDrop.quantity -= quantity
       }
 
@@ -175,7 +175,7 @@ export class GameAction {
     }
   }
 
-  static buyConsumableItem(consumable: ConsumableItem, quantity: number): any {
+  static buyConsumableItem(consumable: PossessionItem, quantity: number): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('buyConsumableItem triggered.')
 
@@ -201,13 +201,13 @@ export class GameAction {
       }
 
       const playerPayload = cloneDeep(state.player)
-      const availableConsumable = find(playerPayload.availableConsumables!, (con) => con.key === consumable.key)!
+      const availableConsumable = find(playerPayload.availablePossessions!, (con) => con.key === consumable.key)!
       playerPayload.gold! -= totalSellPrice
 
       if (availableConsumable) {
         availableConsumable.quantity += quantity
       } else {
-        playerPayload.availableConsumables!.push({ key: consumable.key, quantity })
+        playerPayload.availablePossessions!.push({ key: consumable.key, quantity })
       }
 
       await dispatch({ type: playerConstants.UPDATE, payload: playerPayload })
@@ -236,16 +236,16 @@ export class GameAction {
       const playerPayload = cloneDeep(state.player)
       // Deduct requested items
       for (const requestItem of quest.requestItems) {
-        const targetDrop = find(playerPayload.availableDrops!, (ad) => ad.key === requestItem.key)!
+        const targetDrop = find(playerPayload.availablePossessions!, (ad) => ad.key === requestItem.key)!
         targetDrop.quantity -= requestItem.quantity
       }
       // Add reward items
       for (const rewardItems of quest.rewardItems) {
-        const targetConsumable = find(playerPayload.availableConsumables!, (ac) => ac.key === rewardItems.key)
+        const targetConsumable = find(playerPayload.availablePossessions!, (ac) => ac.key === rewardItems.key)
         if (targetConsumable) {
           targetConsumable.quantity += rewardItems.quantity
         } else {
-          playerPayload.availableConsumables!.push({ key: rewardItems.key, quantity: rewardItems.quantity })
+          playerPayload.availablePossessions!.push({ key: rewardItems.key, quantity: rewardItems.quantity })
         }
       }
       // Append completed quest

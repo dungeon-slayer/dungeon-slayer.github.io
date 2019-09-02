@@ -2,15 +2,14 @@ import { Dispatch } from 'redux'
 import { cloneDeep, sortBy, floor } from 'lodash'
 import * as Bows from 'bows'
 import { StoreAction, StoreState } from 'src/store/interface'
-import { CharacterItem, DamageDataItem } from 'src/common/interfaces'
+import { CharacterItem, DamageDataItem, PossessionItem } from 'src/common/interfaces'
 import { battleConstants, playerConstants } from './constants'
 import { BattleState, PlayerState } from 'src/reducers'
-import { BattleHelper, PlayerHelper, CharacterHelper, RandomHelper, DropHelper, ConsumableHelper } from 'src/helpers'
+import { BattleHelper, PlayerHelper, CharacterHelper, RandomHelper, PossessionHelper } from 'src/helpers'
 import { TraceAction } from './trace-action'
 import { GameAction } from './game-action'
 import { PlayerAction } from './player-action'
 import { MobHelper } from '../helpers/mob-helper'
-import { DropItem } from 'src/data'
 
 const log = Bows('BattleAction')
 
@@ -184,7 +183,7 @@ export class BattleAction {
     const potionKeys = ['potion', 'hi-potion']
     for (const potionKey of potionKeys) {
       if (PlayerHelper.hasConsumable(state.player, potionKey)) {
-        const potionItem = ConsumableHelper.getItemByKey(potionKey)!
+        const potionItem = PossessionHelper.getItemByKey(potionKey)!
         await dispatch(TraceAction.addBattleLog(`You react with <strong>Auto-Potion</strong>.`))
         await PlayerAction.dispatchUseConsumable(dispatch, state, potionItem)
         return
@@ -264,10 +263,10 @@ export class BattleAction {
       return
     }
 
-    const obtainedDropItems: DropItem[] = []
+    const obtainedDropItems: PossessionItem[] = []
     for (const dropRate of mobTemplate.dropRates) {
       if (RandomHelper.takeChance(dropRate.dropRate)) {
-        const dropItem = DropHelper.getItemByKey(dropRate.dropKey)!
+        const dropItem = PossessionHelper.getItemByKey(dropRate.dropKey)!
         obtainedDropItems.push(dropItem)
       }
     }

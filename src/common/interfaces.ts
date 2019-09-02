@@ -111,3 +111,12 @@ export interface CtaItem {
   label: string
   onClick: any
 }
+
+export interface PossessionItem {
+  key: string
+  name: string
+  type: 'tonic' | 'drop' | 'equipment'
+  flavor: string
+  basePrice: number
+  effect: ConsumableEffectItem
+}

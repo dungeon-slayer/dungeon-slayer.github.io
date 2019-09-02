@@ -5,11 +5,10 @@ import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
 import { PlayerState, BattleState, GameState } from 'src/reducers'
-import { PlayerHelper, PriceMultiplierHelper, LocationHelper, ConsumableHelper } from 'src/helpers'
+import { PlayerHelper, PriceMultiplierHelper, LocationHelper, PossessionHelper } from 'src/helpers'
 import { GameAction } from 'src/actions'
 import ListItem from './ListItem'
-import { CtaItem, PriceMultiplierItem } from 'src/common/interfaces'
-import { ConsumableItem } from 'src/data'
+import { CtaItem, PriceMultiplierItem, PossessionItem } from 'src/common/interfaces'
 import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentMerchant')
@@ -30,7 +29,7 @@ interface Props {
   player: PlayerState
   battle: BattleState
   game: GameState
-  buyConsumableItem: (consumable: ConsumableItem, quantity: number) => Promise<void>
+  buyConsumableItem: (consumable: PossessionItem, quantity: number) => Promise<void>
 }
 
 class BaseSegmentMerchant extends React.Component<Props> {
@@ -42,7 +41,7 @@ class BaseSegmentMerchant extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async consumableItemClickHandler(consumable: ConsumableItem, quantity: number) {
+  async consumableItemClickHandler(consumable: PossessionItem, quantity: number) {
     // log('consumableItemClickHandler triggered. consumable:', consumable)
     await this.props.buyConsumableItem(consumable, quantity)
   }
@@ -71,7 +70,7 @@ class BaseSegmentMerchant extends React.Component<Props> {
   }
 
   private renderConsumableItem(priceMultiplierItem: PriceMultiplierItem): JSX.Element {
-    const consumable = ConsumableHelper.getItemByKey(priceMultiplierItem.key)!
+    const consumable = PossessionHelper.getItemByKey(priceMultiplierItem.key)!
     const cost = PriceMultiplierHelper.calculatePrice(consumable.basePrice, priceMultiplierItem.multiplier)
 
     const key = consumable.key
@@ -99,7 +98,7 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    buyConsumableItem: async (consumable: ConsumableItem, quantity: number): Promise<void> => {
+    buyConsumableItem: async (consumable: PossessionItem, quantity: number): Promise<void> => {
       await dispatch(GameAction.buyConsumableItem(consumable, quantity))
     },
   }

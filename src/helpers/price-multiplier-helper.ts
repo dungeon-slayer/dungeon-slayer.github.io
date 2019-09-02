@@ -1,12 +1,11 @@
 import { find, floor } from 'lodash'
 // import * as Bows from 'bows'
-import { PriceMultiplierItem } from 'src/common/interfaces'
-import { DropItem } from 'src/data'
+import { PriceMultiplierItem, PossessionItem } from 'src/common/interfaces'
 
 // const log = Bows('PriceMultiplierHelper')
 
 export class PriceMultiplierHelper {
-  static getPriceMultiplierValue(priceMultiplierItems: PriceMultiplierItem[], drop: DropItem): number {
+  static getPriceMultiplierValue(priceMultiplierItems: PriceMultiplierItem[], drop: PossessionItem): number {
     const priceMultiplierItem = find(priceMultiplierItems, (pm) => pm.key === drop.key)
     if (!priceMultiplierItem) {
       return 1

@@ -2,8 +2,8 @@ import { find, filter, head, difference, isArray } from 'lodash'
 import { locations, LocationItem } from 'src/data'
 import { PlayerState } from 'src/reducers'
 import { PlayerHelper } from './player-helper'
-import { ConsumableHelper } from './consumable-helper'
 import { MobHelper } from './mob-helper'
+import { PossessionHelper } from './possession-helper'
 
 export class LocationHelper {
   static getItemByKey(key: string | undefined): LocationItem | undefined {
@@ -68,7 +68,7 @@ export class LocationHelper {
     const requirements: string[] = []
     requirements.push(`Player level ${location.levelRequired}`)
     for (const consumableKey of location.consumeRequired) {
-      const consumableName = ConsumableHelper.getNameByKey(consumableKey, consumableKey)
+      const consumableName = PossessionHelper.getNameByKey(consumableKey, consumableKey)
       requirements.push(consumableName)
     }
     return `(Requirement: ${requirements.join(', ')})`

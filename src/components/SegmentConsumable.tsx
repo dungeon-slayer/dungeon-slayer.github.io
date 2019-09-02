@@ -4,12 +4,11 @@ import { Dispatch } from 'redux'
 import styled from 'styled-components'
 import * as Bows from 'bows'
 import { StoreState } from 'src/store/interface'
-import { ConsumableItem } from 'src/data'
 import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import { PlayerAction } from 'src/actions'
 import ListItem from './ListItem'
-import { CtaItem } from 'src/common/interfaces'
+import { CtaItem, PossessionItem } from 'src/common/interfaces'
 import AccordionContainer from './AccordionContainer'
 
 const log = Bows('SegmentConsumable')
@@ -33,7 +32,7 @@ const ConsumableContainer = styled.div`
 interface Props {
   player: PlayerState
   battle: BattleState
-  useConsumable: (consumable: ConsumableItem) => Promise<void>
+  useConsumable: (consumable: PossessionItem) => Promise<void>
 }
 
 class BaseSegmentConsumable extends React.Component<Props> {
@@ -45,7 +44,7 @@ class BaseSegmentConsumable extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async consumableClickHandler(consumable: ConsumableItem) {
+  async consumableClickHandler(consumable: PossessionItem) {
     log('consumableClickHandler triggered. consumable:', consumable)
     await this.props.useConsumable(consumable)
   }
@@ -61,7 +60,7 @@ class BaseSegmentConsumable extends React.Component<Props> {
   }
 
   private renderConsumables(): JSX.Element {
-    const availableConsumables = PlayerHelper.getAvailableConsumables(this.props.player)
+    const availableConsumables = PlayerHelper.getAvailablePossessions(this.props.player)
 
     let dynamicContent: JSX.Element
     if (availableConsumables.length === 0) {
@@ -80,8 +79,8 @@ class BaseSegmentConsumable extends React.Component<Props> {
     )
   }
 
-  private renderConsumable(consumable: ConsumableItem): JSX.Element | null {
-    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availableConsumables!, consumable.key)
+  private renderConsumable(consumable: PossessionItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, consumable.key)
     if (!availableItem) {
       log('Failed to find available item for consumable key:', consumable.key)
       return null
@@ -113,7 +112,7 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    useConsumable: async (consumable: ConsumableItem): Promise<void> => {
+    useConsumable: async (consumable: PossessionItem): Promise<void> => {
       await dispatch(PlayerAction.useConsumable(consumable))
     },
   }

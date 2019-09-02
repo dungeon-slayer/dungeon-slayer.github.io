@@ -7,8 +7,8 @@ import { StoreState } from 'src/store/interface'
 import { PlayerState, BattleState } from 'src/reducers'
 import { PlayerHelper } from 'src/helpers'
 import ListItem from './ListItem'
-import { DropItem } from 'src/data'
 import AccordionContainer from './AccordionContainer'
+import { PossessionItem } from 'src/common/interfaces'
 
 const log = Bows('SegmentDrop')
 
@@ -59,7 +59,7 @@ class BaseSegmentDrop extends React.Component<Props> {
   }
 
   private renderDrops(): JSX.Element {
-    const availableDrops = PlayerHelper.getAvailableDrops(this.props.player)
+    const availableDrops = PlayerHelper.getAvailablePossessions(this.props.player)
 
     let dynamicContent: JSX.Element
     if (availableDrops.length === 0) {
@@ -78,8 +78,8 @@ class BaseSegmentDrop extends React.Component<Props> {
     )
   }
 
-  private renderDrop(drop: DropItem): JSX.Element | null {
-    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availableDrops!, drop.key)
+  private renderDrop(drop: PossessionItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, drop.key)
     if (!availableItem) {
       log('Failed to find available item for drop key:', drop.key)
       return null

@@ -1,12 +1,11 @@
 import { QuestItem } from 'src/common/interfaces'
-import { DropHelper } from './drop-helper'
-import { ConsumableHelper } from './consumable-helper'
+import { PossessionHelper } from './possession-helper'
 
 export class QuestHelper {
   static getRequestLabel(quest: QuestItem): string {
     const parts: string[] = []
     for (const requestItem of quest.requestItems) {
-      const itemName = DropHelper.getNameByKey(requestItem.key)
+      const itemName = PossessionHelper.getNameByKey(requestItem.key)
       if (requestItem.quantity === 1) {
         parts.push(itemName)
       } else {
@@ -19,7 +18,7 @@ export class QuestHelper {
   static getRewardLabel(quest: QuestItem): string {
     const parts: string[] = []
     for (const rewardItem of quest.rewardItems) {
-      const itemName = ConsumableHelper.getNameByKey(rewardItem.key)
+      const itemName = PossessionHelper.getNameByKey(rewardItem.key)
       if (rewardItem.quantity === 1) {
         parts.push(itemName)
       } else {
