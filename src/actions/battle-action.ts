@@ -182,7 +182,7 @@ export class BattleAction {
 
     const potionKeys = ['potion', 'hi-potion']
     for (const potionKey of potionKeys) {
-      if (PlayerHelper.hasConsumable(state.player, potionKey)) {
+      if (PlayerHelper.hasPossessionItem(state.player, potionKey)) {
         const potionItem = PossessionHelper.getItemByKey(potionKey)!
         await dispatch(TraceAction.addBattleLog(`You react with <strong>Auto-Potion</strong>.`))
         await PlayerAction.dispatchUseConsumable(dispatch, state, potionItem)
@@ -263,13 +263,13 @@ export class BattleAction {
       return
     }
 
-    const obtainedDropItems: PossessionItem[] = []
+    const obtainedPossessions: PossessionItem[] = []
     for (const dropRate of mobTemplate.dropRates) {
       if (RandomHelper.takeChance(dropRate.dropRate)) {
         const dropItem = PossessionHelper.getItemByKey(dropRate.dropKey)!
-        obtainedDropItems.push(dropItem)
+        obtainedPossessions.push(dropItem)
       }
     }
-    await dispatch(PlayerAction.obtainDrop(obtainedDropItems))
+    await dispatch(PlayerAction.obtainPossessions(obtainedPossessions))
   }
 }

@@ -96,7 +96,7 @@ export interface AbilityEffectItem {
   criticalBonusLevelMultiplier?: number
 }
 
-export interface ConsumableEffectItem {
+export interface PossessionEffectItem {
   hpModifier?: number
   gainAbilities?: string[]
 }
@@ -118,5 +118,5 @@ export interface PossessionItem {
   type: 'tonic' | 'drop' | 'equipment'
   flavor: string
   basePrice: number
-  effect: ConsumableEffectItem
+  effect: PossessionEffectItem
 }

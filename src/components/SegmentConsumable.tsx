@@ -32,7 +32,7 @@ const ConsumableContainer = styled.div`
 interface Props {
   player: PlayerState
   battle: BattleState
-  useConsumable: (consumable: PossessionItem) => Promise<void>
+  usePossession: (possession: PossessionItem) => Promise<void>
 }
 
 class BaseSegmentConsumable extends React.Component<Props> {
@@ -44,9 +44,9 @@ class BaseSegmentConsumable extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async consumableClickHandler(consumable: PossessionItem) {
-    log('consumableClickHandler triggered. consumable:', consumable)
-    await this.props.useConsumable(consumable)
+  async consumableClickHandler(possession: PossessionItem) {
+    log('consumableClickHandler triggered. possession:', possession)
+    await this.props.usePossession(possession)
   }
 
   render(): JSX.Element {
@@ -60,13 +60,13 @@ class BaseSegmentConsumable extends React.Component<Props> {
   }
 
   private renderConsumables(): JSX.Element {
-    const availableConsumables = PlayerHelper.getAvailablePossessions(this.props.player)
+    const availablePossessions = PlayerHelper.getAvailablePossessions(this.props.player)
 
     let dynamicContent: JSX.Element
-    if (availableConsumables.length === 0) {
+    if (availablePossessions.length === 0) {
       dynamicContent = <NoContentWrapper>You do not have any consumables in your inventory.</NoContentWrapper>
     } else {
-      dynamicContent = <React.Fragment>{availableConsumables.map((item) => this.renderConsumable(item))}</React.Fragment>
+      dynamicContent = <React.Fragment>{availablePossessions.map((item) => this.renderConsumable(item))}</React.Fragment>
     }
 
     return (
@@ -79,26 +79,26 @@ class BaseSegmentConsumable extends React.Component<Props> {
     )
   }
 
-  private renderConsumable(consumable: PossessionItem): JSX.Element | null {
-    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, consumable.key)
+  private renderConsumable(possession: PossessionItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, possession.key)
     if (!availableItem) {
-      log('Failed to find available item for consumable key:', consumable.key)
+      log('Failed to find available item for consumable key:', possession.key)
       return null
     }
 
-    const heading = consumable.name
+    const heading = possession.name
     const subheading = `(×${availableItem.quantity.toLocaleString()})`
-    const flavor = consumable.flavor
+    const flavor = possession.flavor
     const ctaItem: CtaItem = {
       type: 'blue',
       label: 'Use',
-      onClick: () => this.consumableClickHandler(consumable),
+      onClick: () => this.consumableClickHandler(possession),
     }
     if (PlayerHelper.isInFightingMode(this.props.player, this.props.battle)) {
       ctaItem.type = 'disabled'
     }
 
-    return <ListItem key={consumable.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
+    return <ListItem key={possession.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[ctaItem]} ctaMinWidth="100px" />
   }
 }
 
@@ -112,8 +112,8 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    useConsumable: async (consumable: PossessionItem): Promise<void> => {
-      await dispatch(PlayerAction.useConsumable(consumable))
+    usePossession: async (possession: PossessionItem): Promise<void> => {
+      await dispatch(PlayerAction.usePossession(possession))
     },
   }
 }

@@ -1,5 +1,5 @@
 import { find, cloneDeep, floor } from 'lodash'
-import { CharacterItem, ConsumableEffectItem } from 'src/common/interfaces'
+import { CharacterItem, PossessionEffectItem } from 'src/common/interfaces'
 import { mobTemplates } from 'src/data'
 import { AbilityHelper } from './ability-helper'
 import { GameState } from 'src/reducers'
@@ -18,7 +18,7 @@ export class CharacterHelper {
     return val < 0 ? 0 : val
   }
 
-  static updateConsumableEffect(character: CharacterItem, effect: ConsumableEffectItem): CharacterItem {
+  static updateEffect(character: CharacterItem, effect: PossessionEffectItem): CharacterItem {
     const characterCopy = cloneDeep(character)
 
     if (effect.hpModifier) {

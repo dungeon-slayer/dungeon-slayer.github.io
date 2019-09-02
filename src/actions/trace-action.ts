@@ -4,7 +4,6 @@ import { StoreAction } from 'src/store/interface'
 import { traceConstants } from './constants'
 import { LogItem, LogType, PossessionItem } from 'src/common/interfaces'
 import { LoreHelper } from 'src/helpers'
-import { possessions } from 'src/data'
 
 export class TraceAction {
   static addBattleLog(message: string): StoreAction {
@@ -27,7 +26,7 @@ export class TraceAction {
     return TraceAction.addLog(message, 'shop')
   }
 
-  static addObtainDropsLog(drops: PossessionItem[]): StoreAction {
+  static addObtainDropsLog(possessions: PossessionItem[]): StoreAction {
     const dropNames = map(possessions, (drop) => `<strong>${drop.name}</strong>`)
     const message = `You obtained ${dropNames.join(', ')}.`
     return TraceAction.addLog(message)

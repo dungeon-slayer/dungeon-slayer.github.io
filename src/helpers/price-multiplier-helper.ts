@@ -5,8 +5,8 @@ import { PriceMultiplierItem, PossessionItem } from 'src/common/interfaces'
 // const log = Bows('PriceMultiplierHelper')
 
 export class PriceMultiplierHelper {
-  static getPriceMultiplierValue(priceMultiplierItems: PriceMultiplierItem[], drop: PossessionItem): number {
-    const priceMultiplierItem = find(priceMultiplierItems, (pm) => pm.key === drop.key)
+  static getPriceMultiplierValue(priceMultiplierItems: PriceMultiplierItem[], possession: PossessionItem): number {
+    const priceMultiplierItem = find(priceMultiplierItems, (pm) => pm.key === possession.key)
     if (!priceMultiplierItem) {
       return 1
     }

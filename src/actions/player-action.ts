@@ -33,7 +33,7 @@ export class PlayerAction {
     }
   }
 
-  static trackConsumption(consumable: PossessionItem): any {
+  static trackConsumption(possession: PossessionItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // State properties
       const state: StoreState = getState()
@@ -42,11 +42,11 @@ export class PlayerAction {
         itemUsedStats: state.player.itemUsedStats || [],
       }
 
-      const targetUsedItem = find(payload.itemUsedStats!, (iu) => iu.key === consumable.key)
+      const targetUsedItem = find(payload.itemUsedStats!, (iu) => iu.key === possession.key)
       if (targetUsedItem) {
         targetUsedItem.quantity += 1
       } else {
-        payload.itemUsedStats!.push({ key: consumable.key, quantity: 1 })
+        payload.itemUsedStats!.push({ key: possession.key, quantity: 1 })
       }
 
       dispatch({ type: playerConstants.UPDATE, payload })
@@ -122,58 +122,56 @@ export class PlayerAction {
     }
   }
 
-  static useConsumable(consumable: PossessionItem): any {
+  static usePossession(possession: PossessionItem): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
-      // log('useConsumable triggered.')
-
       // State properties
       const state: StoreState = getState()
 
-      const availableConsumable = PlayerHelper.getAvailableItemByKey(state.player.availablePossessions!, consumable.key)
-      if (!availableConsumable) {
+      const availablePossession = PlayerHelper.getAvailableItemByKey(state.player.availablePossessions!, possession.key)
+      if (!availablePossession) {
         // Don't have such item in inventory
         return
       }
 
       if (BattleHelper.isEngaging(state.battle)) {
-        await dispatch(TraceAction.addConsumelLog(`Cannot use <strong>${consumable.name}</strong> during a battle.`))
+        await dispatch(TraceAction.addConsumelLog(`Cannot use <strong>${possession.name}</strong> during a battle.`))
         return
       }
 
       // Check if can use in this location
-      if (!PossessionHelper.canConsume(consumable, state.game.currentLocation!)) {
-        await dispatch(TraceAction.addConsumelLog(`You may not use <strong>${consumable.name}</strong> at current location.`))
+      if (!PossessionHelper.canConsume(possession, state.game.currentLocation!)) {
+        await dispatch(TraceAction.addConsumelLog(`You may not use <strong>${possession.name}</strong> at current location.`))
         return
       }
 
       // Act
       const payload: PlayerState = {}
-      payload.character = CharacterHelper.updateConsumableEffect(state.player.character!, consumable.effect)
+      payload.character = CharacterHelper.updateEffect(state.player.character!, possession.effect)
 
-      payload.availablePossessions = PlayerHelper.reducerAvailableItem(state.player.availablePossessions!, consumable.key)
-      await dispatch(TraceAction.addConsumelLog(`You used <strong>${consumable.name}</strong>.`))
-      await PlayerAction.dispatchSpecialLog(dispatch, state, consumable)
-      await PlayerAction.dispatchUseConsumable(dispatch, state, consumable)
+      payload.availablePossessions = PlayerHelper.reducerAvailableItem(state.player.availablePossessions!, possession.key)
+      await dispatch(TraceAction.addConsumelLog(`You used <strong>${possession.name}</strong>.`))
+      await PlayerAction.dispatchSpecialLog(dispatch, state, possession)
+      await PlayerAction.dispatchUseConsumable(dispatch, state, possession)
 
       // In case of special actions
-      await dispatch(GameAction.appendSummonMob(consumable))
+      await dispatch(GameAction.appendSummonMob(possession))
     }
   }
 
-  static async dispatchUseConsumable(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: PossessionItem): Promise<void> {
+  static async dispatchUseConsumable(dispatch: Dispatch<StoreAction>, state: StoreState, possession: PossessionItem): Promise<void> {
     const payload: PlayerState = {}
-    payload.character = CharacterHelper.updateConsumableEffect(state.player.character!, consumable.effect)
-    payload.availablePossessions = PlayerHelper.reducerAvailableItem(state.player.availablePossessions!, consumable.key)
-    await dispatch(PlayerAction.trackConsumption(consumable))
+    payload.character = CharacterHelper.updateEffect(state.player.character!, possession.effect)
+    payload.availablePossessions = PlayerHelper.reducerAvailableItem(state.player.availablePossessions!, possession.key)
+    await dispatch(PlayerAction.trackConsumption(possession))
     await dispatch({ type: playerConstants.UPDATE, payload })
   }
 
-  static obtainDrop(drops: PossessionItem[]): any {
+  static obtainPossessions(possessions: PossessionItem[]): any {
     return async (dispatch: Dispatch<StoreAction>, getState: any): Promise<void> => {
       // log('obtainDrop triggered.')
 
       // Business logic validation
-      if (drops.length <= 0) {
+      if (possessions.length <= 0) {
         return
       }
 
@@ -186,23 +184,23 @@ export class PlayerAction {
 
       let targetLores: LoreItem[] = []
 
-      for (const drop of drops) {
+      for (const drop of possessions) {
         // Update inventory
-        const matchedAvailableDrop = find(payload.availablePossessions!, (item) => item.key === drop.key)
-        if (matchedAvailableDrop) {
-          matchedAvailableDrop.quantity += 1
+        const matchedAvailablePossession = find(payload.availablePossessions!, (item) => item.key === drop.key)
+        if (matchedAvailablePossession) {
+          matchedAvailablePossession.quantity += 1
         } else {
           payload.availablePossessions!.push({ key: drop.key, quantity: 1 })
         }
 
         // Check for available drop lores
-        if (!PlayerHelper.hasDropItem(state.player, drop.key)) {
+        if (!PlayerHelper.hasPossessionItem(state.player, drop.key)) {
           targetLores = concat(targetLores, LoreHelper.getDropLoresByKey(drop.key))
         }
       }
 
       // Dispatches
-      await dispatch(TraceAction.addObtainDropsLog(drops))
+      await dispatch(TraceAction.addObtainDropsLog(possessions))
       await dispatch({ type: playerConstants.UPDATE, payload })
       for (const targetLore of targetLores) {
         await dispatch(TraceAction.addLoreLog(targetLore.message))
@@ -225,8 +223,8 @@ export class PlayerAction {
   //   }
   // }
 
-  private static async dispatchSpecialLog(dispatch: Dispatch<StoreAction>, state: StoreState, consumable: PossessionItem): Promise<void> {
-    if (consumable.key === 'horn-kolift') {
+  private static async dispatchSpecialLog(dispatch: Dispatch<StoreAction>, state: StoreState, possession: PossessionItem): Promise<void> {
+    if (possession.key === 'horn-kolift') {
       await dispatch(TraceAction.addLoreLog(LoreHelper.getCustomLoreMessageByKey('CALL_KOLIFT')))
     }
   }

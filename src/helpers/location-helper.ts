@@ -17,7 +17,7 @@ export class LocationHelper {
 
   static getAvailableItems(player: PlayerState): LocationItem[] {
     const targetLocations = filter(locations, (location) => {
-      return player.character!.currentLevel >= location.levelRequired && PlayerHelper.hasConsumedItems(player, location.consumeRequired)
+      return player.character!.currentLevel >= location.levelRequired && PlayerHelper.hasPossessionItems(player, location.consumeRequired)
     })
     return targetLocations
   }
@@ -67,9 +67,9 @@ export class LocationHelper {
   static getRequirementLabel(location: LocationItem): string {
     const requirements: string[] = []
     requirements.push(`Player level ${location.levelRequired}`)
-    for (const consumableKey of location.consumeRequired) {
-      const consumableName = PossessionHelper.getNameByKey(consumableKey, consumableKey)
-      requirements.push(consumableName)
+    for (const possessionKey of location.consumeRequired) {
+      const possessionName = PossessionHelper.getNameByKey(possessionKey, possessionKey)
+      requirements.push(possessionName)
     }
     return `(Requirement: ${requirements.join(', ')})`
   }

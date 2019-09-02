@@ -59,13 +59,13 @@ class BaseSegmentDrop extends React.Component<Props> {
   }
 
   private renderDrops(): JSX.Element {
-    const availableDrops = PlayerHelper.getAvailablePossessions(this.props.player)
+    const availablePossessions = PlayerHelper.getAvailablePossessions(this.props.player)
 
     let dynamicContent: JSX.Element
-    if (availableDrops.length === 0) {
+    if (availablePossessions.length === 0) {
       dynamicContent = <NoContentWrapper>You do not have any drops in your inventory.</NoContentWrapper>
     } else {
-      dynamicContent = <React.Fragment>{availableDrops.map((item) => this.renderDrop(item))}</React.Fragment>
+      dynamicContent = <React.Fragment>{availablePossessions.map((item) => this.renderDrop(item))}</React.Fragment>
     }
 
     return (
@@ -78,18 +78,18 @@ class BaseSegmentDrop extends React.Component<Props> {
     )
   }
 
-  private renderDrop(drop: PossessionItem): JSX.Element | null {
-    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, drop.key)
+  private renderDrop(possession: PossessionItem): JSX.Element | null {
+    const availableItem = PlayerHelper.getAvailableItemByKey(this.props.player.availablePossessions!, possession.key)
     if (!availableItem) {
-      log('Failed to find available item for drop key:', drop.key)
+      log('Failed to find available item for drop key:', possession.key)
       return null
     }
 
-    const heading = drop.name
+    const heading = possession.name
     const subheading = `(×${availableItem.quantity.toLocaleString()})`
-    const flavor = drop.flavor
+    const flavor = possession.flavor
 
-    return <ListItem key={drop.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[]} />
+    return <ListItem key={possession.key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={[]} />
   }
 }
 

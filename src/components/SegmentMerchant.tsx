@@ -29,7 +29,7 @@ interface Props {
   player: PlayerState
   battle: BattleState
   game: GameState
-  buyConsumableItem: (consumable: PossessionItem, quantity: number) => Promise<void>
+  buyPossessionItem: (possession: PossessionItem, quantity: number) => Promise<void>
 }
 
 class BaseSegmentMerchant extends React.Component<Props> {
@@ -41,9 +41,8 @@ class BaseSegmentMerchant extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  async consumableItemClickHandler(consumable: PossessionItem, quantity: number) {
-    // log('consumableItemClickHandler triggered. consumable:', consumable)
-    await this.props.buyConsumableItem(consumable, quantity)
+  async consumableItemClickHandler(possession: PossessionItem, quantity: number) {
+    await this.props.buyPossessionItem(possession, quantity)
   }
 
   render(): JSX.Element {
@@ -70,17 +69,17 @@ class BaseSegmentMerchant extends React.Component<Props> {
   }
 
   private renderConsumableItem(priceMultiplierItem: PriceMultiplierItem): JSX.Element {
-    const consumable = PossessionHelper.getItemByKey(priceMultiplierItem.key)!
-    const cost = PriceMultiplierHelper.calculatePrice(consumable.basePrice, priceMultiplierItem.multiplier)
+    const possession = PossessionHelper.getItemByKey(priceMultiplierItem.key)!
+    const cost = PriceMultiplierHelper.calculatePrice(possession.basePrice, priceMultiplierItem.multiplier)
 
-    const key = consumable.key
-    const heading = consumable.name
-    const subheading = `(${cost.toLocaleString()} gold) (owns ${PlayerHelper.countAvailableConsumableByKey(this.props.player, consumable.key)})`
-    const flavor = consumable.flavor
+    const key = possession.key
+    const heading = possession.name
+    const subheading = `(${cost.toLocaleString()} gold) (owns ${PlayerHelper.countAvailablePossessionByKey(this.props.player, possession.key)})`
+    const flavor = possession.flavor
     const ctaItems: CtaItem[] = [
-      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 1) ? 'blue' : 'disabled', label: 'Buy', onClick: () => this.consumableItemClickHandler(consumable, 1) },
-      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 10) ? 'blue' : 'disabled', label: 'x10', onClick: () => this.consumableItemClickHandler(consumable, 10) },
-      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, consumable, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.consumableItemClickHandler(consumable, 100) },
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, possession, 1) ? 'blue' : 'disabled', label: 'Buy', onClick: () => this.consumableItemClickHandler(possession, 1) },
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, possession, 10) ? 'blue' : 'disabled', label: 'x10', onClick: () => this.consumableItemClickHandler(possession, 10) },
+      { type: PlayerHelper.hasEnoughGold(this.props.player, this.props.game.currentLocation!, possession, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.consumableItemClickHandler(possession, 100) },
     ]
 
     return <ListItem key={key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={ctaItems} />
@@ -98,8 +97,8 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    buyConsumableItem: async (consumable: PossessionItem, quantity: number): Promise<void> => {
-      await dispatch(GameAction.buyConsumableItem(consumable, quantity))
+    buyPossessionItem: async (possession: PossessionItem, quantity: number): Promise<void> => {
+      await dispatch(GameAction.buyPossessionItem(possession, quantity))
     },
   }
 }

@@ -38,7 +38,6 @@ interface Props {
   player: PlayerState
   battle: BattleState
   game: GameState
-  // useConsumable: (consumable: ConsumableItem) => Promise<void>
   engageBattle: (mob: CharacterItem) => Promise<void>
 }
 

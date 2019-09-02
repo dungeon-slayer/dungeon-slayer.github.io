@@ -29,7 +29,6 @@ interface Props {
   player: PlayerState
   battle: BattleState
   game: GameState
-  // sellDropItem: (drop: DropItem, quantity: number) => Promise<void>
 }
 
 class BaseSegmentAlchemist extends React.Component<Props> {
@@ -41,33 +40,6 @@ class BaseSegmentAlchemist extends React.Component<Props> {
     log('componentWillUnmount triggered.')
   }
 
-  // get currentLocation(): LocationItem | undefined {
-  //   return LocationHelper.getItemByKey(this.props.game.currentLocation)
-  // }
-
-  // get availableDropsForSell(): DropItem[] {
-  //   const outputDrops: DropItem[] = []
-
-  //   for (const drop of drops) {
-  //     if (drop.basePrice > 0) {
-  //       const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(this.currentLocation!.alchemist!, drop)
-  //       if (priceMultiplierValue > 0) {
-  //         const availableDropItem = find(this.props.player.availableDrops!, (ad) => ad.key === drop.key)
-  //         if (availableDropItem && availableDropItem.quantity > 0) {
-  //           outputDrops.push(drop)
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   return outputDrops
-  // }
-
-  // async dropItemClickHandler(drop: DropItem, quantity: number) {
-  //   // log('dropItemClickHandler triggered. drop:', drop)
-  //   await this.props.sellDropItem(drop, quantity)
-  // }
-
   render(): JSX.Element {
     return (
       <ComponentWrapper>
@@ -78,50 +50,6 @@ class BaseSegmentAlchemist extends React.Component<Props> {
       </ComponentWrapper>
     )
   }
-
-  // private renderAlchemist(): JSX.Element | null {
-  //   return (
-  //     <React.Fragment>
-  //       <DescriptionContainer>
-  //         <DescriptionWrapper>The residential alchemist seeks out for exotic items found in the dungeons.</DescriptionWrapper>
-  //       </DescriptionContainer>
-  //       {this.renderDrops()}
-  //     </React.Fragment>
-  //   )
-  // }
-
-  // private renderDrops(): JSX.Element {
-  //   if (this.availableDropsForSell.length === 0) {
-  //     return <NoDropContainer>There are no items you can sell.</NoDropContainer>
-  //   } else {
-  //     return <DropContainer>{this.availableDropsForSell.map((drop) => this.renderDropItem(drop))}</DropContainer>
-  //   }
-  // }
-
-  // private renderDropItem(drop: DropItem): JSX.Element | null {
-  //   const priceMultiplierValue = PriceMultiplierHelper.getPriceMultiplierValue(this.currentLocation!.alchemist!, drop)
-  //   if (!priceMultiplierValue) {
-  //     return null
-  //   }
-
-  //   const availableDropItem = find(this.props.player.availableDrops!, (ad) => ad.key === drop.key)
-  //   if (!availableDropItem) {
-  //     return null
-  //   }
-
-  //   const key = drop.key
-  //   const sellPrice = PriceMultiplierHelper.calculatePrice(drop.basePrice, priceMultiplierValue)
-  //   const heading = drop.name
-  //   const subheading = `(${sellPrice.toLocaleString()} gold) (owns ${availableDropItem.quantity})`
-  //   const flavor = drop.flavor
-  //   const ctaItems: CtaItem[] = [
-  //     { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 1) ? 'blue' : 'disabled', label: 'Sell', onClick: () => this.dropItemClickHandler(drop, 1) },
-  //     { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 10) ? 'blue' : 'disabled', label: 'x10', onClick: () => this.dropItemClickHandler(drop, 10) },
-  //     { type: PlayerHelper.hasEnoughDrops(this.props.player, drop.key, 100) ? 'blue' : 'disabled', label: 'x100', onClick: () => this.dropItemClickHandler(drop, 100) },
-  //   ]
-
-  //   return <ListItem key={key} heading={heading} subheading={subheading} blurb={flavor} ctaItems={ctaItems} />
-  // }
 }
 
 function mapStateToProps(state: StoreState) {
@@ -134,11 +62,7 @@ function mapStateToProps(state: StoreState) {
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
-  return {
-    // sellDropItem: async (drop: DropItem, quantity: number): Promise<void> => {
-    //   await dispatch(GameAction.sellDropItem(drop, quantity))
-    // },
-  }
+  return {}
 }
 
 const SegmentAlchemist = connect(

@@ -8,8 +8,6 @@ import { CharacterItem, AvailableItem } from 'src/common/interfaces'
 
 export interface PlayerState {
   character?: CharacterItem
-  // availableConsumables?: AvailableItem[]
-  // availableDrops?: AvailableItem[]
   availablePossessions?: AvailableItem[]
   gold?: number
   mobKillStats?: AvailableItem[]
